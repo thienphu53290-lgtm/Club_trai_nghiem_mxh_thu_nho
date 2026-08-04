@@ -7,7 +7,7 @@
 PHAN BACKEND
 ==============================================
 
-[1]  PHP 8.3
+[1]  PHP 8.4
      https://www.php.net
 
 [2]  Laravel Framework

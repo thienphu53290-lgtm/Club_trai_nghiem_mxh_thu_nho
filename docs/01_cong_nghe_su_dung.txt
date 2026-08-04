@@ -7,9 +7,9 @@
 PHAN BACKEND (Laravel - PHP)
 ==============================================
 
-[1] PHP 8.3
+[1] PHP 8.4
     - Ngon ngu lap trinh phia may chu chinh.
-    - Yeu cau phien ban: ^8.3
+    - Yeu cau phien ban: ^8.4
 
 [2] Laravel Framework 13.8
     - PHP Web Framework chinh su dung trong du an.

@@ -15,9 +15,15 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . /app
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --ignore-platform-reqs
+RUN cp .env.example .env \
+    && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --ignore-platform-reqs \
+    && php artisan key:generate --no-interaction \
+    && touch database/database.sqlite \
+    && chmod -R 777 storage bootstrap/cache database database/database.sqlite \
+    && php artisan migrate --force --no-interaction \
+    && php artisan db:seed --force --no-interaction
 
 ENV PORT=8000
 EXPOSE 8000
 
-CMD ["sh", "-c", "touch database/database.sqlite && php artisan migrate --force --no-interaction && php artisan serve --host=0.0.0.0 --port=${PORT}"]
+CMD ["sh", "-c", "php artisan config:clear && php artisan route:clear && php artisan view:clear && touch database/database.sqlite && chmod -R 777 storage bootstrap/cache database database/database.sqlite && php artisan migrate --force --no-interaction && php artisan db:seed --force --no-interaction && php artisan serve --host=0.0.0.0 --port=${PORT}"]

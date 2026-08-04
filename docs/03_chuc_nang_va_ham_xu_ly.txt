@@ -160,7 +160,7 @@ BANG TOM TAT ROUTES
 ==============================================================
 
   KHONG CAN TOKEN:
-    GET    / (Web Root - Check Trang Thai Backend & Database SQLite)
+    GET    / (Web Root - Check Trang Thai Backend & Tu Dong Kich Hoat Migrate Seed SQLite)
     POST   /api/register
     POST   /api/login
     GET    /api/profile/{id?}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { logAdminAction } from '../../api/logtail';
+import api from '../../api/axios';
 import { 
   ShieldCheck, LayoutDashboard, Users, UserCheck, Settings, 
   Activity, DollarSign, ArrowUpRight, CheckCircle2, AlertCircle, 
@@ -648,11 +649,7 @@ const SuperAdmin = () => {
         <button
           onClick={() => {
             logAdminAction('TEST_LOGTAIL_SIGNAL', { user: 'Super Admin', ip: '127.0.0.1', target: 'Live Audit Desk' });
-            fetch('http://127.0.0.1:8000/api/test-logtail', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ user: 'Super Admin', source: 'Laravel Backend Test' })
-            }).catch(() => {});
+            api.post('/test-logtail', { user: 'Super Admin', source: 'Laravel Backend Test' }).catch(() => {});
             showNotification('⚡ Đã bắn log thực thi sang Better Stack (Logtail)! Kiểm tra Console hoặc Dashboard Better Stack.');
           }}
           className="px-4 py-3 rounded-2xl bg-amber-400 hover:bg-white text-slate-950 font-black text-xs border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.9)] hover:shadow-[4px_4px_0px_0px_rgba(201,54,56,1)] transition-all cursor-pointer active:translate-x-[2px] active:translate-y-[2px] shrink-0"

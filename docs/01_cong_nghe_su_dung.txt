@@ -94,7 +94,7 @@ PHAN FRONTEND (React - JavaScript)
 [17] Axios 1.19.0
     - Thu vien goi HTTP request tu Frontend den Backend API.
     - Phien ban: ^1.19.0
-    - Base URL: http://localhost:8000/api
+    - Base URL: http://localhost:8000/api (khi dev) va https://club-trai-nghiem-mxh-thu-nho.onrender.com/api (khi deploy tren Vercel/PROD)
     - Co Interceptor tu dong dinh kem Bearer Token (Sanctum) vao moi request.
 
 [18] Laravel Echo 2.4.0

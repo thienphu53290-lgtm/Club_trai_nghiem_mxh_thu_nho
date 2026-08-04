@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://club-trai-nghiem-mxh-thu-nho.onrender.com/api' : 'http://localhost:8000/api');
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api', // Đường dẫn tới Backend Laravel
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'

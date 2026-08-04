@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info } from 'lucide-react';
+import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight } from 'lucide-react';
 import echo from '../../api/echo';
 import api from '../../api/axios';
 import OneSignal from 'react-onesignal';
@@ -360,62 +360,68 @@ const Header = () => {
             <div className="relative" ref={userMenuRef}>
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-all border-none cursor-pointer"
+                className={`flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-2xl border-2 border-[#0f172a] font-black text-xs sm:text-sm cursor-pointer transition-all active:translate-x-[1px] active:translate-y-[1px] ${
+                  showUserMenu 
+                    ? 'bg-slate-900 text-amber-300 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] translate-x-0.5' 
+                    : 'bg-white hover:bg-slate-100 text-slate-900 shadow-[3px_3px_0px_0px_rgba(15,23,42,1)]'
+                }`}
               >
                 <img 
                   src={currentUser.anh_dai_dien || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"} 
                   alt="Avatar" 
-                  className="w-7 h-7 rounded-full object-cover shadow-sm border border-white" 
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-xl object-cover border border-[#0f172a] shrink-0" 
                 />
-                <span className="font-extrabold text-slate-800 text-sm max-w-[140px] truncate">
+                <span className="font-extrabold text-xs sm:text-sm max-w-[130px] truncate">
                   {currentUser.ten_hien_thi || currentUser.ho_ten || 'Thành viên'}
                 </span>
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 top-12 w-72 sm:w-80 bg-white border border-slate-200/80 rounded-3xl p-3 shadow-2xl z-[200] flex flex-col gap-1.5 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-100 mb-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <img 
-                        src={currentUser.anh_dai_dien || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"} 
-                        alt="Avatar" 
-                        className="w-11 h-11 rounded-2xl object-cover shadow-xs border border-white shrink-0" 
-                      />
-                      <div className="min-w-0 flex-1">
-                        <h5 className="font-black text-slate-900 text-sm sm:text-base m-0 truncate">
-                          {currentUser.ten_hien_thi || currentUser.ho_ten || 'Thành viên Club'}
-                        </h5>
-                        <p className="text-xs font-semibold text-slate-400 m-0 truncate mt-0.5">
-                          {currentUser.email || 'Tài khoản Club Trải Nghiệm'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-wrap pt-2.5 border-t border-slate-200/60">
-                      <span className="flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-xl bg-rose-50 text-[#c93638] border border-rose-200/80 shadow-2xs">
-                        {currentUser.anh_cap_bac && <img src={currentUser.anh_cap_bac} alt="" className="w-3.5 h-3.5 rounded object-cover" />}
-                        <span>{currentUser.ten_cap_bac || currentUser.cap_bac || (currentUser.vai_tro_id === 3 ? '👑 Siêu Quản Trị' : currentUser.vai_tro_id === 2 ? '🛡️ Quản Trị Viên' : '✨ Thành viên Club')}</span>
-                      </span>
-                      <span className="text-xs font-black px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 ml-auto shadow-2xs">
-                        ⭐ {currentUser.diem_trai_nghiem || 0} XP
-                      </span>
-                    </div>
+                <div className="absolute right-0 top-13 w-80 sm:w-[370px] bg-white border-3 border-[#0f172a] rounded-3xl p-4 shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] z-[200] flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-2 pt-1 pb-2.5 flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-400 border-b-2 border-slate-900/10">
+                    <span>Menu Quản Trị</span>
+                    <span className="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md font-extrabold border border-emerald-200">Online 🟢</span>
                   </div>
 
                   <NavLink 
                     to="/profile" 
                     onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-slate-50 text-slate-700 font-black text-xs sm:text-sm no-underline transition-colors"
+                    className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(201,54,56,1)] hover:border-[#c93638]"
                   >
-                    <span className="text-base">👤</span>
-                    <span>Hồ sơ & Trang cá nhân</span>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-rose-50 text-[#c93638] group-hover:bg-[#c93638] group-hover:text-white border border-[#0f172a] transition-transform group-hover:scale-110 flex items-center justify-center shrink-0">
+                        <User size={18} />
+                      </div>
+                      <span className="font-black whitespace-nowrap">Hồ sơ & Trang cá nhân</span>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-400 group-hover:text-[#c93638] group-hover:translate-x-0.5 transition-all shrink-0" />
                   </NavLink>
+
+                  <NavLink 
+                    to="/admin" 
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-slate-900 text-slate-900 hover:text-white font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-amber-300 text-slate-950 group-hover:bg-amber-400 border border-[#0f172a] transition-transform group-hover:scale-110 group-hover:-rotate-12 flex items-center justify-center shrink-0">
+                        <ShieldCheck size={18} />
+                      </div>
+                      <span className="font-black whitespace-nowrap">Bảng Quản Trị Tối Cao</span>
+                    </div>
+                    <span className="text-[11px] font-black bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full border border-slate-900 group-hover:scale-105 transition-transform shrink-0">VIP</span>
+                  </NavLink>
+
                   <button 
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-rose-50 text-[#c93638] font-black text-xs sm:text-sm bg-transparent border-none cursor-pointer w-full text-left transition-colors border-t border-slate-100/80 mt-0.5"
+                    className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-rose-50 text-[#c93638] font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all cursor-pointer w-full text-left group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(201,54,56,1)] hover:border-[#c93638]"
                   >
-                    <span className="text-base">🚪</span>
-                    <span>Đăng xuất tài khoản</span>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-slate-100 group-hover:bg-[#c93638] text-slate-700 group-hover:text-white border border-[#0f172a] transition-transform group-hover:scale-110 flex items-center justify-center shrink-0">
+                        <LogOut size={18} />
+                      </div>
+                      <span className="font-black whitespace-nowrap">Đăng xuất tài khoản</span>
+                    </div>
+                    <span className="text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-800 border border-rose-300 group-hover:bg-[#c93638] group-hover:text-white transition-colors shrink-0">Thoát</span>
                   </button>
                 </div>
               )}

@@ -127,6 +127,15 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'logtail' => [
+            'driver' => 'monolog',
+            'handler' => \Logtail\Monolog\LogtailHandler::class,
+            'handler_with' => [
+                'sourceToken' => env('LOGTAIL_SOURCE_TOKEN', 'bE2dr2UfXL6uYAQ7FV7Akj7z'),
+            ],
+            'processors' => [\Monolog\Processor\PsrLogMessageProcessor::class],
+        ],
+
     ],
 
 ];

@@ -43,3 +43,11 @@ Route::get('/test-connection', function () {
         'message' => 'Backend đã kết nối thành công với Frontend!'
     ]);
 });
+
+Route::post('/test-logtail', function (Request $request) {
+    \App\Services\LogtailService::audit('TEST_LOGTAIL_FROM_BACKEND', $request->all());
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Logtail test event dispatched from Laravel backend'
+    ]);
+});

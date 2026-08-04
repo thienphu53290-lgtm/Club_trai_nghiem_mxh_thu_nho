@@ -105,4 +105,10 @@ CONG CU PHAT TRIEN
      https://developers.google.com/maps/documentation/embed/get-started
      Google Maps Official: https://www.google.com/maps
 
+[27] Better Stack (Logtail Audit & Logging Cloud)
+     Trang chu: https://betterstack.com
+     Tai lieu Logtail: https://betterstack.com/docs/logs
+     Laravel Guide: https://betterstack.com/docs/logs/php-laravel
+     JS/React SDK (@logtail/browser): https://www.npmjs.com/package/@logtail/browser
+
 ================================================================

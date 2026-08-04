@@ -127,6 +127,29 @@ Frontend:
   Header.jsx > NavLink to="/about" [dieu huong sang trang gioi thieu]
 
 ==============================================================
+CHUC NANG 9: BANG QUAN TRI TOI CAO (Super Admin Dashboard)
+==============================================================
+Backend:
+  LogtailService::audit() [gui nhat ky hoat dong admin sang Better Stack Logtail cloud va Monolog]
+  LogtailService::crud() [gui nhat ky thao tac CRUD nguoi dung/du lieu sang Better Stack Logtail]
+  LogtailService::alert() [gui canh bao he thong khach quan sang Better Stack]
+  api.php > Route "/test-logtail" [endpoint API kiem tra phat tin hieu nhat ky audit sang Better Stack]
+
+Frontend:
+  logtail.js > logAdminAction() & logCrudEvent() [module SDK @logtail/browser gui log giam sat ben thu 3 Better Stack]
+  SuperAdmin.jsx > renderOverviewTab() [hien thi thong ke tong quan, tong doanh thu affiliate, suc khoe he thong]
+  SuperAdmin.jsx > renderRevenueChart() [so do doanh thu thu te tuong tac theo cac moc Thoi gian: Ngay, Thang, Nam]
+  AdminLayout.jsx > toggle(isSidebarOpen) & Header [layout rieng quan tri voi nut 3 gach mau trang mo cua so drawer ben trai, nut Cai dat, boc Outlet o giua]
+  AdminFooter.jsx > companyInfo [footer thiet ke Neo-Brutalian hien thi thong tin cong ty CTN Corp, hotline, email ho tro va trang thai server Uptime]
+  SuperAdmin.jsx > useOutletContext() [nhan state activeTab tu AdminLayout qua Outlet context]
+  SuperAdmin.jsx > renderAdminsTab() [quan ly doi ngu admin, phan quyen super admin toan quyen]
+  SuperAdmin.jsx > renderUsersTab() [giao dien toan quyen CRUD moi du lieu nguoi dung va bai viet]
+  SuperAdmin.jsx > renderConfigTab() [cau hinh may chu WebSocket Reverb, Cloudinary, Affiliate & OS Push]
+  SuperAdmin.jsx > renderLogsTab() [nhat ky he thong thoi gian thuc tren 500+ nhat ky thao tac CRUD, tich hop thanh bang khien Better Stack Logtail Audit Engine]
+  App.jsx > Route "/admin" & "/super-admin" [boc trong AdminLayout va dieu huong toi bang quan tri super admin]
+  Header.jsx > userMenu [menu rap Nguoi dung & Bang Quan Tri mau trang sang rong rai tren 1 dong chu chuan Minimalist Neo-Brutanlist voi icon Lucide]
+
+==============================================================
 MODEL RELATIONSHIPS
 ==============================================================
   User::vaiTro()       -> belongsTo VaiTro

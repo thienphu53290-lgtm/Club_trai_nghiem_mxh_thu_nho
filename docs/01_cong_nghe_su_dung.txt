@@ -65,6 +65,10 @@ PHAN BACKEND (Laravel - PHP)
 [12] Faker PHP 1.23
     - Thu vien tao du lieu gia (dung trong database seeding/testing).
 
+[12B] Better Stack Logtail (logtail/monolog-logtail 3.3)
+    - Dich vu quan ly Audit Log, giam sat thao tac Super Admin theo chuan WORM (chong xoa dau vet).
+    - Tich hop trong config/logging.php qua Monolog driver.
+
 ==============================================
 PHAN FRONTEND (React - JavaScript)
 ==============================================
@@ -146,5 +150,9 @@ DICH VU & CAU HINH NGOAI
 [29] Google Maps Embed (Iframe API)
     - Dich vu nhung ban do truc tuyen tu Google Maps vao giao dien website.
     - Su dung: Ghim vi tri tru so cty (Truong Cao dang Ky thuat Cao Thang) tren trang Gioi thieu (/about).
+
+[30] Better Stack Logtail (Enterprise Audit Logging Service - Free Tier 1GB/thang)
+    - Dich vu giam sat nhat ky hoat dong thoi gian thuc, chong xoa dau vet Super Admin.
+    - Tich hop Frontend qua @logtail/browser va Backend qua logtail/monolog-logtail.
 
 ================================================================

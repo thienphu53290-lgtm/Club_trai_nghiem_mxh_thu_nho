@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Services\CloudinaryService;
+use App\Events\RealtimeNotificationEvent;
 
 class ProfileController extends Controller
 {
@@ -17,12 +19,16 @@ class ProfileController extends Controller
             if (!$currentUser) {
                 return response()->json(['message' => 'Bạn chưa đăng nhập.'], 401);
             }
-            $targetUser = $currentUser->load('vaiTro');
+            $targetUser = $currentUser;
+            $targetUser->updateCapBac();
+            $targetUser->load('vaiTro', 'capBacInfo');
         } else {
-            $targetUser = User::with('vaiTro')->find($id);
+            $targetUser = User::with('vaiTro', 'capBacInfo')->find($id);
             if (!$targetUser) {
                 return response()->json(['message' => 'Không tìm thấy thông tin tài khoản này.'], 404);
             }
+            $targetUser->updateCapBac();
+            $targetUser->load('capBacInfo');
         }
 
         $followersCount = DB::table('theo_doi')
@@ -54,6 +60,19 @@ class ProfileController extends Controller
             ->get()
             ->map(function ($post) use ($currentUser) {
                 $post->hashtags = json_decode($post->hashtags ?? '[]', true);
+
+                $attachments = DB::table('tep_bai_viet')
+                    ->where('bai_viet_id', $post->id)
+                    ->orderBy('thu_tu')
+                    ->pluck('duong_dan')
+                    ->toArray();
+
+                if (empty($attachments) && !empty($post->anh_bia)) {
+                    $attachments = [$post->anh_bia];
+                } elseif (!empty($post->anh_bia) && !in_array($post->anh_bia, $attachments)) {
+                    array_unshift($attachments, $post->anh_bia);
+                }
+                $post->danh_sach_anh = array_values(array_unique($attachments));
                 
                 $post->likes_count = DB::table('cam_xuc')
                     ->where('bai_viet_id', $post->id)
@@ -71,6 +90,46 @@ class ProfileController extends Controller
                         ->where('nguoi_dung_id', $currentUser->id)
                         ->exists();
                 }
+
+                $post->recent_comments = DB::table('binh_luan')
+                    ->join('nguoi_dung', 'binh_luan.nguoi_dung_id', '=', 'nguoi_dung.id')
+                    ->leftJoin('cap_bac', 'nguoi_dung.cap_bac_id', '=', 'cap_bac.id')
+                    ->select(
+                        'binh_luan.*',
+                        'nguoi_dung.ho_ten',
+                        'nguoi_dung.ten_hien_thi',
+                        'nguoi_dung.anh_dai_dien',
+                        'nguoi_dung.cap_bac as ten_cap_bac',
+                        'cap_bac.anh_cap_bac'
+                    )
+                    ->where('binh_luan.bai_viet_id', $post->id)
+                    ->where('binh_luan.trang_thai', 1)
+                    ->orderBy('binh_luan.created_at', 'desc')
+                    ->limit(50)
+                    ->get();
+
+                foreach ($post->recent_comments as $commentItem) {
+                    $commentItem->likes_count = DB::table('cam_xuc')->where('binh_luan_id', $commentItem->id)->count();
+                    $commentItem->is_liked = false;
+                    if ($currentUser) {
+                        $commentItem->is_liked = DB::table('cam_xuc')
+                            ->where('binh_luan_id', $commentItem->id)
+                            ->where('nguoi_dung_id', $currentUser->id)
+                            ->exists();
+                    }
+                }
+
+                $post->san_pham_list = DB::table('bai_viet_san_pham')
+                    ->join('san_pham', 'bai_viet_san_pham.san_pham_id', '=', 'san_pham.id')
+                    ->select('san_pham.*')
+                    ->where('bai_viet_san_pham.bai_viet_id', $post->id)
+                    ->get()
+                    ->map(function ($sp) {
+                        $sp->lien_ket_mua = DB::table('lien_ket_mua')
+                            ->where('san_pham_id', $sp->id)
+                            ->get();
+                        return $sp;
+                    });
 
                 return $post;
             });
@@ -186,20 +245,26 @@ class ProfileController extends Controller
 
         if ($request->hasFile('anh_dai_dien_file')) {
             $file = $request->file('anh_dai_dien_file');
-            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/avatars'), $filename);
-            $user->anh_dai_dien = url('/uploads/avatars/' . $filename);
+            if ($file && $file->isValid()) {
+                if (!empty($user->anh_dai_dien)) {
+                    CloudinaryService::deleteByUrl($user->anh_dai_dien);
+                }
+                $user->anh_dai_dien = CloudinaryService::upload($file, 'avatars');
+            }
         }
 
         if ($request->hasFile('anh_bia_file')) {
             $file = $request->file('anh_bia_file');
-            $filename = 'cover_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/covers'), $filename);
-            $user->anh_bia = url('/uploads/covers/' . $filename);
+            if ($file && $file->isValid()) {
+                if (!empty($user->anh_bia)) {
+                    CloudinaryService::deleteByUrl($user->anh_bia);
+                }
+                $user->anh_bia = CloudinaryService::upload($file, 'covers');
+            }
         }
 
         $user->save();
-        $user->load('vaiTro');
+        $user->load('vaiTro', 'capBacInfo');
 
         return response()->json([
             'status' => 'success',
@@ -250,6 +315,7 @@ class ProfileController extends Controller
             return response()->json(['message' => 'Vui lòng đăng nhập để thao tác.'], 401);
         }
 
+        $isLiked = true;
         $existing = DB::table('cam_xuc')
             ->where('bai_viet_id', $postId)
             ->where('nguoi_dung_id', $currentUser->id)
@@ -265,12 +331,26 @@ class ProfileController extends Controller
                 'loai' => 'like',
                 'created_at' => now()
             ]);
-            $isLiked = true;
-
-            User::where('id', $currentUser->id)->increment('diem_trai_nghiem', 5);
+            $u = User::find($currentUser->id);
+            if ($u) {
+                $u->increment('diem_trai_nghiem', 5);
+                $u->refresh();
+                $u->updateCapBac();
+            }
         }
 
         $likesCount = DB::table('cam_xuc')->where('bai_viet_id', $postId)->count();
+
+        try {
+            RealtimeNotificationEvent::dispatch(
+                'like_post',
+                '❤️ Tương tác khoảnh khắc',
+                'Một thành viên vừa quan tâm bài viết trên bảng tin.',
+                ['post_id' => $postId, 'likes_count' => $likesCount]
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Broadcast error: ' . $e->getMessage());
+        }
 
         return response()->json([
             'status' => 'success',
@@ -295,22 +375,87 @@ class ProfileController extends Controller
             return response()->json(['message' => 'Nội dung bình luận không hợp lệ.'], 422);
         }
 
-        DB::table('binh_luan')->insertGetId([
+        $commentId = DB::table('binh_luan')->insertGetId([
             'bai_viet_id' => $postId,
             'nguoi_dung_id' => $currentUser->id,
-            'parent_id' => null,
+            'parent_id' => $request->has('parent_id') && !empty($request->input('parent_id')) ? (int) $request->input('parent_id') : null,
             'noi_dung' => $request->input('noi_dung'),
             'trang_thai' => 1,
             'created_at' => now()
         ]);
 
-        User::where('id', $currentUser->id)->increment('diem_trai_nghiem', 10);
+        $newComment = DB::table('binh_luan')
+            ->join('nguoi_dung', 'binh_luan.nguoi_dung_id', '=', 'nguoi_dung.id')
+            ->leftJoin('cap_bac', 'nguoi_dung.cap_bac_id', '=', 'cap_bac.id')
+            ->select('binh_luan.*', 'nguoi_dung.ho_ten', 'nguoi_dung.ten_hien_thi', 'nguoi_dung.anh_dai_dien', 'nguoi_dung.cap_bac as ten_cap_bac', 'cap_bac.anh_cap_bac')
+            ->where('binh_luan.id', $commentId)
+            ->first();
+
+        if ($newComment) {
+            $newComment->likes_count = 0;
+            $newComment->is_liked = false;
+        }
+
+        $u = User::find($currentUser->id);
+        if ($u) {
+            $u->increment('diem_trai_nghiem', 10);
+            $u->refresh();
+            $u->updateCapBac();
+        }
+
         $commentsCount = DB::table('binh_luan')->where('bai_viet_id', $postId)->where('trang_thai', 1)->count();
+
+        try {
+            RealtimeNotificationEvent::dispatch(
+                'comment_post',
+                '💬 Thảo luận mới',
+                'Một thành viên vừa để lại thảo luận trên bài viết.',
+                ['post_id' => $postId, 'comments_count' => $commentsCount]
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Broadcast error: ' . $e->getMessage());
+        }
 
         return response()->json([
             'status' => 'success',
             'comments_count' => $commentsCount,
+            'comment' => $newComment,
             'message' => 'Gửi thảo luận thành công! (+10 Điểm trải nghiệm ✨)'
+        ], 200);
+    }
+
+    public function toggleLikeComment(Request $request, $id)
+    {
+        $currentUser = $request->user();
+        if (!$currentUser) {
+            return response()->json(['message' => 'Vui lòng đăng nhập để thích bình luận.'], 401);
+        }
+
+        $isLiked = true;
+        $existing = DB::table('cam_xuc')
+            ->where('binh_luan_id', $id)
+            ->where('nguoi_dung_id', $currentUser->id)
+            ->first();
+
+        if ($existing) {
+            DB::table('cam_xuc')->where('id', $existing->id)->delete();
+            $isLiked = false;
+        } else {
+            DB::table('cam_xuc')->insert([
+                'binh_luan_id' => $id,
+                'nguoi_dung_id' => $currentUser->id,
+                'loai' => 'like',
+                'created_at' => now()
+            ]);
+        }
+
+        $likesCount = DB::table('cam_xuc')->where('binh_luan_id', $id)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'is_liked' => $isLiked,
+            'likes_count' => $likesCount,
+            'message' => $isLiked ? 'Đã thích bình luận!' : 'Đã bỏ thích.'
         ], 200);
     }
 }

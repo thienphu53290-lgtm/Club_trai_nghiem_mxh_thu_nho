@@ -17,9 +17,24 @@ return new class extends Migration
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
 
+        Schema::create('cap_bac', function (Blueprint $table) {
+            $table->integer('id')->autoIncrement();
+            $table->string('ten_cap_bac', 100)->unique();
+            $table->integer('diem_toi_thieu')->default(0);
+            $table->integer('diem_toi_da')->nullable();
+            $table->string('anh_cap_bac', 255)->nullable();
+            $table->string('icon', 50)->nullable();
+            $table->string('mau_sac', 255)->nullable();
+            $table->string('mo_ta', 255)->nullable();
+            $table->tinyInteger('trang_thai')->default(1);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+        });
+
         Schema::create('nguoi_dung', function (Blueprint $table) {
             $table->id();
             $table->integer('vai_tro_id')->default(1);
+            $table->integer('cap_bac_id')->default(1);
             $table->string('email', 100)->unique();
             $table->string('mat_khau', 255);
             $table->string('ho_ten', 100)->nullable();
@@ -69,6 +84,7 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('nguoi_dung');
+        Schema::dropIfExists('cap_bac');
         Schema::dropIfExists('vai_tro');
     }
 };

@@ -32,9 +32,11 @@ class User extends Authenticatable
         'website',
         'huy_chuong_danh_hieu',
         'diem_trai_nghiem',
+        'cap_bac_id',
         'cap_bac',
         'trang_thai',
         'lan_cuoi_dang_nhap',
+        'lan_cuoi_hoat_dong',
     ];
 
     protected $hidden = [
@@ -47,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'lan_cuoi_dang_nhap' => 'datetime',
+            'lan_cuoi_hoat_dong' => 'datetime',
             'mat_khau' => 'hashed',
             'huy_chuong_danh_hieu' => 'array',
         ];
@@ -65,5 +68,24 @@ class User extends Authenticatable
     public function vaiTro()
     {
         return $this->belongsTo(VaiTro::class, 'vai_tro_id');
+    }
+
+    public function capBacInfo()
+    {
+        return $this->belongsTo(CapBac::class, 'cap_bac_id');
+    }
+
+    public function updateCapBac()
+    {
+        $capBac = CapBac::where('diem_toi_thieu', '<=', $this->diem_trai_nghiem)
+            ->where('trang_thai', 1)
+            ->orderBy('diem_toi_thieu', 'desc')
+            ->first();
+
+        if ($capBac && ($this->cap_bac_id != $capBac->id || $this->cap_bac != $capBac->ten_cap_bac)) {
+            $this->cap_bac_id = $capBac->id;
+            $this->cap_bac = $capBac->ten_cap_bac;
+            $this->saveQuietly();
+        }
     }
 }

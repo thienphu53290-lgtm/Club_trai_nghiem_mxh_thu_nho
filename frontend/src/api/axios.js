@@ -21,4 +21,27 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+  (response) => {
+    try {
+      const method = response.config?.method?.toLowerCase();
+      const url = response.config?.url || '';
+      if (['post', 'put', 'delete'].includes(method)) {
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('club_live_sync');
+          if (url.includes('/feed/posts') || url.includes('/posts/') || url.includes('/comments/')) {
+            bc.postMessage({ type: 'sync_feed', time: Date.now() });
+          }
+          if (url.includes('/chat/')) {
+            bc.postMessage({ type: 'sync_chat', time: Date.now(), data: response.data });
+          }
+          bc.close();
+        }
+      }
+    } catch (e) {}
+    return response;
+  },
+  (error) => Promise.reject(error)
+);
+
 export default api;

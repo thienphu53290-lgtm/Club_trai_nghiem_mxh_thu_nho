@@ -1,0 +1,170 @@
+================================================================
+    DU AN: CLUB TRAI NGHIEM MXH THU NHO
+    FILE 3: CHUC NANG VA TEN HAM XU LY
+================================================================
+
+==============================================================
+CHUC NANG 1: XAC THUC (Authentication)
+==============================================================
+Backend:
+  AuthController::register()
+  AuthController::login()
+  AuthController::logout()
+  AuthController::me()
+
+Frontend:
+  SignInForm.jsx > handleLogin()
+  SignInForm.jsx > handleRegister()
+  axios.js > api.interceptors.request.use()
+
+==============================================================
+CHUC NANG 2: TRANG CA NHAN (Profile)
+==============================================================
+Backend:
+  ProfileController::show()
+  ProfileController::update()
+  ProfileController::toggleFollow()
+  User::updateCapBac()
+
+Frontend:
+  axios.js > response interceptor [phat tin hieu BroadcastChannel club_live_sync khi tao/sua/xoa bai viet]
+  Profile.jsx > loadProfile() [dong bo realtime ngam qua Reverb club-live & BroadcastChannel club_live_sync, hien thi tieu_de bai viet phan cach ro rang voi noi dung BANG vien nang dot & duong vien chach biet]
+  Profile.jsx > handleToggleFollow() [theo doi hoac xac nhan huy theo doi qua ConfirmModal]
+  Profile.jsx > handleSaveProfile()
+  Profile.jsx > handleUploadAvatar()
+  Profile.jsx > handleUploadCover()
+
+==============================================================
+CHUC NANG 3: BANG TIN (Feed)
+==============================================================
+Backend:
+  FeedController::index()
+  FeedController::store() [tao bai viet & phat realtime event new_post]
+  FeedController::update() [cap nhat bai viet & phat realtime event update_post]
+  FeedController::destroy() [xoa bai viet & phat realtime event delete_post]
+  FeedController::recordAffiliateClick()
+  ProfileController::toggleLikePost() [tuong tac bai viet & phat realtime event like_post]
+  ProfileController::addComment() [thao luan & phat realtime event comment_post]
+  ProfileController::toggleLikeComment()
+
+Frontend:
+  Feed.jsx > fetchFeed() [dong bo realtime ngam qua Reverb club-live va BroadcastChannel club_live_sync]
+  Feed.jsx > useEffect(scroll_to_post & pendingScrollPostId) [tu dong dong bo bai viet, cuon muot va phat sang noi bat bai viet tu thong bao ma khong tu dong mo binh luan, hien thi tieu_de bai viet voi vien doc gradient & duong ke phan cach ro rang voi noi dung]
+  Feed.jsx > handleCreatePost()
+  Feed.jsx > handleEditPost()
+  Feed.jsx > handleDeletePost()
+  Feed.jsx > handleLikePost()
+  Feed.jsx > handleAddComment()
+  Feed.jsx > handleLikeComment()
+  Feed.jsx > handleAffiliateClick()
+
+==============================================================
+CHUC NANG 4: TIN NHAN (Messages)
+==============================================================
+Backend:
+  ChatController::getConversations() [gioi han hien thi thoi gian ngoai tuyen 24h, lam tron so nguyen (int) phut va gio, qua 24h thi hien thi Offline]
+  ChatController::getMessages() [gioi han hien thi thoi gian ngoai tuyen 24h, lam tron so nguyen (int) phut va gio, qua 24h thi hien thi Offline]
+  ChatController::sendMessage()
+  ChatController::deleteConversation() [xoa lich su hoi thoai theo phia nguoi dung]
+  ChatController::deleteMessage() [xoa tin nhan chi minh toi hoac thu hoi doi voi moi nguoi]
+  ChatController::heartbeat()
+  ChatController::getPresenceStatus() [gioi han thoi gian ngoai tuyen 24h, lam tron so nguyen, qua 24h thi hien thi Offline]
+  ChatController::broadcastStatus()
+
+Frontend:
+  Messages.jsx > fetchConversations()
+  Messages.jsx > handleSendMessage()
+  Messages.jsx > handlePhotoSelect()
+  Messages.jsx > handleDeleteMessage() [xu ly xoa tin nhan nhe phia toi / thu hoi moi nguoi qua ConfirmModal]
+  Messages.jsx > handleDeleteConversation() [xac nhan qua ConfirmModal va xoa hoi thoai]
+  Messages.jsx > handleShareMessage() [sao chep noi dung tin nhan de chia se]
+  Messages.jsx > handleFollowPartner()
+  Messages.jsx > togglePartnerOnline()
+  Messages.jsx > scrollToBottom()
+  Messages.jsx > useEffect() [khoi dong Reverb channel.listen('.live-event') & heartbeat]
+  Messages.jsx > useEffect() [xu ly chatTarget tu Profile navigate & load conversations]
+  Messages.jsx > useEffect() [load chi tiet messages khi activeId thay doi]
+
+==============================================================
+CHUC NANG 5: THONG BAO REAL-TIME (WebSocket)
+==============================================================
+Backend:
+  RealtimeNotificationEvent::broadcastOn()
+  RealtimeNotificationEvent::broadcastAs()
+
+Frontend:
+  NotificationCard.jsx > NotificationCard() [component dung chung cho ca danh sach thong bao dropdown va floating toast]
+  Header.jsx > triggerNotificationUI() [chuan hoa layout badge Vua xong khong bi xuong dong]
+  Header.jsx > handleNotificationClick() [xu ly click thong bao chuyen den chat hoac dieu huong chinh xac toi trang Bang tin (/feed), cuon den va mo chi tiet bai viet tu dong fallback bai moi nhat]
+  Header.jsx > useState(notifications) [tu dong huy thong bao khong phai tin nhan sau 30 ngay]
+  Header.jsx > useEffect() [echo.channel('club-live').listen('.live-event') & luu localStorage]
+
+==============================================================
+CHUC NANG 6: UPLOAD ANH (Cloudinary)
+==============================================================
+Backend:
+  CloudinaryService::upload()
+  CloudinaryService::deleteByUrl()
+
+==============================================================
+CHUC NANG 7: HE THONG DIEM & CAP BAC (Gamification)
+==============================================================
+Backend:
+  User::updateCapBac()
+
+  Noi goi updateCapBac():
+    - AuthController::register()       (+0 diem, khoi tao)
+    - FeedController::store()          (+20 diem)
+    - ProfileController::toggleLikePost()  (+5 diem)
+    - ProfileController::addComment()  (+10 diem)
+
+==============================================================
+CHUC NANG 8: TRANG GIOI THIEU & GHIM BAN DO (About)
+==============================================================
+Frontend:
+  About.jsx > Render [hien thi thong tin cty, su menh, tam nhin, thong tin lien he va ghim ban do Google Maps, tone mau sang (Light theme)]
+  About.jsx > checkOpeningHours() [tu dong tinh toan trang thai Dang mo cua / Da dong cua theo thoi gian thuc tren ban do]
+  Header.jsx > NavLink to="/about" [dieu huong sang trang gioi thieu]
+
+==============================================================
+MODEL RELATIONSHIPS
+==============================================================
+  User::vaiTro()       -> belongsTo VaiTro
+  User::capBacInfo()   -> belongsTo CapBac
+
+==============================================================
+BANG TOM TAT ROUTES
+==============================================================
+
+  KHONG CAN TOKEN:
+    POST   /api/register
+    POST   /api/login
+    GET    /api/profile/{id?}
+    GET    /api/feed/posts
+    POST   /api/chat/heartbeat
+    GET    /api/chat/presence-status
+    POST   /api/chat/broadcast-status
+    POST   /api/affiliate-click
+    GET    /api/test-connection
+
+  CAN BEARER TOKEN (auth:sanctum):
+    GET    /api/user
+    POST   /api/logout
+    POST   /api/profile/update
+    POST   /api/users/{id}/follow
+    POST   /api/posts/{id}/like
+    POST   /api/posts/{id}/comment
+    POST   /api/comments/{id}/like
+    POST   /api/feed/posts
+    PUT    /api/feed/posts/{id}
+    DELETE /api/feed/posts/{id}
+    GET    /api/chat/conversations
+    GET    /api/chat/messages/{partnerId}
+    POST   /api/chat/messages
+    DELETE /api/chat/messages/{id}
+    DELETE /api/chat/conversations/{partnerId}
+
+================================================================
+KICH BAN TU DONG HOA (Scripts):
+  chay_du_an.sh [tu dong dẹp tien trinh cu tren cong 8000, 8080, 5173 va khoi chay dong thoi Backend, Reverb, Frontend]
+================================================================

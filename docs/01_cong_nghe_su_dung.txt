@@ -1,0 +1,150 @@
+================================================================
+    DU AN: CLUB TRAI NGHIEM MXH THU NHO
+    FILE 1: CAC CONG NGHE DANG DUOC SU DUNG
+================================================================
+
+==============================================
+PHAN BACKEND (Laravel - PHP)
+==============================================
+
+[1] PHP 8.3
+    - Ngon ngu lap trinh phia may chu chinh.
+    - Yeu cau phien ban: ^8.3
+
+[2] Laravel Framework 13.8
+    - PHP Web Framework chinh su dung trong du an.
+    - Phien ban: ^13.8
+    - Xu ly: API Routes, Middleware, Eloquent ORM, Validation, Events, Broadcasting.
+
+[3] Laravel Sanctum 4.0
+    - Quan ly xac thuc API bang Bearer Token (Personal Access Tokens).
+    - Phien ban: ^4.0
+    - Su dung: Dang nhap, Dang ky, Dang xuat, bao ve cac route can xac thuc.
+
+[4] Laravel Reverb 1.0
+    - May chu WebSocket chinh thuc cua Laravel (khong can Pusher tra phi).
+    - Phien ban: ^1.0
+    - Su dung: Phat song su kien Real-time (tin bai moi, thong bao, trang thai online).
+    - Cong WebSocket: 8080
+    - App ID: 921082
+    - Channel: club-live
+
+[5] Laravel Tinker 3.0
+    - Cong cu REPL tuong tac voi he thong qua dong lenh Artisan (dung khi debug).
+
+[6] MySQL (DB_CONNECTION=mysql)
+    - Co so du lieu quan he chinh.
+    - Database name: mxh_trai_nghiem
+    - Host: 127.0.0.1, Port: 3306
+    - Cac bang chinh: nguoi_dung, bai_viet, binh_luan, cam_xuc, theo_doi, san_pham,
+      bai_viet_san_pham, lien_ket_mua, tep_bai_viet, da_luu, su_kien, dang_ky_su_kien,
+      cap_bac, vai_tro, click_affiliate.
+
+[7] Laravel Cache (CACHE_STORE=file)
+    - He thong cache File-based (mac dinh). Co the nang cap sang Redis.
+    - Su dung: Luu trang thai online cua nguoi dung (TTL 5 phut).
+    - Cache Key pattern: "user_online_{user_id}"
+
+[8] Carbon (su dung qua Laravel)
+    - Thu vien xu ly ngay/gio cua PHP.
+    - Su dung: Tinh toan thoi gian "Hoat dong X phut truoc" cho trang thai online.
+
+[9] Cloudinary (Cloud Image Storage)
+    - Luu tru anh tren dam may.
+    - Cloud Name: sabkinaa
+    - Folder to chuc: club_trai_nghiem/posts, club_trai_nghiem/avatars, club_trai_nghiem/covers
+    - Tich hop qua: App\Services\CloudinaryService (upload, deleteByUrl)
+    - Du phong: Neu Cloudinary that bai, luu local vao public/uploads/
+
+[10] Laravel Queue (QUEUE_CONNECTION=sync)
+    - Hang doi xu ly cong viec. Hien tai: sync (dong bo, khong delay).
+
+[11] PHPUnit 12.5
+    - Framework kiem thu tu dong cho PHP/Laravel.
+
+[12] Faker PHP 1.23
+    - Thu vien tao du lieu gia (dung trong database seeding/testing).
+
+==============================================
+PHAN FRONTEND (React - JavaScript)
+==============================================
+
+[13] React 19.2.8
+    - Thu vien UI chinh.
+    - Phien ban: ^19.2.8
+    - Kien truc: Component-based, Hooks (useState, useEffect, useRef).
+
+[14] React DOM 19.2.8
+    - Render React vao trinh duyet.
+
+[15] Vite 8.2.0
+    - Cong cu build va dev server sieu nhanh cho Frontend.
+    - Phien ban: ^8.2.0
+    - Dev server: localhost:5173
+
+[16] React Router DOM 7.18.2
+    - Quan ly dinh tuyen (Routing) phia Frontend.
+    - Phien ban: ^7.18.2
+    - Cac route: / (Home), /feed, /messages, /profile, /profile/:id, /auth
+
+[17] Axios 1.19.0
+    - Thu vien goi HTTP request tu Frontend den Backend API.
+    - Phien ban: ^1.19.0
+    - Base URL: http://localhost:8000/api
+    - Co Interceptor tu dong dinh kem Bearer Token (Sanctum) vao moi request.
+
+[18] Laravel Echo 2.4.0
+    - Thu vien JS chinh thuc de lang nghe su kien WebSocket tu Laravel Reverb.
+    - Phien ban: ^2.4.0
+    - Su dung: Ket noi vao kenh club-live, lang nghe su kien .live-event.
+
+[19] Pusher JS 8.6.0
+    - Thu vien JS dung kem voi Laravel Echo de giao tiep theo giao thuc Pusher-compatible.
+    - Reverb tuong thich voi giao thuc Pusher, nen can thu vien nay.
+    - Phien ban: ^8.6.0
+
+[20] Lucide React 1.28.0
+    - Bo icon SVG dep, hien dai, du luong.
+    - Phien ban: ^1.28.0
+    - Cac icon dung nhieu: Shield, Search, Send, Phone, Video, Info, Bell, Lock, Trash2,
+      User, UserPlus, MessageSquare, Sparkles, Camera, Image, Heart...
+
+[21] React OneSignal 3.5.6
+    - Tich hop OneSignal Push Notification len trinh duyet (Web Push).
+    - Phien ban: ^3.5.6
+    - Khoi dong tai: src/api/onesignal.js
+
+[22] TailwindCSS 3.4.19
+    - CSS Utility Framework - Tao giao dien bang cac class tien ich.
+    - Phien ban: ^3.4.19
+    - Config: tailwind.config.js
+
+[23] PostCSS 8.5.25
+    - Bo xu ly CSS (can cho TailwindCSS hoat dong).
+
+[24] Autoprefixer 10.5.4
+    - Tu dong them vendor prefix CSS cho cac trinh duyet khac nhau.
+
+[25] Oxlint 1.75.0
+    - Cong cu Linting (kiem tra loi code) JavaScript/TypeScript sieu nhanh viet bang Rust.
+    - Phien ban: ^1.75.0
+
+==============================================
+DICH VU & CAU HINH NGOAI
+==============================================
+
+[26] OneSignal (Web Push Notification Service)
+    - Dich vu gui thong bao day (Push Notification) len trinh duyet nguoi dung.
+    - Tich hop o phia Frontend qua react-onesignal.
+
+[27] Cloudinary (xem [9] o tren)
+
+[28] Laravel Reverb WebSocket Server (xem [4] o tren)
+    - Chay rieng: php artisan reverb:start
+    - Cong: 8080
+
+[29] Google Maps Embed (Iframe API)
+    - Dich vu nhung ban do truc tuyen tu Google Maps vao giao dien website.
+    - Su dung: Ghim vi tri tru so cty (Truong Cao dang Ky thuat Cao Thang) tren trang Gioi thieu (/about).
+
+================================================================

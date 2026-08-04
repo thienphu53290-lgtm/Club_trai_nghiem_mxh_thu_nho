@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\VaiTro;
+use App\Models\CapBac;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,68 @@ class DatabaseSeeder extends Seeder
             ['id' => 3],
             ['ten' => 'Siêu Quản Trị (Super Admin)', 'mo_ta' => 'Chủ sở hữu hệ thống với đặc quyền toàn vẹn tối cao', 'trang_thai' => 1]
         );
+
+        $ranks = [
+            [
+                'id' => 1,
+                'ten_cap_bac' => '🥉 Đồng Tiên Phong',
+                'diem_toi_thieu' => 0,
+                'diem_toi_da' => 999,
+                'anh_cap_bac' => 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
+                'icon' => '🥉',
+                'mau_sac' => 'text-amber-800 bg-amber-50 border-amber-300',
+                'mo_ta' => 'Thành viên mới bắt đầu khám phá và chia sẻ trải nghiệm',
+                'trang_thai' => 1,
+            ],
+            [
+                'id' => 2,
+                'ten_cap_bac' => '🥈 Bạc Đam Mê',
+                'diem_toi_thieu' => 1000,
+                'diem_toi_da' => 2499,
+                'anh_cap_bac' => 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&auto=format&fit=crop&q=80',
+                'icon' => '🥈',
+                'mau_sac' => 'text-slate-700 bg-slate-100 border-slate-300',
+                'mo_ta' => 'Thành viên tích cực thảo luận và đánh giá định kỳ',
+                'trang_thai' => 1,
+            ],
+            [
+                'id' => 3,
+                'ten_cap_bac' => '🥇 Vàng Thượng Hạng',
+                'diem_toi_thieu' => 2500,
+                'diem_toi_da' => 3799,
+                'anh_cap_bac' => 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=400&auto=format&fit=crop&q=80',
+                'icon' => '🥇',
+                'mau_sac' => 'text-amber-900 bg-amber-100/80 border-amber-400',
+                'mo_ta' => 'Chuyên gia trải nghiệm với những bài review sâu sắc',
+                'trang_thai' => 1,
+            ],
+            [
+                'id' => 4,
+                'ten_cap_bac' => '👑 Kim Cương VIP',
+                'diem_toi_thieu' => 3800,
+                'diem_toi_da' => 4999,
+                'anh_cap_bac' => 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&auto=format&fit=crop&q=80',
+                'icon' => '👑',
+                'mau_sac' => 'text-indigo-950 bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 border-indigo-300',
+                'mo_ta' => 'Đại sứ thương hiệu và nhân vật ảnh hưởng vượt trội của Club',
+                'trang_thai' => 1,
+            ],
+            [
+                'id' => 5,
+                'ten_cap_bac' => '🔥 Huyền Thoại Club',
+                'diem_toi_thieu' => 5000,
+                'diem_toi_da' => null,
+                'anh_cap_bac' => 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=400&auto=format&fit=crop&q=80',
+                'icon' => '🔥',
+                'mau_sac' => 'text-rose-950 bg-gradient-to-r from-rose-200 via-amber-200 to-yellow-200 border-rose-400',
+                'mo_ta' => 'Đỉnh cao tối thượng của cộng đồng trải nghiệm chuyên gia',
+                'trang_thai' => 1,
+            ]
+        ];
+
+        foreach ($ranks as $rank) {
+            CapBac::firstOrCreate(['id' => $rank['id']], $rank);
+        }
 
         $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@clubtrainghiem.com'],
@@ -171,6 +234,10 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
+
+        User::all()->each(function ($u) {
+            $u->updateCapBac();
+        });
 
         DB::table('danh_muc')->insertOrIgnore([
             ['id' => 1, 'loai_danh_muc' => 'bai_viet', 'ten' => 'Review Quán Cà Phê', 'slug' => 'review-quan-ca-phe', 'mo_ta' => 'Những không gian cafe thư giãn và độc đáo nhất', 'thu_tu' => 1, 'trang_thai' => 1],

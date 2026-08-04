@@ -48,7 +48,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => '7 ngày',
-            'user' => $user->load('vaiTro'),
+            'user' => $user->load('vaiTro', 'capBacInfo'),
         ], 201);
     }
 
@@ -98,7 +98,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => '7 ngày',
-            'user' => $user->load('vaiTro'),
+            'user' => $user->load('vaiTro', 'capBacInfo'),
         ], 200);
     }
 
@@ -118,7 +118,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'status' => true,
-            'user' => $request->user()->load('vaiTro'),
+            'user' => $request->user()->load('vaiTro', 'capBacInfo'),
         ]);
     }
 }

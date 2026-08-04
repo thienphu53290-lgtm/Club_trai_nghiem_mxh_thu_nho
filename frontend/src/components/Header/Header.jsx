@@ -1,67 +1,157 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Search, Home, MessageCircle, Bell, Star, Sparkles, X } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info } from 'lucide-react';
 import echo from '../../api/echo';
 import api from '../../api/axios';
 import OneSignal from 'react-onesignal';
 import NotificationPromptModal from './NotificationPromptModal';
+import NotificationCard from '../NotificationCard/NotificationCard';
 
 const Header = () => {
-  const [notifications, setNotifications] = useState([]);
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState(() => {
+    try {
+      const saved = localStorage.getItem('club_notifications');
+      if (!saved) return [];
+      const list = JSON.parse(saved);
+      const now = Date.now();
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+      return list.filter(n => {
+        if (n.type === 'new_chat_message') return true;
+        return (now - (n.createdAt || now)) <= thirtyDays;
+      });
+    } catch (e) {
+      return [];
+    }
+  });
   const [showToast, setShowToast] = useState(false);
   const [latestNotif, setLatestNotif] = useState(null);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
-  const [isSending, setIsSending] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('current_user');
-      return saved ? JSON.parse(saved) : null;
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      return parsed?.user?.id ? parsed.user : parsed;
     } catch (e) { return null; }
   });
   const [showUserMenu, setShowUserMenu] = useState(false);
   const lastEventTimeRef = useRef(0);
+  const userMenuRef = useRef(null);
+  const notifMenuRef = useRef(null);
 
-  const triggerNotificationUI = (title, message, source) => {
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+      if (notifMenuRef.current && !notifMenuRef.current.contains(event.target)) {
+        setShowNotifDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('club_notifications', JSON.stringify(notifications));
+    } catch (e) {}
+  }, [notifications]);
+
+  const handleNotificationClick = (n) => {
+    setNotifications(prev => prev.filter(item => item.id !== n.id));
+    setShowNotifDropdown(false);
+    if (n.type === 'new_chat_message' && n.chatData) {
+      navigate('/messages', {
+        state: {
+          chatTarget: {
+            id: n.chatData.senderId,
+            name: n.chatData.senderName || 'Thành viên Club',
+            avatar: n.chatData.senderAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+            online: true,
+            isVerified: true,
+            roleTitle: '👑 Thành Viên Club'
+          }
+        }
+      });
+      return;
+    }
+    let postId = n.chatData?.post_id || n.chatData?.id || n.data?.post_id || n.data?.id;
+    if (!postId && n.type !== 'new_chat_message') {
+      postId = 'latest';
+    }
+    if (postId) {
+      navigate('/feed', { state: { scrollToPostId: postId } });
+      window.dispatchEvent(new CustomEvent('scroll_to_post', { detail: { postId } }));
+      return;
+    }
+    navigate('/feed');
+  };
+
+  const triggerNotificationUI = (title, message, source, extraData = null, type = 'general') => {
     const now = Date.now();
-    if (now - lastEventTimeRef.current < 600) return; // Chống lặp tín hiệu trong vòng 600ms
+    if (now - lastEventTimeRef.current < 600 && !extraData) return;
     lastEventTimeRef.current = now;
 
-    console.log(`🔥 [Realtime ${source}] Tín hiệu phát nổ:`, { title, message });
     const newNotif = {
-      id: now,
-      title: title || '✨ Minh Anh (Realtime)',
-      message: message || 'Vừa thả tim cho bức ảnh Cà phê sáng ở Đà Lạt của bạn qua WebSocket Reverb!',
+      id: now + Math.random(),
+      title: title || 'Thông báo mới',
+      message: message || 'Có cập nhật mới từ Club Trải Nghiệm',
       time: 'Vừa xong',
+      badge: source || 'THÔNG BÁO CLUB',
+      type: type,
+      chatData: extraData,
+      createdAt: now
     };
     setNotifications((prev) => [newNotif, ...prev]);
     setLatestNotif(newNotif);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 6000);
 
-    // Kích hoạt đồng thời thông báo trực tiếp ra hệ điều hành macOS/Windows (Web Push) nếu đã được phân quyền
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       try {
         new Notification(newNotif.title, { body: newNotif.message, icon: '/favicon.svg' });
-      } catch (e) {
-        console.warn("Không thể hiển thị OS Notification:", e);
-      }
+      } catch (e) {}
     }
   };
 
   useEffect(() => {
-    console.log("🌟 Đang kết nối vào trạm sóng Laravel Reverb (Channel: club-live)...");
-    
     const channel = echo.channel('club-live');
 
     const handleEvent = (data) => {
-      triggerNotificationUI(data.title, data.message, "WebSocket Reverb");
+      let currentLoggedUser = null;
+      try {
+        const saved = localStorage.getItem('current_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          currentLoggedUser = parsed?.user?.id ? parsed.user : parsed;
+        }
+      } catch (e) {}
+
+      if (data.type === 'new_chat_message' && data.data) {
+        const myId = currentLoggedUser ? parseInt(currentLoggedUser.id, 10) : null;
+        const receiverId = parseInt(data.data.receiverId, 10);
+        const senderId = parseInt(data.data.senderId, 10);
+
+        if (!myId || receiverId !== myId || senderId === myId) {
+          return;
+        }
+        triggerNotificationUI(data.title, data.message, "💬 TIN NHẮN MỚI", data.data, 'new_chat_message');
+        return;
+      }
+
+      if (data.type === 'user_status_change') {
+        return;
+      }
+
+      triggerNotificationUI(data.title, data.message, "🔔 THÔNG BÁO CLUB", data.data || data, data.type || 'general');
     };
 
-    // Chỉ lắng nghe đúng 1 định danh chuẩn của Laravel Reverb để tránh bị trùng đúm sự kiện
     channel.listen('.live-event', handleEvent);
 
     return () => {
-      echo.leave('club-live');
+      channel.stopListening('.live-event', handleEvent);
     };
   }, []);
 
@@ -69,7 +159,12 @@ const Header = () => {
     const updateAuth = () => {
       try {
         const saved = localStorage.getItem('current_user');
-        setCurrentUser(saved ? JSON.parse(saved) : null);
+        if (!saved) {
+          setCurrentUser(null);
+          return;
+        }
+        const parsed = JSON.parse(saved);
+        setCurrentUser(parsed?.user?.id ? parsed.user : parsed);
       } catch (e) {
         setCurrentUser(null);
       }
@@ -116,24 +211,6 @@ const Header = () => {
         }, 300);
       }
     }
-  };
-
-  const sendDemoRealtime = () => {
-    if (isSending) return;
-    setIsSending(true);
-
-    api.post('/send-live-notification', {
-      type: 'interaction',
-      title: '✨ Minh Anh (Realtime)',
-      message: 'Vừa thả tim cho bức ảnh Cà phê sáng ở Đà Lạt của bạn qua WebSocket Reverb!'
-    }).then(res => {
-      console.log("⚡ Đã gửi lệnh broadcast về Server:", res.data);
-    }).catch(err => {
-      console.error("❌ Lỗi gửi realtime:", err);
-      triggerNotificationUI('✨ Minh Anh (Demo Local)', 'Đã kích hoạt chế độ mô phỏng phản hồi lập tức!', 'Fallback');
-    }).finally(() => {
-      setTimeout(() => setIsSending(false), 600);
-    });
   };
 
   const promptOneSignalPush = async () => {
@@ -212,21 +289,19 @@ const Header = () => {
             <MessageCircle size={18} />
             Tin nhắn
           </NavLink>
+          <NavLink 
+            to="/about" 
+            className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-semibold transition-all px-4 py-2 rounded-full no-underline ${isActive ? 'text-primary bg-white shadow-sm' : 'text-slate-500 hover:text-text-dark'}`}
+          >
+            <Info size={18} />
+            Giới thiệu
+          </NavLink>
         </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          <button 
-            onClick={sendDemoRealtime} 
-            disabled={isSending}
-            title="Bấm để phát tín hiệu WebSocket qua Laravel Reverb" 
-            className={`hidden lg:flex items-center gap-1 bg-[#fcebeb] text-[#c93638] hover:bg-[#c93638] hover:text-white transition-all border border-[#c93638]/30 px-3.5 py-1.5 rounded-full font-extrabold text-[0.82rem] cursor-pointer shadow-sm ${isSending ? 'opacity-50 cursor-wait' : ''}`}
-          >
-            {isSending ? '⏳ Đang phát sóng...' : '⚡ Test Realtime'}
-          </button>
-
           {/* Realtime Notification Bell */}
-          <div className="relative">
+          <div className="relative" ref={notifMenuRef}>
             <button 
               onClick={handleBellClick}
               className="bg-transparent border-none cursor-pointer flex items-center justify-center relative p-2"
@@ -256,25 +331,20 @@ const Header = () => {
                 {notifications.length === 0 ? (
                   <div className="text-center py-6">
                     <p className="text-slate-400 font-semibold text-sm m-0">Chưa có thông báo mới.</p>
-                    <p className="text-xs text-slate-500 font-medium mt-1">Bấm thử nút <strong className="text-[#c93638]">⚡ Test Realtime</strong> để thấy phép thuật WebSocket!</p>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
                     {notifications.map((n) => (
-                      <div key={n.id} className="p-3.5 bg-[#fff5f5] border border-[#fcebeb] rounded-2xl hover:bg-[#fbdada] transition-colors">
-                        <div className="flex justify-between items-center mb-1">
-                          <strong className="text-slate-900 font-extrabold text-sm">{n.title}</strong>
-                          <span className="text-[11px] font-extrabold text-[#c93638] bg-white px-2 py-0.5 rounded-full border border-[#f3a4a4]">{n.time}</span>
-                        </div>
-                        <p className="text-slate-700 font-medium text-xs leading-relaxed m-0">{n.message}</p>
-                      </div>
+                      <NotificationCard 
+                        key={n.id} 
+                        notification={n} 
+                        onClick={() => handleNotificationClick(n)} 
+                        isToast={false} 
+                      />
                     ))}
                   </div>
                 )}
                 <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col gap-2">
-                  <button onClick={sendDemoRealtime} disabled={isSending} className="w-full py-2.5 bg-[#f2a9a9] hover:bg-[#c93638] text-white rounded-xl font-extrabold text-xs transition-colors border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50">
-                    ⚡ {isSending ? 'Đang phát sóng...' : 'Bắn thử thông báo Realtime'}
-                  </button>
                   <button onClick={promptOneSignalPush} className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-xl font-extrabold text-xs transition-colors border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
                     🔔 Xin quyền Desktop Push (OneSignal / OS)
                   </button>
@@ -287,7 +357,7 @@ const Header = () => {
           </div>
 
           {currentUser ? (
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-all border-none cursor-pointer"
@@ -297,31 +367,55 @@ const Header = () => {
                   alt="Avatar" 
                   className="w-7 h-7 rounded-full object-cover shadow-sm border border-white" 
                 />
-                <span className="font-extrabold text-slate-800 text-sm max-w-[120px] truncate">
-                  {currentUser.ten_hien_thi || currentUser.ho_ten || 'VIP Member'}
+                <span className="font-extrabold text-slate-800 text-sm max-w-[140px] truncate">
+                  {currentUser.ten_hien_thi || currentUser.ho_ten || 'Thành viên'}
                 </span>
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 top-12 w-[230px] bg-white border-2 border-[#0f172a] rounded-2xl p-2.5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] z-[200] flex flex-col gap-1 animate-fadeIn">
-                  <div className="px-3 py-2 border-b border-slate-100">
-                    <p className="text-[11px] text-slate-400 font-medium mb-0.5">Vai trò thành viên:</p>
-                    <span className="text-xs font-bold text-primary bg-red-50 px-2.5 py-0.5 rounded-md inline-block">
-                      {currentUser.vai_tro?.ten || (currentUser.vai_tro_id === 3 ? '👑 Siêu Quản Trị' : currentUser.vai_tro_id === 2 ? '🛡️ Quản Trị Viên' : '📖 Người Đọc')}
-                    </span>
+                <div className="absolute right-0 top-12 w-72 sm:w-80 bg-white border border-slate-200/80 rounded-3xl p-3 shadow-2xl z-[200] flex flex-col gap-1.5 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-100 mb-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <img 
+                        src={currentUser.anh_dai_dien || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"} 
+                        alt="Avatar" 
+                        className="w-11 h-11 rounded-2xl object-cover shadow-xs border border-white shrink-0" 
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h5 className="font-black text-slate-900 text-sm sm:text-base m-0 truncate">
+                          {currentUser.ten_hien_thi || currentUser.ho_ten || 'Thành viên Club'}
+                        </h5>
+                        <p className="text-xs font-semibold text-slate-400 m-0 truncate mt-0.5">
+                          {currentUser.email || 'Tài khoản Club Trải Nghiệm'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap pt-2.5 border-t border-slate-200/60">
+                      <span className="flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-xl bg-rose-50 text-[#c93638] border border-rose-200/80 shadow-2xs">
+                        {currentUser.anh_cap_bac && <img src={currentUser.anh_cap_bac} alt="" className="w-3.5 h-3.5 rounded object-cover" />}
+                        <span>{currentUser.ten_cap_bac || currentUser.cap_bac || (currentUser.vai_tro_id === 3 ? '👑 Siêu Quản Trị' : currentUser.vai_tro_id === 2 ? '🛡️ Quản Trị Viên' : '✨ Thành viên Club')}</span>
+                      </span>
+                      <span className="text-xs font-black px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 ml-auto shadow-2xs">
+                        ⭐ {currentUser.diem_trai_nghiem || 0} XP
+                      </span>
+                    </div>
                   </div>
+
                   <NavLink 
                     to="/profile" 
                     onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700 font-bold text-xs no-underline transition-colors"
+                    className="flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-slate-50 text-slate-700 font-black text-xs sm:text-sm no-underline transition-colors"
                   >
-                    👤 Hồ sơ của tôi
+                    <span className="text-base">👤</span>
+                    <span>Hồ sơ & Trang cá nhân</span>
                   </NavLink>
                   <button 
                     onClick={handleLogout}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-red-50 text-red-600 font-extrabold text-xs bg-transparent border-none cursor-pointer w-full text-left transition-colors"
+                    className="flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-rose-50 text-[#c93638] font-black text-xs sm:text-sm bg-transparent border-none cursor-pointer w-full text-left transition-colors border-t border-slate-100/80 mt-0.5"
                   >
-                    🚪 Đăng xuất (Thu hồi Token)
+                    <span className="text-base">🚪</span>
+                    <span>Đăng xuất tài khoản</span>
                   </button>
                 </div>
               )}
@@ -339,20 +433,12 @@ const Header = () => {
 
       {/* Floating Realtime Toast Popup (Góc dưới bên phải) */}
       {showToast && latestNotif && (
-        <div className="fixed bottom-6 right-6 bg-white border-2 border-[#0f172a] p-4 rounded-[24px] shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] z-[9999] max-w-[360px] flex items-start gap-3.5 animate-bounce">
-          <div className="w-10 h-10 rounded-full bg-[#fcebeb] border border-[#c93638]/40 flex items-center justify-center text-[#c93638] font-extrabold text-lg shrink-0 shadow-sm">
-            ⚡
-          </div>
-          <div className="flex-1">
-            <div className="flex justify-between items-center mb-1">
-              <span className="font-extrabold text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase tracking-wider">Laravel Reverb</span>
-              <span className="text-[10px] text-slate-400 font-bold">Vừa xong</span>
-            </div>
-            <strong className="text-slate-900 font-extrabold text-[0.98rem] block mb-1">{latestNotif.title}</strong>
-            <p className="text-slate-600 font-medium text-xs leading-relaxed m-0">{latestNotif.message}</p>
-          </div>
-          <button onClick={() => setShowToast(false)} className="text-slate-400 hover:text-slate-800 bg-transparent border-none cursor-pointer text-base font-extrabold p-0">✕</button>
-        </div>
+        <NotificationCard
+          notification={latestNotif}
+          onClick={() => { setShowToast(false); handleNotificationClick(latestNotif); }}
+          onClose={() => setShowToast(false)}
+          isToast={true}
+        />
       )}
 
       {/* Bộ Bảng Hỏi Xin Quyền Tự Động (Soft Prompt Modal) chuẩn Mạng xã hội cao cấp */}

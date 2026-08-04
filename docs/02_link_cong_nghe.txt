@@ -1,0 +1,108 @@
+================================================================
+    DU AN: CLUB TRAI NGHIEM MXH THU NHO
+    FILE 2: DUONG DAN TRANG WEB CHINH THUC CAC CONG NGHE
+================================================================
+
+==============================================
+PHAN BACKEND
+==============================================
+
+[1]  PHP 8.3
+     https://www.php.net
+
+[2]  Laravel Framework
+     https://laravel.com
+     Tai lieu chinh: https://laravel.com/docs
+
+[3]  Laravel Sanctum
+     https://laravel.com/docs/sanctum
+
+[4]  Laravel Reverb (WebSocket Server)
+     https://reverb.laravel.com
+     Tai lieu chinh: https://laravel.com/docs/reverb
+
+[5]  Laravel Tinker
+     https://github.com/laravel/tinker
+
+[6]  MySQL
+     https://www.mysql.com
+
+[7]  Carbon (PHP Date/Time Library)
+     https://carbon.nesbot.com
+
+[8]  Cloudinary (Cloud Media Storage)
+     https://cloudinary.com
+     Console quan ly anh: https://console.cloudinary.com
+     API Reference: https://cloudinary.com/documentation/php_integration
+
+[9]  PHPUnit
+     https://phpunit.de
+
+[10] Faker PHP
+     https://fakerphp.github.io
+
+[11] Composer (PHP Package Manager)
+     https://getcomposer.org
+
+==============================================
+PHAN FRONTEND
+==============================================
+
+[12] React
+     https://react.dev
+
+[13] Vite (Build Tool)
+     https://vite.dev
+
+[14] React Router DOM
+     https://reactrouter.com
+
+[15] Axios (HTTP Client)
+     https://axios-http.com
+     GitHub: https://github.com/axios/axios
+
+[16] Laravel Echo (JS WebSocket Client)
+     https://github.com/laravel/echo
+     NPM: https://www.npmjs.com/package/laravel-echo
+
+[17] Pusher JS (Giao thuc tuong thich Reverb)
+     https://pusher.com/docs/channels/getting_started/javascript
+     GitHub: https://github.com/pusher/pusher-js
+
+[18] Lucide React (Icon Library)
+     https://lucide.dev
+     React docs: https://lucide.dev/guide/packages/lucide-react
+
+[19] TailwindCSS
+     https://tailwindcss.com
+     Tai lieu: https://tailwindcss.com/docs
+
+[20] PostCSS
+     https://postcss.org
+
+[21] Autoprefixer
+     https://github.com/postcss/autoprefixer
+
+[22] Oxlint (JS Linter)
+     https://oxc.rs/docs/guide/usage/linter
+
+[23] React OneSignal
+     https://onesignal.com
+     NPM: https://www.npmjs.com/package/react-onesignal
+     Developer docs: https://documentation.onesignal.com
+
+==============================================
+CONG CU PHAT TRIEN
+==============================================
+
+[24] Node.js & NPM
+     https://nodejs.org
+
+[25] Git (Version Control)
+     https://git-scm.com
+
+[26] Google Maps Embed (Iframe API)
+     https://developers.google.com/maps/documentation/embed/get-started
+     Google Maps Official: https://www.google.com/maps
+
+================================================================

@@ -4,6 +4,8 @@ import Layout from './layouts/Layout';
 import Home from './pages/Home/Home';
 import Feed from './pages/Feed/Feed';
 import Profile from './pages/Profile/Profile';
+import Messages from './pages/Messages/Messages';
+import About from './pages/About/About';
 import Auth from './pages/Auth/Auth';
 import api from './api/axios';
 import { runOneSignal } from './api/onesignal';
@@ -30,6 +32,8 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="feed" element={<Feed />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="about" element={<About />} />
           <Route path="profile" element={<Profile />} />
           <Route path="profile/:id" element={<Profile />} />
         </Route>

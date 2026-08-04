@@ -188,6 +188,8 @@ BANG TOM TAT ROUTES
     DELETE /api/chat/conversations/{partnerId}
 
 ================================================================
-KICH BAN TU DONG HOA (Scripts):
+KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
   chay_du_an.sh [tu dong dẹp tien trinh cu tren cong 8000, 8080, 5173 va khoi chay dong thoi Backend, Reverb, Frontend]
+  backend/config/cors.php [cau hinh CORS tu dong cho phep cac ten mien *.vercel.app va localhost ket noi]
+  backend/Dockerfile [cau hinh bo tri Docker cho Render Cloud tu dong chay migration va phuc vu tren cong HTTP]
 ================================================================

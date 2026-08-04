@@ -155,4 +155,10 @@ DICH VU & CAU HINH NGOAI
     - Dich vu giam sat nhat ky hoat dong thoi gian thuc, chong xoa dau vet Super Admin.
     - Tich hop Frontend qua @logtail/browser va Backend qua logtail/monolog-logtail.
 
+[31] Vercel Cloud Platform (Frontend Static & SPA Hosting)
+    - Nien tang hoat dong dam may tren CDN toan cau phuc vu trinh lang giao dien React Vite.
+
+[32] Render Cloud Platform & Docker (Backend Container Hosting)
+    - Nien tang hosting may chu Backend Laravel thong qua Dockerfile hoat dong tren dam may mien phi.
+
 ================================================================

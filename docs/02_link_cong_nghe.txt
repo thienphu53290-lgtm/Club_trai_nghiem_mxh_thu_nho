@@ -111,4 +111,12 @@ CONG CU PHAT TRIEN
      Laravel Guide: https://betterstack.com/docs/logs/php-laravel
      JS/React SDK (@logtail/browser): https://www.npmjs.com/package/@logtail/browser
 
+[28] Vercel Cloud Hosting
+     Trang chu: https://vercel.com
+     Tai lieu Vite & React Deploy: https://vercel.com/docs
+
+[29] Render Cloud Hosting & Docker Engine
+     Trang chu Render: https://render.com
+     Tai lieu Docker: https://docs.docker.com
+
 ================================================================

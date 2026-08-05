@@ -285,7 +285,27 @@ const Feed = () => {
   const handleFileChange = (e) => {
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
-    const newImgs = selectedFiles.map(file => ({
+    
+    // Validate file sizes (limit to 5MB per file)
+    const MAX_SIZE_MB = 5;
+    const validFiles = [];
+    let hasOversizedFiles = false;
+
+    selectedFiles.forEach(file => {
+      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+        hasOversizedFiles = true;
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (hasOversizedFiles) {
+      showToast(`Một số ảnh quá lớn (vượt quá ${MAX_SIZE_MB}MB). Vui lòng chọn ảnh dung lượng nhỏ hơn.`, 'error');
+    }
+
+    if (validFiles.length === 0) return;
+
+    const newImgs = validFiles.map(file => ({
       type: 'file',
       file,
       url: URL.createObjectURL(file)

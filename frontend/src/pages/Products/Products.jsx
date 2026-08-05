@@ -3,12 +3,10 @@ import { Star, Search, Filter, ChevronDown, Check, ChevronLeft, ChevronRight } f
 import { useNavigate, Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../api/axios';
 
-const ASSET_URL = API_BASE_URL.replace('/api', '');
-
 const bannerImages = [
-  `${ASSET_URL}/bannersp/bannersp1.png`,
-  `${ASSET_URL}/bannersp/bannersp2.png`,
-  `${ASSET_URL}/bannersp/bannersp3.png`
+  '/bannersp/bannersp1.png',
+  '/bannersp/bannersp2.png',
+  '/bannersp/bannersp3.png'
 ];
 
 const ProductBanner = () => {

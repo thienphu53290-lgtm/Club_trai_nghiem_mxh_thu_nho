@@ -9,28 +9,28 @@ const Hero = () => {
       id: 1,
       tieu_de: 'Mua online không còn hên xui',
       mo_ta: 'Thành viên dùng thử sản phẩm thật, viết đánh giá trung thực kèm ảnh và hoá đơn. Đọc trước khi mua, chia sẻ sau khi dùng.',
-      hinh_anh: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=800&auto=format&fit=crop',
+      hinh_anh: '/img/banner1.jpeg',
       duong_dan: '/feed'
     },
     {
       id: 2,
       tieu_de: 'Khám Phá Không Gian Cà Phê & Nghệ Thuật Sống Đích Thực ☕✨',
       mo_ta: 'Những góc làm việc yên tĩnh, thiết kế ấn tượng và các trải nghiệm thưởng ngoạn specialty coffee được tuyển chọn khắt khe từ cộng đồng.',
-      hinh_anh: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=800&auto=format&fit=crop',
+      hinh_anh: '/img/banner2.jpg',
       duong_dan: '/feed'
     },
     {
       id: 3,
       tieu_de: 'Góc Setup & Đánh Giá Đồ Cực Chất Từ Các Chuyên Gia 💻🚀',
       mo_ta: 'Chia sẻ hình ảnh góc bàn làm việc tối giản, đánh giá sâu chi tiết bàn phím cơ, màn hình 4K và phụ kiện công nghệ sáng tạo.',
-      hinh_anh: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=800&auto=format&fit=crop',
+      hinh_anh: '/img/banner3.jpg',
       duong_dan: '/feed'
     },
     {
       id: 4,
       tieu_de: 'Kết Nối Thảo Luận Realtime & Chinh Phục Huy Chương Độc Quyền 🔥👑',
       mo_ta: 'Trò chuyện trực tuyến tức thời cùng các nhà sáng tạo nội dung, tích lũy điểm trải nghiệm để vươn tới đẳng cấp Huyền Thoại Club.',
-      hinh_anh: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop',
+      hinh_anh: '/img/banner4.jpg',
       duong_dan: '/about'
     }
   ]);
@@ -60,6 +60,8 @@ const Hero = () => {
   const getImageUrl = (path) => {
     if (!path) return '';
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    if (path.startsWith('/img/') || path.startsWith('/bannersp/')) return path;
+    
     const backendHost = API_BASE_URL.replace('/api', '');
     return `${backendHost}${path.startsWith('/') ? '' : '/'}${path}`;
   };

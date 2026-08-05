@@ -25,7 +25,7 @@ const Feed = () => {
   const [pendingScrollPostId, setPendingScrollPostId] = useState(location.state?.scrollToPostId || null);
   const [commentInput, setCommentInput] = useState('');
   
-  const [previewImage, setPreviewImage] = useState({ isOpen: false, url: '', title: '', caption: '' });
+  const [previewImage, setPreviewImage] = useState({ isOpen: false, url: '', images: [], initialIndex: 0, title: '', caption: '' });
   const [createPostModal, setCreatePostModal] = useState({ isOpen: false, title: '', content: '', inputUrl: '', images: [], showProduct: false, productName: '', productPrice: '', productPlatform: 'Link mua sắm', productUrl: '', isSaving: false });
   const [editPostModal, setEditPostModal] = useState({ isOpen: false, id: null, tieu_de: '', noi_dung: '', hashtags: '', showProduct: false, san_pham_ten: '', san_pham_gia: '', san_pham_san: 'Link mua sắm', san_pham_url: '', isLoading: false });
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, postId: null, isLoading: false });
@@ -511,7 +511,7 @@ const Feed = () => {
     if (images.length === 1) {
       return (
         <div 
-          onClick={() => setPreviewImage({ isOpen: true, url: images[0], title: post.tieu_de || 'Khoảnh khắc trải nghiệm', caption: 'Bảo trợ hình ảnh bởi Club Trải Nghiệm' })}
+          onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: 0, title: post.tieu_de || 'Khoảnh khắc trải nghiệm', caption: 'Bảo trợ hình ảnh bởi Club Trải Nghiệm' })}
           className="relative rounded-[24px] overflow-hidden border border-slate-200 cursor-pointer group shadow-xs max-h-[420px] bg-slate-950 my-3.5"
         >
           <img src={images[0]} alt={post.tieu_de} className="w-full max-h-[420px] object-cover mx-auto group-hover:scale-[1.02] transition-transform duration-500" />
@@ -530,7 +530,7 @@ const Feed = () => {
           {images.map((url, idx) => (
             <div 
               key={idx} 
-              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - Club Trải Nghiệm` })}
+              onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: idx, title: post.tieu_de || `Ảnh ${idx + 1}` })}
               className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
             >
               <img src={url} alt={`Photo ${idx}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -544,7 +544,7 @@ const Feed = () => {
       return (
         <div className="flex flex-col gap-1 rounded-[24px] overflow-hidden border border-slate-200 my-3.5 bg-slate-900 shadow-xs">
           <div 
-            onClick={() => setPreviewImage({ isOpen: true, url: images[0], title: post.tieu_de || 'Ảnh 1', caption: `Ảnh 1 / ${images.length} - Club Trải Nghiệm` })}
+            onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: 0, title: post.tieu_de || 'Ảnh 1' })}
             className="relative overflow-hidden cursor-pointer group h-[200px] sm:h-[240px] bg-slate-800"
           >
             <img src={images[0]} alt="Photo 1" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -553,7 +553,7 @@ const Feed = () => {
             {images.slice(1, 3).map((url, idx) => (
               <div 
                 key={idx + 1} 
-                onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 2}`, caption: `Ảnh ${idx + 2} / ${images.length} - Club Trải Nghiệm` })}
+                onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: idx + 1, title: post.tieu_de || `Ảnh ${idx + 2}` })}
                 className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
               >
                 <img src={url} alt={`Photo ${idx + 2}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -570,7 +570,7 @@ const Feed = () => {
           {images.map((url, idx) => (
             <div 
               key={idx} 
-              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - Club Trải Nghiệm` })}
+              onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: idx, title: post.tieu_de || `Ảnh ${idx + 1}` })}
               className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
             >
               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -590,7 +590,7 @@ const Feed = () => {
           {topImages.map((url, idx) => (
             <div 
               key={idx} 
-              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - Club Trải Nghiệm` })}
+              onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: idx, title: post.tieu_de || `Ảnh ${idx + 1}` })}
               className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
             >
               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -604,7 +604,7 @@ const Feed = () => {
             return (
               <div 
                 key={actualIdx} 
-                onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${actualIdx + 1}`, caption: `Ảnh ${actualIdx + 1} / ${images.length} - Club Trải Nghiệm` })}
+                onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: actualIdx, title: post.tieu_de || `Ảnh ${actualIdx + 1}` })}
                 className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
               >
                 <img src={url} alt={`Photo ${actualIdx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -1107,8 +1107,10 @@ const Feed = () => {
 
       <ImageModal
         isOpen={previewImage.isOpen}
-        onClose={() => setPreviewImage({ isOpen: false, url: '', title: '', caption: '' })}
+        onClose={() => setPreviewImage({ isOpen: false, url: '', images: [], initialIndex: 0, title: '', caption: '' })}
         imageUrl={previewImage.url}
+        images={previewImage.images}
+        initialIndex={previewImage.initialIndex}
         title={previewImage.title}
         caption={previewImage.caption}
       />

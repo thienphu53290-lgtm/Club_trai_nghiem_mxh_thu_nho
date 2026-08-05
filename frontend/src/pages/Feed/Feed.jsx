@@ -7,6 +7,7 @@ import {
   MapPin, Heart, Maximize, MessageCircle, Share2, Trash2, Send, Shield, Flame, Plus, X, PlusCircle, MoreHorizontal, Edit3, RefreshCcw
 } from 'lucide-react';
 import { ImageModal, FormModal, ConfirmModal, CommentModal } from '../../components/Modal';
+import imageCompression from 'browser-image-compression';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -282,38 +283,52 @@ const Feed = () => {
     }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
     
-    // Validate file sizes (limit to 5MB per file)
-    const MAX_SIZE_MB = 5;
-    const validFiles = [];
-    let hasOversizedFiles = false;
+    setCreatePostModal(prev => ({ ...prev, isSaving: true }));
+    showToast('Đang xử lý và tối ưu ảnh...', 'info');
 
-    selectedFiles.forEach(file => {
-      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        hasOversizedFiles = true;
-      } else {
-        validFiles.push(file);
+    try {
+      const options = {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      };
+
+      const compressedImages = [];
+      for (const file of selectedFiles) {
+        if (file.type.startsWith('image/')) {
+          // Bỏ qua nén nếu là ảnh gif
+          if (file.type === 'image/gif') {
+            compressedImages.push({
+              type: 'file',
+              file: file,
+              url: URL.createObjectURL(file)
+            });
+            continue;
+          }
+          
+          const compressedFile = await imageCompression(file, options);
+          compressedImages.push({
+            type: 'file',
+            file: compressedFile,
+            url: URL.createObjectURL(compressedFile)
+          });
+        }
       }
-    });
 
-    if (hasOversizedFiles) {
-      showToast(`Một số ảnh quá lớn (vượt quá ${MAX_SIZE_MB}MB). Vui lòng chọn ảnh dung lượng nhỏ hơn.`, 'error');
+      setCreatePostModal(prev => ({
+        ...prev,
+        images: [...prev.images, ...compressedImages],
+        isSaving: false
+      }));
+    } catch (error) {
+      console.error(error);
+      showToast('Lỗi khi nén ảnh, vui lòng thử lại ảnh khác', 'error');
+      setCreatePostModal(prev => ({ ...prev, isSaving: false }));
     }
-
-    if (validFiles.length === 0) return;
-
-    const newImgs = validFiles.map(file => ({
-      type: 'file',
-      file,
-      url: URL.createObjectURL(file)
-    }));
-    setCreatePostModal(prev => ({
-      ...prev,
-      images: [...prev.images, ...newImgs]
-    }));
   };
 
   const handleRemoveImage = (index) => {

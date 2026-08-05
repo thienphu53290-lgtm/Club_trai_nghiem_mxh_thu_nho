@@ -7,11 +7,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\BannerController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/profile/{id?}', [ProfileController::class, 'show']);
 Route::get('/feed/posts', [FeedController::class, 'index']);
+Route::get('/banners/hero', [BannerController::class, 'getHeroBanners']);
 
 Route::post('/chat/heartbeat', [ChatController::class, 'heartbeat']);
 Route::get('/chat/presence-status', [ChatController::class, 'getPresenceStatus']);
@@ -33,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/messages', [ChatController::class, 'sendMessage']);
     Route::delete('/chat/messages/{id}', [ChatController::class, 'deleteMessage']);
     Route::delete('/chat/conversations/{partnerId}', [ChatController::class, 'deleteConversation']);
+    Route::post('/chat/block/{partnerId}', [ChatController::class, 'blockUser']);
+    Route::post('/chat/unblock/{partnerId}', [ChatController::class, 'unblockUser']);
 });
 
 Route::post('/affiliate-click', [FeedController::class, 'recordAffiliateClick']);

@@ -8,6 +8,7 @@ import {
 import api from '../../api/axios';
 import echo from '../../api/echo';
 import { ConfirmModal } from '../../components/Modal';
+import Modal from '../../components/Modal/Modal';
 
 const Messages = () => {
   const navigate = useNavigate();
@@ -21,8 +22,27 @@ const Messages = () => {
   const [showRightSidebar, setShowRightSidebar] = useState(true);
   const [openSections, setOpenSections] = useState({ product: true, media: true, privacy: true });
   const [activeMenuMsgId, setActiveMenuMsgId] = useState(null);
+  const [activeContactMenuId, setActiveContactMenuId] = useState(null);
   const [confirmConfig, setConfirmConfig] = useState(null);
+  const [showGallery, setShowGallery] = useState(false);
   
+  const showAlert = (message, title = 'Thông Báo', variant = 'info') => {
+    let finalMessage = message;
+    if (typeof message === 'string') {
+      finalMessage = message.split(/(\d+\s*giờ\s*\d+\s*phút)/i).map((part, index) => 
+        /(\d+\s*giờ\s*\d+\s*phút)/i.test(part) ? <strong key={index} className="font-black text-slate-800">{part}</strong> : part
+      );
+    }
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message: finalMessage,
+      variant,
+      hideCancel: true,
+      confirmText: 'Đã hiểu'
+    });
+  };
+
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('current_user');
@@ -48,6 +68,31 @@ const Messages = () => {
   useEffect(() => {
     currentUserRef.current = currentUser;
   }, [currentUser]);
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      const token = localStorage.getItem('auth_token');
+      const savedUser = localStorage.getItem('current_user');
+      if (!token || !savedUser) {
+        setCurrentUser(null);
+        setContacts([]);
+        setActiveId(null);
+      } else {
+        try {
+          const parsed = JSON.parse(savedUser);
+          const user = parsed?.user?.id ? parsed.user : parsed;
+          setCurrentUser(user);
+          fetchConversations();
+        } catch (e) {
+          setCurrentUser(null);
+          setContacts([]);
+          setActiveId(null);
+        }
+      }
+    };
+    window.addEventListener('user_auth_change', handleAuthChange);
+    return () => window.removeEventListener('user_auth_change', handleAuthChange);
+  }, []);
 
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
@@ -76,6 +121,8 @@ const Messages = () => {
                 online: targetFromState.online ?? true,
                 isVerified: targetFromState.isVerified ?? true,
                 isFollowing: targetFromState.isFollowing ?? false,
+                isBlockedByMe: targetFromState.isBlockedByMe ?? false,
+                isBlockedByPartner: targetFromState.isBlockedByPartner ?? false,
                 roleTitle: targetFromState.roleTitle || '👑 Thành Viên Club',
                 messages: [],
                 quickReplies: ['Chào bạn nhen 🤝', 'Cho mình xin thêm thông tin trải nghiệm nhé', 'Quán này ở đoạn nào thế bạn ❤️'],
@@ -168,6 +215,8 @@ const Messages = () => {
               online: true,
               isVerified: true,
               isFollowing: false,
+              isBlockedByMe: false,
+              isBlockedByPartner: false,
               roleTitle: '👑 Thành Viên Club',
               messages: [{
                 id: payload.id || Date.now(),
@@ -261,6 +310,8 @@ const Messages = () => {
                 isVerified: p.isVerified,
                 isFollowing: p.isFollowing,
                 roleTitle: p.roleTitle,
+                isBlockedByMe: p.isBlockedByMe,
+                isBlockedByPartner: p.isBlockedByPartner,
                 product: p.product || c.product,
                 productPrice: p.productPrice || c.productPrice,
                 messages: p.messages || [],
@@ -371,25 +422,42 @@ const Messages = () => {
         const serverMsg = res.data.data;
         setContacts(prev => prev.map(c => {
           if (intVal(c.id) === intVal(activeId)) {
-            const replaced = (c.messages || []).map(m => m.id === tempMsgId ? { ...m, id: serverMsg.id, imageUrl: serverMsg.imageUrl || m.imageUrl } : m);
-            return { ...c, messages: replaced };
+            const echoAlreadyAdded = (c.messages || []).some(m => intVal(m.id) === intVal(serverMsg.id));
+            let replaced = c.messages || [];
+            if (echoAlreadyAdded) {
+              replaced = replaced.filter(m => m.id !== tempMsgId);
+            } else {
+              replaced = replaced.map(m => m.id === tempMsgId ? { ...m, id: serverMsg.id, imageUrl: serverMsg.imageUrl || m.imageUrl } : m);
+            }
+            let updatedMedia = c.sharedMedia || [];
+            if (imgUrlPreview && serverMsg.imageUrl) {
+              updatedMedia = updatedMedia.map(url => url === imgUrlPreview ? serverMsg.imageUrl : url);
+              updatedMedia = updatedMedia.filter((val, idx, arr) => arr.indexOf(val) === idx);
+            }
+            return { ...c, messages: replaced, sharedMedia: updatedMedia };
           }
           return c;
         }));
       }
     }).catch(() => {
-      alert('❌ Có lỗi xảy ra khi gửi tin nhắn, vui lòng thử lại!');
+      showAlert('Có lỗi xảy ra khi gửi tin nhắn, vui lòng thử lại!', 'Lỗi', 'danger');
     });
   };
 
   const handlePhotoSelect = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (upload) => {
-      handleSendMessage('', file, upload.target.result);
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    files.forEach((file, index) => {
+      setTimeout(() => {
+        const reader = new FileReader();
+        reader.onload = (upload) => {
+          handleSendMessage('', file, upload.target.result);
+        };
+        reader.readAsDataURL(file);
+      }, index * 200);
+    });
+    
     if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
@@ -419,7 +487,7 @@ const Messages = () => {
     }));
 
     api.delete(`/chat/messages/${msgId}`, { data: { type } }).catch(() => {
-      alert('❌ Có lỗi xảy ra, vui lòng thử lại!');
+      showAlert('Có lỗi xảy ra, vui lòng thử lại!', 'Lỗi', 'danger');
     });
   };
 
@@ -467,9 +535,9 @@ const Messages = () => {
     const contentToShare = msg.text || msg.imageUrl || '';
     if (navigator.clipboard) {
       navigator.clipboard.writeText(contentToShare);
-      alert('🔗 Đã sao chép nội dung chia sẻ vào bộ nhớ tạm!');
+      showAlert('Đã sao chép nội dung chia sẻ vào bộ nhớ tạm!', 'Thành công', 'success');
     } else {
-      alert(`🔗 Nội dung chia sẻ: ${contentToShare}`);
+      showAlert(`Nội dung chia sẻ: ${contentToShare}`);
     }
   };
 
@@ -487,9 +555,75 @@ const Messages = () => {
       .catch(() => {});
   };
 
+  const handleToggleBlock = (partnerId, partnerName, isCurrentlyBlocked) => {
+    setActiveContactMenuId(null);
+    if (isCurrentlyBlocked) {
+      api.post(`/chat/unblock/${partnerId}`).then(() => {
+        setContacts(prev => prev.map(c => 
+          intVal(c.id) === intVal(partnerId) ? { ...c, isBlockedByMe: false } : c
+        ));
+      }).catch(err => {
+        if (err.response?.status === 422) {
+          showAlert(err.response?.data?.message || 'Chưa hết thời gian cooldown 8 tiếng.', 'Lưu Ý Hệ Thống', 'warning');
+        }
+      });
+    } else {
+      setConfirmConfig({
+        isOpen: true,
+        title: 'Xác Nhận Chặn Người Dùng',
+        message: `Bạn có chắc chắn muốn chặn ${partnerName}? Bạn sẽ không thể nhận hay gửi tin nhắn cho người này. Lưu ý: Cần chờ 8 tiếng (cooldown) để có thể thay đổi trạng thái chặn lần tiếp theo.`,
+        confirmText: 'Chặn ngay',
+        variant: 'danger',
+        onConfirm: () => {
+          api.post(`/chat/block/${partnerId}`).then(() => {
+            setContacts(prev => prev.map(c => 
+              intVal(c.id) === intVal(partnerId) ? { ...c, isBlockedByMe: true } : c
+            ));
+          }).catch(err => {
+            if (err.response?.status === 422) {
+              showAlert(err.response?.data?.message || 'Chưa hết thời gian cooldown 8 tiếng.', 'Lưu Ý Hệ Thống', 'warning');
+            }
+          });
+        }
+      });
+    }
+  };
+
+  if (!currentUser) {
+    return (
+      <div className="w-full min-h-[calc(100vh-140px)] bg-[#f8fafc] flex items-center justify-center p-5">
+        <div className="max-w-[500px] w-full border-2 border-[#0f172a] rounded-[28px] p-8 bg-white shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] text-center">
+          <div className="w-20 h-20 bg-rose-50 border-2 border-rose-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xs">
+            <Lock size={38} className="text-[#c93638]" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-950 mb-3 tracking-tight">
+            Bạn chưa đăng nhập Club
+          </h2>
+          <p className="text-slate-600 text-[1.05rem] font-medium leading-relaxed mb-8">
+            Hãy đăng nhập tài khoản Club Trải Nghiệm để kết nối trực tuyến tức thì, trò chuyện Realtime và trao đổi tin nhắn riêng tư cùng cộng đồng!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate('/auth')}
+              className="bg-[#c93638] hover:bg-[#a82527] text-white font-extrabold text-base px-8 py-3.5 rounded-full border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+            >
+              Đăng nhập ngay
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-white hover:bg-slate-100 text-slate-950 font-extrabold text-base px-8 py-3.5 rounded-full border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+            >
+              Về Trang chủ
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full min-h-[calc(100vh-80px)] bg-[#f8fafc] px-3 sm:px-6 py-4 max-w-[1780px] mx-auto font-sans flex flex-col">
-      <div className="grid grid-cols-1 md:grid-cols-12 xl:grid-cols-12 gap-4 sm:gap-5 flex-1 h-[calc(100vh-112px)] max-h-[calc(100vh-112px)] min-h-[600px]">
+    <div className="w-full min-h-[calc(100vh-140px)] bg-[#f8fafc] px-3 sm:px-6 py-4 max-w-[1780px] mx-auto font-sans flex flex-col" onClick={() => setActiveContactMenuId(null)}>
+      <div className="grid grid-cols-1 md:grid-cols-12 xl:grid-cols-12 gap-4 sm:gap-5 flex-1 h-[calc(100vh-172px)] max-h-[calc(100vh-172px)] min-h-[600px]">
         
         <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 border-2 border-[#0f172a] rounded-[28px] p-4 sm:p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col h-full max-h-full min-h-0 overflow-hidden">
           
@@ -575,19 +709,44 @@ const Messages = () => {
                             <Shield size={14} className="text-[#c93638] fill-[#fcebeb] shrink-0" />
                           )}
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0 relative">
                           <span className="text-[10px] font-black text-slate-400">{contact.time}</span>
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteConversation(contact.id, contact.name);
+                              setActiveContactMenuId(activeContactMenuId === contact.id ? null : contact.id);
                             }}
                             className="w-6 h-6 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-950 flex items-center justify-center transition-colors border-none bg-transparent cursor-pointer ml-0.5"
-                            title="Xóa hội thoại"
+                            title="Tùy chọn"
                           >
                             <MoreVertical size={14} />
                           </button>
+                          {activeContactMenuId === contact.id && (
+                            <div className="absolute top-full right-0 mt-1 w-32 bg-white border-2 border-[#0f172a] rounded-xl shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] py-1 z-50">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleBlock(contact.id, contact.name, contact.isBlockedByMe);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-bold hover:bg-slate-100 text-slate-700 cursor-pointer text-left border-b border-slate-100"
+                              >
+                                {contact.isBlockedByMe ? 'Mở chặn' : 'Chặn tin nhắn'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveContactMenuId(null);
+                                  handleDeleteConversation(contact.id, contact.name);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-bold hover:bg-red-50 text-red-600 cursor-pointer text-left"
+                              >
+                                Xóa hội thoại
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -673,14 +832,14 @@ const Messages = () => {
 
                 <div className="flex items-center gap-2 shrink-0">
                   <button 
-                    onClick={() => alert(`📞 Đang khởi tạo kết nối cuộc gọi âm thanh bảo mật tới ${activeContact.name}...`)}
+                    onClick={() => showAlert(`Đang khởi tạo kết nối cuộc gọi âm thanh bảo mật tới ${activeContact.name}...`, 'Tính năng đang phát triển', 'info')}
                     title="Gọi âm thanh"
                     className="w-10 h-10 rounded-xl border-2 border-[#0f172a] bg-slate-50 hover:bg-slate-100 text-[#c93638] flex items-center justify-center cursor-pointer transition-transform active:scale-95 shadow-2xs"
                   >
                     <Phone size={18} />
                   </button>
                   <button 
-                    onClick={() => alert(`📹 Đang chuẩn bị phòng gọi Video độ nét cao tới ${activeContact.name}...`)}
+                    onClick={() => showAlert(`Đang chuẩn bị phòng gọi Video độ nét cao tới ${activeContact.name}...`, 'Tính năng đang phát triển', 'info')}
                     title="Gọi Video"
                     className="w-10 h-10 rounded-xl border-2 border-[#0f172a] bg-slate-50 hover:bg-slate-100 text-[#c93638] flex items-center justify-center cursor-pointer transition-transform active:scale-95 shadow-2xs hidden sm:flex"
                   >
@@ -737,15 +896,21 @@ const Messages = () => {
                 {(activeContact.messages || []).map((msg, idx, arr) => {
                   const isNearBottom = idx >= arr.length - 2 && idx >= 2;
                   const menuPosClass = isNearBottom ? "bottom-full mb-1.5" : "top-full mt-1.5";
+                  const isLastInGroup = idx === arr.length - 1 || arr[idx + 1].isMe !== msg.isMe;
+
                   return (
                     <div key={msg.id} className={`flex items-start gap-2.5 max-w-[85%] sm:max-w-[80%] group relative ${msg.isMe ? 'ml-auto justify-end' : ''}`}>
                       
                       {!msg.isMe && (
-                        <img 
-                          src={activeContact.avatar} 
-                          alt="partner" 
-                          className="w-8 h-8 rounded-full object-cover border-2 border-[#0f172a] shrink-0 mt-1 shadow-2xs"
-                        />
+                        isLastInGroup ? (
+                          <img 
+                            src={activeContact.avatar} 
+                            alt="partner" 
+                            className="w-8 h-8 rounded-full object-cover border-2 border-[#0f172a] shrink-0 mt-1 shadow-2xs"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 shrink-0 mt-1"></div>
+                        )
                       )}
 
                       {msg.isMe && (
@@ -837,11 +1002,15 @@ const Messages = () => {
                       )}
 
                       {msg.isMe && (
-                        <img 
-                          src={currentUser?.anh_dai_dien || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80"} 
-                          alt="me" 
-                          className="w-8 h-8 rounded-full object-cover border-2 border-[#0f172a] shrink-0 mt-1 shadow-2xs"
-                        />
+                        isLastInGroup ? (
+                          <img 
+                            src={currentUser?.anh_dai_dien || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80"} 
+                            alt="me" 
+                            className="w-8 h-8 rounded-full object-cover border-2 border-[#0f172a] shrink-0 mt-1 shadow-2xs"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 shrink-0 mt-1"></div>
+                        )
                       )}
 
                     </div>
@@ -850,57 +1019,76 @@ const Messages = () => {
               </div>
 
               <div className="relative shrink-0">
-                {showEmojiPicker && (
-                  <div className="absolute bottom-14 left-0 bg-white border-2 border-[#0f172a] rounded-3xl p-3 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] z-50 flex flex-wrap gap-1.5 text-xl bg-slate-50 animate-in fade-in zoom-in-95 max-w-xs">
-                    {['😄', '❤️', '🔥', '👍', '💯', '👏', '🎁', '✨', '☕', '🚀', '😍', '🎉', '🌟', '🤗'].map((e, i) => (
-                      <button key={i} type="button" onClick={() => insertEmoji(e)} className="p-1.5 hover:bg-slate-200 rounded-xl cursor-pointer bg-transparent border-none transition-transform hover:scale-125">
-                        {e}
-                      </button>
-                    ))}
+                {activeContact.isBlockedByMe ? (
+                  <div className="flex flex-col items-center justify-center p-3 bg-red-50 border-2 border-red-200 rounded-2xl text-center shadow-2xs">
+                    <p className="text-red-600 font-black text-sm m-0 mb-2">Bạn đã chặn người này.</p>
+                    <button 
+                      onClick={() => handleToggleBlock(activeContact.id, activeContact.name, true)}
+                      className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs cursor-pointer shadow-sm transition-colors border-none"
+                    >
+                      Bỏ chặn ngay
+                    </button>
                   </div>
+                ) : activeContact.isBlockedByPartner ? (
+                  <div className="flex items-center justify-center p-4 bg-slate-100 border-2 border-slate-200 rounded-2xl text-center shadow-2xs">
+                    <p className="text-slate-500 font-black text-sm m-0">Người này hiện không thể nhận tin nhắn.</p>
+                  </div>
+                ) : (
+                  <>
+                    {showEmojiPicker && (
+                      <div className="absolute bottom-14 left-0 bg-white border-2 border-[#0f172a] rounded-3xl p-3 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] z-50 flex flex-wrap gap-1.5 text-xl bg-slate-50 animate-in fade-in zoom-in-95 max-w-xs">
+                        {['😄', '❤️', '🔥', '👍', '💯', '👏', '🎁', '✨', '☕', '🚀', '😍', '🎉', '🌟', '🤗'].map((e, i) => (
+                          <button key={i} type="button" onClick={() => insertEmoji(e)} className="p-1.5 hover:bg-slate-200 rounded-xl cursor-pointer bg-transparent border-none transition-transform hover:scale-125">
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex items-center gap-2 sm:gap-2.5">
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handlePhotoSelect} 
+                        accept="image/*" 
+                        multiple
+                        className="hidden" 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => fileInputRef.current?.click()}
+                        title="Gửi ảnh thực tế trải nghiệm"
+                        className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#0f172a] flex items-center justify-center bg-white hover:bg-slate-100 transition-colors cursor-pointer text-slate-800 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] shrink-0"
+                      >
+                        <Image size={18} />
+                      </button>
+
+                      <button 
+                        type="button" 
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        title="Chọn Emoji cảm xúc"
+                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#0f172a] flex items-center justify-center transition-colors cursor-pointer shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] shrink-0 ${showEmojiPicker ? 'bg-amber-300 text-slate-900' : 'bg-white text-slate-800 hover:bg-slate-100'}`}
+                      >
+                        <Smile size={18} />
+                      </button>
+
+                      <input
+                        type="text"
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        placeholder={`Nhắn cho ${activeContact.name}...`}
+                        className="flex-1 py-2.5 sm:py-3 px-5 rounded-full border-2 border-[#0f172a] bg-white font-black text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-slate-50 transition-colors shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]"
+                      />
+
+                      <button 
+                        type="submit"
+                        className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#0f172a] bg-[#c93638] hover:bg-[#a82527] text-white flex items-center justify-center cursor-pointer transition-all shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 shrink-0"
+                      >
+                        <Send size={17} className="-ml-0.5" />
+                      </button>
+                    </form>
+                  </>
                 )}
-
-                <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex items-center gap-2 sm:gap-2.5">
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handlePhotoSelect} 
-                    accept="image/*" 
-                    className="hidden" 
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => fileInputRef.current?.click()}
-                    title="Gửi ảnh thực tế trải nghiệm"
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#0f172a] flex items-center justify-center bg-white hover:bg-slate-100 transition-colors cursor-pointer text-slate-800 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] shrink-0"
-                  >
-                    <Image size={18} />
-                  </button>
-
-                  <button 
-                    type="button" 
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    title="Chọn Emoji cảm xúc"
-                    className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#0f172a] flex items-center justify-center transition-colors cursor-pointer shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] shrink-0 ${showEmojiPicker ? 'bg-amber-300 text-slate-900' : 'bg-white text-slate-800 hover:bg-slate-100'}`}
-                  >
-                    <Smile size={18} />
-                  </button>
-
-                  <input
-                    type="text"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    placeholder={`Nhắn cho ${activeContact.name}...`}
-                    className="flex-1 py-2.5 sm:py-3 px-5 rounded-full border-2 border-[#0f172a] bg-white font-black text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-slate-50 transition-colors shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]"
-                  />
-
-                  <button 
-                    type="submit"
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#0f172a] bg-[#c93638] hover:bg-[#a82527] text-white flex items-center justify-center cursor-pointer transition-all shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 shrink-0"
-                  >
-                    <Send size={17} className="-ml-0.5" />
-                  </button>
-                </form>
               </div>
             </>
           )}
@@ -961,7 +1149,7 @@ const Messages = () => {
                 </button>
 
                 <button 
-                  onClick={() => alert('🔔 Đã bật chế độ ưu tiên nhận thông báo từ thành viên này!')}
+                  onClick={() => showAlert('Đã bật chế độ ưu tiên nhận thông báo từ thành viên này!', 'Thành công', 'success')}
                   className="flex flex-col items-center gap-1 text-slate-700 hover:text-slate-950 font-black text-[11px] bg-transparent border-none cursor-pointer group"
                 >
                   <span className="w-10 h-10 rounded-2xl border-2 border-[#0f172a] bg-slate-50 group-hover:bg-slate-100 flex items-center justify-center shadow-2xs">
@@ -971,7 +1159,7 @@ const Messages = () => {
                 </button>
 
                 <button 
-                  onClick={() => alert('📌 Đã ghim hội thoại này lên vị trí ưu tiên số 1!')}
+                  onClick={() => showAlert('Đã ghim hội thoại này lên vị trí ưu tiên số 1!', 'Thành công', 'success')}
                   className="flex flex-col items-center gap-1 text-slate-700 hover:text-slate-950 font-black text-[11px] bg-transparent border-none cursor-pointer group"
                 >
                   <span className="w-10 h-10 rounded-2xl border-2 border-[#0f172a] bg-slate-50 group-hover:bg-slate-100 flex items-center justify-center shadow-2xs">
@@ -1026,15 +1214,35 @@ const Messages = () => {
                     </p>
                   ) : (
                     <div className="grid grid-cols-3 gap-2">
-                      {activeContact.sharedMedia.map((imgUrl, i) => (
-                        <img 
-                          key={i} 
-                          src={imgUrl} 
-                          alt="shared" 
-                          onClick={() => window.open(imgUrl, '_blank')}
-                          className="w-full h-20 rounded-xl object-cover border border-[#0f172a] shadow-2xs cursor-pointer hover:opacity-90 transition-opacity" 
-                        />
-                      ))}
+                      {activeContact.sharedMedia.slice(0, 6).map((imgUrl, i) => {
+                        const isLastVisible = i === 5;
+                        const remainingCount = activeContact.sharedMedia.length - 6;
+                        
+                        return (
+                          <div 
+                            key={i}
+                            className="relative w-full h-20 rounded-xl border border-[#0f172a] shadow-2xs overflow-hidden cursor-pointer group"
+                            onClick={() => {
+                              if (isLastVisible && remainingCount > 0) {
+                                setShowGallery(true);
+                              } else {
+                                window.open(imgUrl, '_blank');
+                              }
+                            }}
+                          >
+                            <img 
+                              src={imgUrl} 
+                              alt="shared" 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                            />
+                            {isLastVisible && remainingCount > 0 && (
+                              <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center backdrop-blur-[2px]">
+                                <span className="text-white font-black text-lg">+{remainingCount}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1059,6 +1267,14 @@ const Messages = () => {
                     <Shield size={18} className="text-[#c93638] shrink-0" />
                     <span>Hội thoại được bảo vệ bởi lớp mã hóa end-to-end của Club Trải Nghiệm.</span>
                   </div>
+
+                  <button 
+                    onClick={() => handleToggleBlock(activeContact.id, activeContact.name, activeContact.isBlockedByMe)}
+                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-black text-xs flex items-center justify-center gap-2 bg-white cursor-pointer transition-colors"
+                  >
+                    <AlertCircle size={15} />
+                    <span>{activeContact.isBlockedByMe ? 'Bỏ chặn người này' : 'Chặn người này'}</span>
+                  </button>
 
                   <button 
                     onClick={togglePartnerOnline}
@@ -1101,7 +1317,30 @@ const Messages = () => {
         message={confirmConfig?.message || ''}
         confirmText={confirmConfig?.confirmText || 'Xác nhận'}
         variant={confirmConfig?.variant || 'danger'}
+        hideCancel={confirmConfig?.hideCancel || false}
       />
+
+      <Modal
+        isOpen={showGallery}
+        onClose={() => setShowGallery(false)}
+        title={`Kho Ảnh của ${activeContact?.name || ''}`}
+        icon={Image}
+        iconColor="text-blue-600"
+        iconBg="bg-blue-50 border-blue-100"
+        size="lg"
+      >
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[60vh] overflow-y-auto scrollbar-thin pr-1 pt-1 pb-4">
+          {activeContact?.sharedMedia?.map((imgUrl, i) => (
+            <img 
+              key={i} 
+              src={imgUrl} 
+              alt="shared" 
+              onClick={() => window.open(imgUrl, '_blank')}
+              className="w-full h-24 object-cover rounded-xl border-2 border-slate-200 shadow-sm cursor-pointer hover:border-[#c93638] transition-colors"
+            />
+          ))}
+        </div>
+      </Modal>
     </div>
   );
 };

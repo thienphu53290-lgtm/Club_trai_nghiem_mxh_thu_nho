@@ -4,7 +4,7 @@ import api from '../../api/axios';
 import echo from '../../api/echo';
 import { 
   Sparkles, Users, Bookmark, Calendar, Image as ImageIcon, Smile, ShoppingBag,
-  MapPin, Heart, Maximize, MessageCircle, Share2, Trash2, Send, Shield, Flame, Plus, X, PlusCircle, MoreHorizontal, Edit3
+  MapPin, Heart, Maximize, MessageCircle, Share2, Trash2, Send, Shield, Flame, Plus, X, PlusCircle, MoreHorizontal, Edit3, RefreshCcw
 } from 'lucide-react';
 import { ImageModal, FormModal, ConfirmModal, CommentModal } from '../../components/Modal';
 
@@ -140,7 +140,7 @@ const Feed = () => {
 
     const targetPost = posts.find(p => parseInt(p.id, 10) === parsedId);
     if (!targetPost && pendingScrollPostId !== 'latest') {
-      fetchFeedData(true);
+      setPendingScrollPostId(null);
       return;
     }
 
@@ -969,6 +969,21 @@ const Feed = () => {
 
               </article>
             ))
+          )}
+
+          {posts.length > 0 && (
+            <div className="flex justify-center mt-8 pb-4">
+              <button
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  fetchFeedData();
+                }}
+                className="bg-white border border-slate-200/80 text-slate-700 hover:text-[#c93638] hover:border-rose-200 px-6 py-3 rounded-full font-black text-sm transition-all shadow-sm hover:shadow flex items-center gap-2"
+              >
+                <RefreshCcw size={16} />
+                Làm mới & Quay về đầu trang
+              </button>
+            </div>
           )}
         </main>
 

@@ -34,7 +34,7 @@ class FeedController extends Controller
             ->where('bai_viet.trang_thai', 1)
             ->orderBy('bai_viet.ghim', 'desc')
             ->orderBy('bai_viet.created_at', 'desc')
-            ->limit(30)
+            ->limit(50)
             ->get()
             ->map(function ($post) use ($currentUser) {
                 $post->hashtags = json_decode($post->hashtags ?? '[]', true);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight } from 'lucide-react';
+import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar } from 'lucide-react';
 import echo from '../../api/echo';
 import api from '../../api/axios';
 import OneSignal from 'react-onesignal';
@@ -141,7 +141,7 @@ const Header = () => {
         return;
       }
 
-      if (data.type === 'user_status_change') {
+      if (data.type === 'user_status_change' || data.type === 'message_recalled') {
         return;
       }
 
@@ -252,18 +252,15 @@ const Header = () => {
 
   return (
     <header className="border-b border-border-color bg-bg-color sticky top-0 z-50">
-      <div className="max-w-[1320px] mx-auto px-5 h-[72px] flex items-center justify-between gap-6">
+      <div className="max-w-[1320px] mx-auto px-5 py-3 flex flex-col gap-3">
+        {/* Top Row: Logo, Navigation, Actions */}
+        <div className="flex items-center justify-between gap-6">
         {/* Logo */}
         <div className="flex items-center gap-2.5 cursor-pointer min-w-max">
           <div className="bg-primary text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-[1.2rem]">k</div>
           <span className="font-extrabold text-[1.2rem] tracking-tight text-text-dark">club trải nghiệm</span>
         </div>
 
-        {/* Search */}
-        <div className="flex-1 max-w-[400px] flex items-center bg-slate-100 rounded-full px-4 py-2.5 gap-2.5">
-          <Search className="text-slate-500" size={18} />
-          <input type="text" placeholder="Tìm sản phẩm, bài đánh giá..." className="border-none bg-transparent w-full outline-none text-[0.95rem] text-text-dark placeholder-slate-400" />
-        </div>
 
         {/* Navigation */}
         <nav className="flex items-center gap-1 bg-slate-100 p-1 rounded-full">
@@ -281,6 +278,20 @@ const Header = () => {
           >
             <Star size={18} />
             Bảng tin
+          </NavLink>
+          <NavLink 
+            to="/products" 
+            className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-semibold transition-all px-4 py-2 rounded-full no-underline ${isActive ? 'text-primary bg-white shadow-sm' : 'text-slate-500 hover:text-text-dark'}`}
+          >
+            <ShoppingBag size={18} />
+            Sản phẩm
+          </NavLink>
+          <NavLink 
+            to="/events" 
+            className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-semibold transition-all px-4 py-2 rounded-full no-underline ${isActive ? 'text-primary bg-white shadow-sm' : 'text-slate-500 hover:text-text-dark'}`}
+          >
+            <Calendar size={18} />
+            Sự kiện
           </NavLink>
           <NavLink 
             to="/messages" 
@@ -434,6 +445,13 @@ const Header = () => {
               Đăng nhập
             </NavLink>
           )}
+        </div>
+        </div>
+
+        {/* Bottom Row: Search */}
+        <div className="w-full flex items-center bg-slate-100/80 rounded-full px-4 py-2.5 gap-2.5 border border-slate-200">
+          <Search className="text-slate-500" size={18} />
+          <input type="text" placeholder="Tìm kiếm sản phẩm, bài đánh giá, thành viên..." className="border-none bg-transparent w-full outline-none text-[0.95rem] text-text-dark placeholder-slate-400" />
         </div>
       </div>
 

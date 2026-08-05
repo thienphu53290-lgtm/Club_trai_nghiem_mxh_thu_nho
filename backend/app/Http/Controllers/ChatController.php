@@ -83,6 +83,9 @@ class ChatController extends Controller
                 }
             }
             $timeText = $lastMsg ? Carbon::parse($lastMsg->created_at)->format('H:i') : 'Mới';
+            $isMeOne = ((int)$conv->nguoi_mot_id === (int)$currentUser->id);
+            $isBlockedByMe = $isMeOne ? ((int)$conv->nguoi_mot_chan === 1) : ((int)$conv->nguoi_hai_chan === 1);
+            $isBlockedByPartner = $isMeOne ? ((int)$conv->nguoi_hai_chan === 1) : ((int)$conv->nguoi_mot_chan === 1);
 
             $result[] = [
                 'id' => $partner->id,
@@ -97,9 +100,80 @@ class ChatController extends Controller
                 'lastSeenPill' => $lastSeenPill,
                 'isVerified' => (int)$partner->vai_tro_id >= 2 || $partner->diem_trai_nghiem >= 100,
                 'isFollowing' => $isFollowing,
+                'isBlockedByMe' => $isBlockedByMe,
+                'isBlockedByPartner' => $isBlockedByPartner,
                 'roleTitle' => $partner->cap_bac ?: '👑 Thành Viên Club',
                 'conversation_id' => $conv->id
             ];
+        }
+
+        $existingIds = array_column($result, 'id');
+        $existingIds[] = (int) $currentUser->id;
+
+        $followIds = DB::table('theo_doi')
+            ->where('trang_thai', 1)
+            ->where(function($q) use ($currentUser) {
+                $q->where('nguoi_theo_doi_id', $currentUser->id)
+                  ->orWhere('nguoi_duoc_theo_doi_id', $currentUser->id);
+            })
+            ->get()
+            ->map(function($item) use ($currentUser) {
+                return ((int)$item->nguoi_theo_doi_id === (int)$currentUser->id) 
+                    ? (int)$item->nguoi_duoc_theo_doi_id 
+                    : (int)$item->nguoi_theo_doi_id;
+            })
+            ->unique()
+            ->values()
+            ->all();
+
+        foreach ($followIds as $fId) {
+            if (in_array((int)$fId, $existingIds, true)) continue;
+
+            $partner = User::with('vaiTro', 'capBacInfo')->find($fId);
+            if (!$partner) continue;
+
+            $cacheKey = "user_online_" . $partner->id;
+            $isCacheOnline = Cache::has($cacheKey);
+            $isDbOnline = $partner->lan_cuoi_hoat_dong && Carbon::parse($partner->lan_cuoi_hoat_dong)->gte(now()->subMinutes(5));
+            $isOnline = $isCacheOnline || $isDbOnline;
+
+            $lastSeenPill = 'Vừa rời đi';
+            if (!$isOnline && $partner->lan_cuoi_hoat_dong) {
+                $diff = (int) Carbon::parse($partner->lan_cuoi_hoat_dong)->diffInMinutes(now());
+                if ($diff < 60) {
+                    $lastSeenPill = max(1, $diff) . ' phút';
+                } elseif ($diff < 1440) {
+                    $lastSeenPill = max(1, (int) Carbon::parse($partner->lan_cuoi_hoat_dong)->diffInHours(now())) . ' giờ';
+                } else {
+                    $lastSeenPill = 'Offline';
+                }
+            }
+
+            $isFollowing = DB::table('theo_doi')
+                ->where('nguoi_theo_doi_id', $currentUser->id)
+                ->where('nguoi_duoc_theo_doi_id', $partner->id)
+                ->where('trang_thai', 1)
+                ->exists();
+
+            $result[] = [
+                'id' => $partner->id,
+                'name' => $partner->ten_hien_thi ?: $partner->ho_ten,
+                'avatar' => $partner->anh_dai_dien ?: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+                'time' => 'Mới',
+                'lastMessage' => 'Bắt đầu cuộc trò chuyện mới',
+                'unread' => 0,
+                'product' => 'Kết nối từ cộng đồng Club',
+                'productPrice' => 'Thảo luận trực tiếp',
+                'online' => $isOnline,
+                'lastSeenPill' => $lastSeenPill,
+                'isVerified' => (int)$partner->vai_tro_id >= 2 || $partner->diem_trai_nghiem >= 100,
+                'isFollowing' => $isFollowing,
+                'isBlockedByMe' => false,
+                'isBlockedByPartner' => false,
+                'roleTitle' => $partner->cap_bac ?: '👑 Thành Viên Club',
+                'conversation_id' => null
+            ];
+            $existingIds[] = (int)$fId;
         }
 
         return response()->json([
@@ -195,6 +269,14 @@ class ChatController extends Controller
             ->where('trang_thai', 1)
             ->exists();
 
+        $isBlockedByMe = false;
+        $isBlockedByPartner = false;
+        if ($conv) {
+            $isMeOne = ((int)$conv->nguoi_mot_id === (int)$currentUser->id);
+            $isBlockedByMe = $isMeOne ? ((int)$conv->nguoi_mot_chan === 1) : ((int)$conv->nguoi_hai_chan === 1);
+            $isBlockedByPartner = $isMeOne ? ((int)$conv->nguoi_hai_chan === 1) : ((int)$conv->nguoi_mot_chan === 1);
+        }
+
         return response()->json([
             'status' => 'success',
             'partner' => [
@@ -205,6 +287,8 @@ class ChatController extends Controller
                 'lastSeenPill' => $lastSeenPill,
                 'isVerified' => (int)$partner->vai_tro_id >= 2 || $partner->diem_trai_nghiem >= 100,
                 'isFollowing' => $isFollowing,
+                'isBlockedByMe' => $isBlockedByMe,
+                'isBlockedByPartner' => $isBlockedByPartner,
                 'roleTitle' => $partner->cap_bac ?: '👑 Thành Viên Club',
                 'product' => $sanPhamQuanTam,
                 'productPrice' => $giaSanPham,
@@ -237,6 +321,27 @@ class ChatController extends Controller
         $receiver = User::find($receiverId);
         if (!$receiver) {
             return response()->json(['message' => 'Người nhận không tồn tại.'], 404);
+        }
+
+        $checkConv = DB::table('cuoc_tro_chuyen')
+            ->where(function ($q) use ($currentUser, $receiverId) {
+                $q->where('nguoi_mot_id', $currentUser->id)->where('nguoi_hai_id', $receiverId);
+            })
+            ->orWhere(function ($q) use ($currentUser, $receiverId) {
+                $q->where('nguoi_mot_id', $receiverId)->where('nguoi_hai_id', $currentUser->id);
+            })
+            ->first();
+
+        if ($checkConv) {
+            $isMeOne = ((int)$checkConv->nguoi_mot_id === (int)$currentUser->id);
+            $blockedByMe = $isMeOne ? ((int)$checkConv->nguoi_mot_chan === 1) : ((int)$checkConv->nguoi_hai_chan === 1);
+            $blockedByPartner = $isMeOne ? ((int)$checkConv->nguoi_hai_chan === 1) : ((int)$checkConv->nguoi_mot_chan === 1);
+            if ($blockedByMe) {
+                return response()->json(['message' => 'Bạn đã chặn thành viên này, không thể gửi tin nhắn.'], 403);
+            }
+            if ($blockedByPartner) {
+                return response()->json(['message' => 'Bạn không thể gửi tin nhắn cho thành viên này do cài đặt quyền riêng tư.'], 403);
+            }
         }
 
         $imageUrl = $request->input('hinh_anh_url');
@@ -550,5 +655,94 @@ class ChatController extends Controller
         }
 
         return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
+    }
+
+    public function blockUser(Request $request, $partnerId)
+    {
+        $currentUser = $request->user('sanctum');
+        if (!$currentUser) {
+            return response()->json(['status' => 'error', 'message' => 'Vui lòng đăng nhập.'], 401);
+        }
+        if ((int)$currentUser->id === (int)$partnerId) {
+            return response()->json(['status' => 'error', 'message' => 'Không thể chặn chính mình.'], 400);
+        }
+
+        $conv = DB::table('cuoc_tro_chuyen')
+            ->where(function ($q) use ($currentUser, $partnerId) {
+                $q->where('nguoi_mot_id', $currentUser->id)->where('nguoi_hai_id', $partnerId);
+            })
+            ->orWhere(function ($q) use ($currentUser, $partnerId) {
+                $q->where('nguoi_mot_id', $partnerId)->where('nguoi_hai_id', $currentUser->id);
+            })
+            ->first();
+
+        if (!$conv) {
+            DB::table('cuoc_tro_chuyen')->insertGetId([
+                'nguoi_mot_id' => $currentUser->id,
+                'nguoi_hai_id' => $partnerId,
+                'san_pham_quan_tam' => 'Trao đổi trải nghiệm',
+                'gia_san_pham' => 'Thảo luận riêng',
+                'nguoi_mot_chan' => 1,
+                'nguoi_hai_chan' => 0,
+                'mot_chan_at' => now(),
+                'hai_chan_at' => null,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            return response()->json(['status' => 'success', 'message' => 'Đã chặn tin nhắn từ thành viên này.', 'isBlockedByMe' => true]);
+        }
+
+        $isMeOne = ((int)$conv->nguoi_mot_id === (int)$currentUser->id);
+        $currentBlocked = $isMeOne ? (int)$conv->nguoi_mot_chan : (int)$conv->nguoi_hai_chan;
+        $lastBlockedAt = $isMeOne ? $conv->mot_chan_at : $conv->hai_chan_at;
+
+        if ($currentBlocked === 0 && $lastBlockedAt) {
+            $targetTime = Carbon::parse($lastBlockedAt)->addHours(8);
+            if ($targetTime->isAfter(now())) {
+                $diffInSeconds = now()->diffInSeconds($targetTime);
+                $hours = (int) floor($diffInSeconds / 3600);
+                $minutes = (int) floor(($diffInSeconds % 3600) / 60);
+                return response()->json([
+                    'status' => 'error', 
+                    'message' => "Bạn chỉ có thể chặn lại thành viên này sau {$hours} giờ {$minutes} phút nữa (mỗi lần chặn lại cùng một người phải cách nhau ít nhất 8 tiếng)."
+                ], 422);
+            }
+        }
+
+        $updateData = $isMeOne 
+            ? ['nguoi_mot_chan' => 1, 'mot_chan_at' => now(), 'updated_at' => now()] 
+            : ['nguoi_hai_chan' => 1, 'hai_chan_at' => now(), 'updated_at' => now()];
+
+        DB::table('cuoc_tro_chuyen')->where('id', $conv->id)->update($updateData);
+
+        return response()->json(['status' => 'success', 'message' => 'Đã chặn tin nhắn từ thành viên này.', 'isBlockedByMe' => true]);
+    }
+
+    public function unblockUser(Request $request, $partnerId)
+    {
+        $currentUser = $request->user('sanctum');
+        if (!$currentUser) {
+            return response()->json(['status' => 'error', 'message' => 'Vui lòng đăng nhập.'], 401);
+        }
+
+        $conv = DB::table('cuoc_tro_chuyen')
+            ->where(function ($q) use ($currentUser, $partnerId) {
+                $q->where('nguoi_mot_id', $currentUser->id)->where('nguoi_hai_id', $partnerId);
+            })
+            ->orWhere(function ($q) use ($currentUser, $partnerId) {
+                $q->where('nguoi_mot_id', $partnerId)->where('nguoi_hai_id', $currentUser->id);
+            })
+            ->first();
+
+        if ($conv) {
+            $isMeOne = ((int)$conv->nguoi_mot_id === (int)$currentUser->id);
+            $updateData = $isMeOne 
+                ? ['nguoi_mot_chan' => 0, 'updated_at' => now()] 
+                : ['nguoi_hai_chan' => 0, 'updated_at' => now()];
+
+            DB::table('cuoc_tro_chuyen')->where('id', $conv->id)->update($updateData);
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Đã mở chặn cho thành viên này.', 'isBlockedByMe' => false]);
     }
 }

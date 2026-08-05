@@ -11,7 +11,8 @@ const ConfirmModal = ({
   variant = 'danger',
   confirmText = 'Xác nhận xóa',
   cancelText = 'Hủy bỏ',
-  isLoading = false
+  isLoading = false,
+  hideCancel = false
 }) => {
   if (!isOpen) return null;
 
@@ -69,14 +70,16 @@ const ConfirmModal = ({
       size="sm"
       footer={
         <div className="w-full flex items-center justify-end gap-3">
-          <button
-            onClick={onClose}
-            type="button"
-            disabled={isLoading}
-            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl transition-colors border-none cursor-pointer disabled:opacity-50"
-          >
-            {cancelText}
-          </button>
+          {!hideCancel && (
+            <button
+              onClick={onClose}
+              type="button"
+              disabled={isLoading}
+              className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl transition-colors border-none cursor-pointer disabled:opacity-50"
+            >
+              {cancelText}
+            </button>
+          )}
           <button
             onClick={onConfirm}
             type="button"

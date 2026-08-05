@@ -207,6 +207,23 @@ const Profile = () => {
     };
   }, [id]);
 
+  useEffect(() => {
+    const handleAuthChange = () => {
+      if (!localStorage.getItem('auth_token')) {
+        if (!id) {
+          setProfile(null);
+          setError('Bạn cần đăng nhập để xem trang cá nhân của mình.');
+        } else {
+          fetchProfileData();
+        }
+      } else {
+        fetchProfileData();
+      }
+    };
+    window.addEventListener('user_auth_change', handleAuthChange);
+    return () => window.removeEventListener('user_auth_change', handleAuthChange);
+  }, [id]);
+
   const handleLikePost = async (postId) => {
     try {
       const res = await api.post(`/posts/${postId}/like`);

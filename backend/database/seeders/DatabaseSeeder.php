@@ -245,6 +245,57 @@ class DatabaseSeeder extends Seeder
             ['id' => 3, 'loai_danh_muc' => 'san_pham', 'ten' => 'Góc Setup & Gadget', 'slug' => 'goc-setup-gadget', 'mo_ta' => 'Các món đồ công nghệ đáng trải nghiệm', 'thu_tu' => 1, 'trang_thai' => 1],
         ]);
 
+        DB::table('vi_tri_banner')->insertOrIgnore([
+            ['id' => 1, 'ten' => 'Banner Trang Chủ', 'ma' => 'hero', 'mo_ta' => 'Khu vực banner chính trên trang chủ', 'trang_thai' => 1]
+        ]);
+
+        DB::table('banner')->insertOrIgnore([
+            [
+                'id' => 1,
+                'vi_tri_banner_id' => 1,
+                'tieu_de' => 'Mua online không còn hên xui - Review có kiểm chứng 100%',
+                'mo_ta' => 'Thành viên dùng thử sản phẩm thật, viết đánh giá trung thực kèm ảnh thực tế và hoá đơn rõ ràng. Đọc trước khi quyết định mua sắm!',
+                'hinh_anh' => '/img/banner1.jpeg',
+                'duong_dan' => '/feed',
+                'thu_tu' => 1,
+                'trang_thai' => 1,
+                'created_at' => now()
+            ],
+            [
+                'id' => 2,
+                'vi_tri_banner_id' => 1,
+                'tieu_de' => 'Khám Phá Không Gian Cà Phê & Nghệ Thuật Sống Đích Thực ☕✨',
+                'mo_ta' => 'Những góc làm việc yên tĩnh, thiết kế ấn tượng và các trải nghiệm thưởng ngoạn specialty coffee được tuyển chọn khắt khe từ cộng đồng.',
+                'hinh_anh' => '/img/banner2.jpg',
+                'duong_dan' => '/feed',
+                'thu_tu' => 2,
+                'trang_thai' => 1,
+                'created_at' => now()
+            ],
+            [
+                'id' => 3,
+                'vi_tri_banner_id' => 1,
+                'tieu_de' => 'Góc Setup & Đánh Giá Đồ Cực Chất Từ Các Chuyên Gia 💻🚀',
+                'mo_ta' => 'Chia sẻ hình ảnh góc bàn làm việc tối giản, đánh giá sâu chi tiết bàn phím cơ, màn hình 4K và phụ kiện công nghệ sáng tạo.',
+                'hinh_anh' => '/img/banner3.jpg',
+                'duong_dan' => '/feed',
+                'thu_tu' => 3,
+                'trang_thai' => 1,
+                'created_at' => now()
+            ],
+            [
+                'id' => 4,
+                'vi_tri_banner_id' => 1,
+                'tieu_de' => 'Kết Nối Thảo Luận Realtime & Chinh Phục Huy Chương Độc Quyền 🔥👑',
+                'mo_ta' => 'Trò chuyện trực tuyến tức thời cùng các nhà sáng tạo nội dung, tích lũy điểm trải nghiệm để vươn tới đẳng cấp Huyền Thoại Club.',
+                'hinh_anh' => '/img/banner4.jpg',
+                'duong_dan' => '/about',
+                'thu_tu' => 4,
+                'trang_thai' => 1,
+                'created_at' => now()
+            ]
+        ]);
+
         foreach ($readerUsers as $ru) {
             DB::table('theo_doi')->insertOrIgnore([
                 'nguoi_theo_doi_id' => $ru->id,

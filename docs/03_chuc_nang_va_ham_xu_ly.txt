@@ -29,6 +29,7 @@ Backend:
 Frontend:
   axios.js > response interceptor [phat tin hieu BroadcastChannel club_live_sync khi tao/sua/xoa bai viet]
   Profile.jsx > loadProfile() [dong bo realtime ngam qua Reverb club-live & BroadcastChannel club_live_sync, hien thi tieu_de bai viet phan cach ro rang voi noi dung BANG vien nang dot & duong vien chach biet]
+  Profile.jsx > useEffect() [lang nghe su kien user_auth_change de lap tuc reset thong tin khi nguoi dung dang xuat tren tab]
   Profile.jsx > handleToggleFollow() [theo doi hoac xac nhan huy theo doi qua ConfirmModal]
   Profile.jsx > handleSaveProfile()
   Profile.jsx > handleUploadAvatar()
@@ -48,7 +49,7 @@ Backend:
   ProfileController::toggleLikeComment()
 
 Frontend:
-  Feed.jsx > fetchFeed() [dong bo realtime ngam qua Reverb club-live va BroadcastChannel club_live_sync]
+  Feed.jsx > fetchFeedData() [dong bo realtime ngam qua Reverb club-live, hien thi 50 bai viet & nut lam moi o cuoi trang]
   Feed.jsx > useEffect(scroll_to_post & pendingScrollPostId) [tu dong dong bo bai viet, cuon muot va phat sang noi bat bai viet tu thong bao ma khong tu dong mo binh luan, hien thi tieu_de bai viet voi vien doc gradient & duong ke phan cach ro rang voi noi dung]
   Feed.jsx > handleCreatePost()
   Feed.jsx > handleEditPost()
@@ -62,7 +63,7 @@ Frontend:
 CHUC NANG 4: TIN NHAN (Messages)
 ==============================================================
 Backend:
-  ChatController::getConversations() [gioi han hien thi thoi gian ngoai tuyen 24h, lam tron so nguyen (int) phut va gio, qua 24h thi hien thi Offline]
+  ChatController::getConversations() [gioi han hien thi thoi gian ngoai tuyen 24h, lam tron so nguyen, qua 24h thi hien thi Offline; tu dong bo sung danh sach nguoi dang theo doi/duoc theo doi vao danh sach chat]
   ChatController::getMessages() [gioi han hien thi thoi gian ngoai tuyen 24h, lam tron so nguyen (int) phut va gio, qua 24h thi hien thi Offline]
   ChatController::sendMessage()
   ChatController::deleteConversation() [xoa lich su hoi thoai theo phia nguoi dung]
@@ -70,6 +71,8 @@ Backend:
   ChatController::heartbeat()
   ChatController::getPresenceStatus() [gioi han thoi gian ngoai tuyen 24h, lam tron so nguyen, qua 24h thi hien thi Offline]
   ChatController::broadcastStatus()
+  ChatController::blockUser()
+  ChatController::unblockUser()
 
 Frontend:
   Messages.jsx > fetchConversations()
@@ -80,10 +83,12 @@ Frontend:
   Messages.jsx > handleShareMessage() [sao chep noi dung tin nhan de chia se]
   Messages.jsx > handleFollowPartner()
   Messages.jsx > togglePartnerOnline()
+  Messages.jsx > handleToggleBlock()
   Messages.jsx > scrollToBottom()
   Messages.jsx > useEffect() [khoi dong Reverb channel.listen('.live-event') & heartbeat]
   Messages.jsx > useEffect() [xu ly chatTarget tu Profile navigate & load conversations]
   Messages.jsx > useEffect() [load chi tiet messages khi activeId thay doi]
+  Messages.jsx > useEffect() [lang nghe su kien user_auth_change de lap tuc xoas trang nhat ky chat, hien thi giao dien khoe Neo-Brutalism khi dang xuat khoi club]
 
 ==============================================================
 CHUC NANG 5: THONG BAO REAL-TIME (WebSocket)
@@ -150,6 +155,37 @@ Frontend:
   Header.jsx > userMenu [menu rap Nguoi dung & Bang Quan Tri mau trang sang rong rai tren 1 dong chu chuan Minimalist Neo-Brutanlist voi icon Lucide]
 
 ==============================================================
+CHUC NANG 10: POPUP THONG BAO TINH CHAT DU AN (Disclaimer Modal)
+==============================================================
+Frontend:
+  DisclaimerModal.jsx > Render [modal to rong size lg thong bao du an phat trien phi thuong mai vi muc dich hoc tap & thuc hanh cong nghe]
+  Home.jsx > useEffect() [kiem tra sessionStorage va hien thi DisclaimerModal khi truy cap trang chu lan dau]
+
+==============================================================
+CHUC NANG 11: BANNER TRANG CHU AUTO CAROUSEL (Hero Banner)
+==============================================================
+Backend:
+  BannerController::getHeroBanners() [truy van danh sach banner tu bang banner ket hop vi_tri_banner ma 'hero', sap xep theo thu_tu]
+
+Frontend:
+  Hero.jsx > useEffect() [tai danh sach banner qua API /banners/hero, tu dong trượt (auto-slide) hinh anh moi khem theo dong bo tieu de, mo ta sau 5 giay khem hieu ung transition mượt ma]
+
+==============================================================
+CHUC NANG 12: TRANG SAN PHAM (Products)
+==============================================================
+Frontend:
+  Products.jsx > ProductBanner() [Carousel auto-slide hien thi banner tu thu muc backend public/bannersp, tao hieu ung fade in va zoom out]
+  ProductDetail.jsx > hien thi chi tiet san pham, danh gia va comment cua tung san pham
+
+==============================================================
+CHUC NANG 13: TRANG SU KIEN (Events)
+==============================================================
+Frontend:
+  Events.jsx > Giao dien trang danh sach cac su kien va workshop sap dien ra (Su dung mock data)
+  App.jsx > Route /events
+  Header.jsx > Link nav den trang su kien]
+
+==============================================================
 MODEL RELATIONSHIPS
 ==============================================================
   User::vaiTro()       -> belongsTo VaiTro
@@ -165,6 +201,7 @@ BANG TOM TAT ROUTES
     POST   /api/login
     GET    /api/profile/{id?}
     GET    /api/feed/posts
+    GET    /api/banners/hero
     POST   /api/chat/heartbeat
     GET    /api/chat/presence-status
     POST   /api/chat/broadcast-status
@@ -187,6 +224,8 @@ BANG TOM TAT ROUTES
     POST   /api/chat/messages
     DELETE /api/chat/messages/{id}
     DELETE /api/chat/conversations/{partnerId}
+    POST   /api/chat/block/{id}
+    POST   /api/chat/unblock/{id}
 
 ================================================================
 KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:

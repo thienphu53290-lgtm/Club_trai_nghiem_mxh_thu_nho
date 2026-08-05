@@ -9,6 +9,9 @@ import Messages from './pages/Messages/Messages';
 import About from './pages/About/About';
 import Auth from './pages/Auth/Auth';
 import SuperAdmin from './pages/Admin/SuperAdmin';
+import Products from './pages/Products/Products';
+import ProductDetail from './pages/Products/ProductDetail';
+import Events from './pages/Events/Events';
 import api from './api/axios';
 import { runOneSignal } from './api/onesignal';
 
@@ -40,6 +43,9 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="profile" element={<Profile />} />
           <Route path="profile/:id" element={<Profile />} />
+          <Route path="products" element={<Products />} />
+          <Route path="products/:slug" element={<ProductDetail />} />
+          <Route path="events" element={<Events />} />
         </Route>
       </Routes>
     </BrowserRouter>

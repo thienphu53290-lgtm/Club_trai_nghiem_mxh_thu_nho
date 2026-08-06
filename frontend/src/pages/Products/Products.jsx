@@ -26,7 +26,7 @@ const ProductBanner = () => {
   }, []);
 
   return (
-    <div className="w-full bg-slate-900 rounded-[32px] overflow-hidden mb-12 relative h-[500px] flex items-center shadow-lg group">
+    <div className="w-full bg-slate-900 rounded-[16px] sm:rounded-[32px] overflow-hidden mb-8 sm:mb-12 relative aspect-video lg:aspect-auto lg:h-[500px] flex items-center shadow-lg group">
       {bannerImages.map((src, idx) => (
         <div 
           key={idx}
@@ -186,7 +186,7 @@ const ProductCard = ({ product }) => {
       onMouseLeave={handleMouseLeave}
       onClick={() => navigate(`/products/${product.slug}`)}
       style={style}
-      className="border border-border-color rounded-[32px] p-5 bg-white cursor-pointer hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] group will-change-transform relative flex flex-col"
+      className="border border-border-color rounded-[16px] sm:rounded-[32px] p-3 sm:p-5 bg-white cursor-pointer hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] group will-change-transform relative flex flex-col"
     >
       <div 
         className="pointer-events-none absolute inset-0 rounded-[32px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -196,19 +196,19 @@ const ProductCard = ({ product }) => {
         }}
       />
 
-      <div className="relative rounded-[24px] flex items-center justify-center mb-5 overflow-hidden z-10" style={{ height: '260px', backgroundColor: product.imageBg }}>
+      <div className="relative rounded-[12px] sm:rounded-[24px] flex items-center justify-center mb-3 sm:mb-5 overflow-hidden z-10 h-[140px] sm:h-[260px]" style={{ backgroundColor: product.imageBg }}>
         <img src={product.image} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
       </div>
 
       <div className="px-1 relative z-10 flex-1 flex flex-col">
-        <span className="text-black/50 text-[0.8rem] font-medium uppercase tracking-wider mb-1">{product.category}</span>
-        <h3 className="text-[1.1rem] font-bold mb-2 text-text-dark line-clamp-2 leading-snug">{product.title}</h3>
+        <span className="text-black/50 text-[0.65rem] sm:text-[0.8rem] font-medium uppercase tracking-wider mb-0.5 sm:mb-1 truncate">{product.category}</span>
+        <h3 className="text-[0.9rem] sm:text-[1.1rem] font-bold mb-1.5 sm:mb-2 text-text-dark line-clamp-2 leading-snug">{product.title}</h3>
         
-        <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
-          <div className="font-extrabold text-primary text-[1.1rem]">{product.price}</div>
-          <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-md">
-            <Star size={12} className="text-amber-500 fill-amber-500" />
-            <span className="text-[0.85rem] text-amber-700 font-bold">{product.rating}</span>
+        <div className="mt-auto pt-2 sm:pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 sm:gap-0">
+          <div className="font-extrabold text-primary text-[0.95rem] sm:text-[1.1rem]">{product.price}</div>
+          <div className="flex items-center gap-1 bg-amber-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
+            <Star size={10} className="text-amber-500 fill-amber-500 sm:w-3 sm:h-3" />
+            <span className="text-[0.75rem] sm:text-[0.85rem] text-amber-700 font-bold">{product.rating}</span>
           </div>
         </div>
       </div>
@@ -224,10 +224,10 @@ const Products = () => {
         {/* Banner Riêng Cho Trang Sản Phẩm */}
         <ProductBanner />
 
-        <div className="flex gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
           
           {/* Sidebar Filter (Left Column) */}
-          <div className="w-[280px] shrink-0 bg-white border border-border-color rounded-[24px] p-6 sticky top-[90px]">
+          <div className="w-full lg:w-[280px] shrink-0 bg-white border border-border-color rounded-[24px] p-6 lg:sticky top-[90px]">
             <div className="flex items-center gap-2 font-black text-text-dark text-[1.2rem] mb-6 pb-4 border-b border-slate-100">
               <Filter size={20} className="text-primary" />
               Bộ Lọc Tìm Kiếm
@@ -295,8 +295,8 @@ const Products = () => {
           <div className="flex-1">
             
             {/* Header of Grid */}
-            <div className="bg-white border border-border-color rounded-[20px] p-4 flex items-center justify-between mb-6">
-              <div className="relative w-[350px]">
+            <div className="bg-white border border-border-color rounded-[20px] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
+              <div className="relative w-full sm:w-[350px]">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input 
                   type="text" 
@@ -305,7 +305,7 @@ const Products = () => {
                 />
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                 <span className="text-[0.95rem] text-text-light font-medium">Sắp xếp theo:</span>
                 <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-[0.95rem] font-bold text-text-dark hover:bg-slate-50 transition-colors">
                   Phổ biến nhất <ChevronDown size={16} className="text-slate-400" />
@@ -314,7 +314,7 @@ const Products = () => {
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {[...mockProducts, ...mockProducts].map((product, idx) => (
                 <ProductCard key={`${product.id}-${idx}`} product={product} />
               ))}

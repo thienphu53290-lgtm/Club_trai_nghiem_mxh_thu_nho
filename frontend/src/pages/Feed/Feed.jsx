@@ -642,7 +642,7 @@ const Feed = () => {
         </div>
       )}
 
-      <div className="max-w-[1340px] mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-[300px_1fr_320px] gap-8">
+      <div className="max-w-[1340px] mx-auto px-2 sm:px-6 py-4 sm:py-8 grid grid-cols-1 lg:grid-cols-[300px_1fr_320px] gap-4 sm:gap-8">
         
         <aside className="hidden lg:flex flex-col gap-6">
           
@@ -744,7 +744,7 @@ const Feed = () => {
 
         <main className="flex flex-col gap-6">
           
-          <div className="bg-gradient-to-r from-rose-50 via-amber-50/50 to-orange-50 border border-rose-200/80 rounded-[32px] p-6 sm:p-8 shadow-sm">
+          <div className="bg-gradient-to-r from-rose-50 via-amber-50/50 to-orange-50 border border-rose-200/80 rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 shadow-sm">
             <div className="flex gap-4 items-start">
               <div className="w-12 h-12 rounded-2xl bg-white border border-rose-200 flex items-center justify-center text-[#c93638] shrink-0 shadow-xs">
                 <Sparkles size={24} />
@@ -760,7 +760,7 @@ const Feed = () => {
             </div>
           </div>
 
-          <div className="border border-slate-200/80 rounded-[32px] p-6 bg-white shadow-sm hover:shadow-md transition-all">
+          <div className="border border-slate-200/80 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 bg-white shadow-sm hover:shadow-md transition-all">
             <div className="flex gap-4 mb-5 items-center">
               <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center font-extrabold text-slate-600 shadow-2xs">
                 {currentUser?.anh_dai_dien ? (
@@ -821,7 +821,7 @@ const Feed = () => {
             </div>
           ) : (
             posts.map(post => (
-              <article key={post.id} id={`post-${post.id}`} className="border border-slate-200/80 rounded-[32px] p-6 sm:p-8 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col gap-5">
+              <article key={post.id} id={`post-${post.id}`} className="border border-slate-200/80 rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col gap-5">
                 
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -1126,45 +1126,45 @@ const Feed = () => {
         size="xl"
       >
         <div className="space-y-4">
-          <div className="p-4 bg-rose-50 rounded-2xl border border-rose-100 flex items-center gap-3 text-xs font-bold text-slate-700">
-            <span className="text-xl">🔥</span>
-            <span>Chia sẻ thỏa thích <strong>bộ sưu tập ảnh (album)</strong> về Cà Phê, Công Nghệ hoặc Không gian của bạn tới toàn bộ Club qua hệ thống Realtime!</span>
+          <div className="p-3 sm:p-4 bg-rose-50 rounded-xl sm:rounded-2xl border border-rose-100 flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-bold text-slate-700 leading-tight sm:leading-normal">
+            <span className="text-lg sm:text-xl shrink-0">🔥</span>
+            <span>Chia sẻ thỏa thích <strong>bộ sưu tập ảnh (album)</strong> về Cà Phê, Công Nghệ hoặc Không gian tới toàn bộ Club qua hệ thống Realtime!</span>
           </div>
           
           <div>
-            <label className="block font-extrabold text-xs uppercase tracking-wider text-slate-600 mb-2">
+            <label className="block font-extrabold text-[10px] sm:text-xs uppercase tracking-wider text-slate-600 mb-1.5 sm:mb-2">
               Tiêu đề khoảnh khắc (Tùy chọn)
             </label>
             <input
               type="text"
-              placeholder="Ví dụ: Review chi tiết bộ setup làm việc tối giản 2026 & góc cà phê quen thuộc..."
+              placeholder="Ví dụ: Review chi tiết bộ setup làm việc..."
               value={createPostModal.title}
               onChange={(e) => setCreatePostModal(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl font-bold text-sm text-slate-800 outline-none focus:border-rose-400 focus:bg-white transition-all"
+              className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50 border border-slate-200/80 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm text-slate-800 outline-none focus:border-rose-400 focus:bg-white transition-all"
             />
           </div>
 
           <div>
-            <label className="block font-extrabold text-xs uppercase tracking-wider text-slate-600 mb-2">
+            <label className="block font-extrabold text-[10px] sm:text-xs uppercase tracking-wider text-slate-600 mb-1.5 sm:mb-2">
               Nội dung trải nghiệm <span className="text-[#c93638]">*</span>
             </label>
             <textarea
-              rows="5"
+              rows="4"
               required
               placeholder="Chia sẻ trọn vẹn cảm xúc, hương vị hay đánh giá chi tiết của bạn tại đây..."
               value={createPostModal.content}
               onChange={(e) => setCreatePostModal(prev => ({ ...prev, content: e.target.value }))}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl font-normal text-sm text-slate-800 outline-none focus:border-rose-400 focus:bg-white transition-all resize-none leading-relaxed"
+              className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50 border border-slate-200/80 rounded-xl sm:rounded-2xl font-normal text-xs sm:text-sm text-slate-800 outline-none focus:border-rose-400 focus:bg-white transition-all resize-none leading-relaxed"
             ></textarea>
           </div>
 
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="font-extrabold text-xs uppercase tracking-wider text-slate-600">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 mb-2">
+              <label className="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider text-slate-600">
                 Thêm hình ảnh / Album minh họa ({createPostModal.images.length} ảnh)
               </label>
-              <label className="bg-[#c93638]/10 hover:bg-[#c93638] text-[#c93638] hover:text-white px-4 py-1.5 rounded-xl font-black text-xs cursor-pointer transition-all flex items-center gap-1.5">
-                <PlusCircle size={15} />
+              <label className="bg-[#c93638]/10 hover:bg-[#c93638] text-[#c93638] hover:text-white px-3 sm:px-4 py-1.5 rounded-lg sm:rounded-xl font-black text-[10px] sm:text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5 w-full sm:w-auto">
+                <PlusCircle size={14} className="sm:w-[15px] sm:h-[15px]" />
                 <span>Chọn nhiều ảnh từ máy</span>
                 <input
                   type="file"
@@ -1176,29 +1176,29 @@ const Feed = () => {
               </label>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <input
                 type="text"
-                placeholder="Hoặc dán đường dẫn URL ảnh (Unsplash, Imgur...) và nhấn Thêm"
+                placeholder="Hoặc dán đường dẫn URL ảnh (Unsplash, Imgur...)"
                 value={createPostModal.inputUrl}
                 onChange={(e) => setCreatePostModal(prev => ({ ...prev, inputUrl: e.target.value }))}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddImageUrl())}
-                className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl font-medium text-sm text-slate-800 outline-none focus:border-rose-400 focus:bg-white transition-all"
+                className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-slate-50 border border-slate-200/80 rounded-xl sm:rounded-2xl font-medium text-xs sm:text-sm text-slate-800 outline-none focus:border-rose-400 focus:bg-white transition-all"
               />
               <button 
                 type="button"
                 onClick={handleAddImageUrl}
                 disabled={!createPostModal.inputUrl.trim()}
-                className="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white px-6 py-3 rounded-2xl font-black text-xs cursor-pointer transition-all shrink-0"
+                className="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs cursor-pointer transition-all shrink-0"
               >
                 + Thêm URL
               </button>
             </div>
 
             {createPostModal.images.length > 0 && (
-              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-100/80 rounded-2xl border border-slate-200/80">
+              <div className="mt-4 flex sm:grid sm:grid-cols-4 gap-3 p-3 sm:p-4 bg-slate-100/80 rounded-2xl border border-slate-200/80 overflow-x-auto snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
                 {createPostModal.images.map((img, idx) => (
-                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-300 bg-white shadow-xs group">
+                  <div key={idx} className="relative shrink-0 snap-center w-[90px] sm:w-auto aspect-square rounded-xl overflow-hidden border border-slate-300 bg-white shadow-xs group">
                     <img src={img.url} alt={`preview ${idx}`} className="w-full h-full object-cover" />
                     <span className="absolute bottom-1 left-1 bg-slate-900/70 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-md">
                       #{idx + 1}

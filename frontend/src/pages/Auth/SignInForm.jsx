@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 
-const SignInForm = () => {
+const SignInForm = ({ toggleAuthMode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,8 +34,12 @@ const SignInForm = () => {
         // 3. Thông báo cho Header cập nhật trạng thái
         window.dispatchEvent(new Event('user_auth_change'));
 
-        // 4. Di chuyển về trang chủ hoặc profile
-        navigate('/');
+        // 4. Di chuyển về trang chủ hoặc profile (Kiểm tra Onboarding)
+        if (!res.data.user.is_onboarded) {
+          navigate('/onboarding');
+        } else {
+          navigate('/');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || '❌ Đăng nhập thất bại! Vui lòng kiểm tra lại email hoặc mật khẩu.');
@@ -91,9 +95,18 @@ const SignInForm = () => {
         <button 
           type="submit" 
           disabled={loading}
-          className="neu-convex bg-transparent border-none text-[#4a5568] font-bold text-[14px] uppercase tracking-wider px-12 py-3.5 rounded-[20px] cursor-pointer hover:text-primary transition-all shadow-md active:scale-95 disabled:opacity-50"
+          className="neu-convex mt-8 w-40 h-12 rounded-full bg-[#f2a9a9] text-white font-extrabold text-[0.85rem] tracking-wider uppercase border-none cursor-pointer hover:bg-primary transition-colors flex items-center justify-center disabled:opacity-70"
         >
-          {loading ? '⏳ Đang xử lý...' : 'Sign In'}
+          {loading ? 'Đang tải...' : 'SIGN IN'}
+        </button>
+
+        {/* Mobile only switch button */}
+        <button 
+          type="button" 
+          onClick={toggleAuthMode}
+          className="md:hidden mt-6 text-[#4a5568] text-sm font-bold bg-transparent border-none underline"
+        >
+          Chưa có tài khoản? Đăng ký ngay
         </button>
       </form>
     </div>

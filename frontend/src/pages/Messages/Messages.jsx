@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Search, Send, Image, Smile, CheckCircle, Shield, Circle, Paperclip, 
   Check, MoreVertical, Phone, Video, Info, User, Bell, Pin, ChevronDown, 
-  ChevronUp, Lock, ShoppingBag, Trash2, Sparkles, AlertCircle, Share2, MoreHorizontal
+  ChevronUp, Lock, ShoppingBag, Trash2, Sparkles, AlertCircle, Share2, MoreHorizontal, ChevronLeft
 } from 'lucide-react';
 import api from '../../api/axios';
 import echo from '../../api/echo';
@@ -19,7 +19,7 @@ const Messages = () => {
   const [filterTab, setFilterTab] = useState('all');
   const [inputText, setInputText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showRightSidebar, setShowRightSidebar] = useState(true);
+  const [showRightSidebar, setShowRightSidebar] = useState(window.innerWidth >= 1280);
   const [openSections, setOpenSections] = useState({ product: true, media: true, privacy: true });
   const [activeMenuMsgId, setActiveMenuMsgId] = useState(null);
   const [activeContactMenuId, setActiveContactMenuId] = useState(null);
@@ -131,7 +131,7 @@ const Messages = () => {
               list = [newContact, ...list];
             }
             setActiveId(targetFromState.id);
-          } else if (list.length > 0 && !activeIdRef.current) {
+          } else if (list.length > 0 && !activeIdRef.current && window.innerWidth >= 768) {
             setActiveId(list[0].id);
           }
           setContacts(prev => list.map(item => {
@@ -625,7 +625,7 @@ const Messages = () => {
     <div className="w-full min-h-[calc(100vh-140px)] bg-[#f8fafc] px-3 sm:px-6 py-4 max-w-[1780px] mx-auto font-sans flex flex-col" onClick={() => setActiveContactMenuId(null)}>
       <div className="grid grid-cols-1 md:grid-cols-12 xl:grid-cols-12 gap-4 sm:gap-5 flex-1 h-[calc(100vh-172px)] max-h-[calc(100vh-172px)] min-h-[600px]">
         
-        <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 border-2 border-[#0f172a] rounded-[28px] p-4 sm:p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col h-full max-h-full min-h-0 overflow-hidden">
+        <div className={`${activeId ? 'hidden md:flex' : 'flex'} md:col-span-5 lg:col-span-4 xl:col-span-3 border-2 border-[#0f172a] rounded-[28px] p-4 sm:p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex-col h-full max-h-full min-h-0 overflow-hidden`}>
           
           <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-slate-100 shrink-0">
             <h2 className="text-2xl font-black text-slate-950 tracking-tight m-0 flex items-center gap-2">
@@ -774,7 +774,7 @@ const Messages = () => {
           </div>
         </div>
 
-        <div className={`md:col-span-7 ${showRightSidebar ? 'lg:col-span-8 xl:col-span-6' : 'lg:col-span-8 xl:col-span-9'} border-2 border-[#0f172a] rounded-[28px] p-4 sm:p-6 bg-white shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] flex flex-col h-full max-h-full min-h-0 overflow-hidden transition-all duration-300`}>
+        <div className={`${!activeId ? 'hidden md:flex' : 'flex'} md:col-span-7 ${showRightSidebar ? 'lg:col-span-8 xl:col-span-6' : 'lg:col-span-8 xl:col-span-9'} border-2 border-[#0f172a] rounded-[28px] p-4 sm:p-6 bg-white shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] flex-col h-full max-h-full min-h-0 overflow-hidden transition-all duration-300`}>
           
           {!activeContact.id ? (
             <div className="flex-1 flex flex-col items-center justify-center text-slate-400 font-black">
@@ -784,7 +784,13 @@ const Messages = () => {
           ) : (
             <>
               <div className="flex items-center justify-between pb-3.5 border-b-2 border-slate-900 mb-4 shrink-0">
-                <div className="flex items-center gap-3.5 min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                  <button 
+                    onClick={() => setActiveId(null)}
+                    className="md:hidden w-10 h-10 rounded-xl border-2 border-[#0f172a] bg-slate-50 flex items-center justify-center text-slate-800 shrink-0"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
                   <div className="relative shrink-0">
                     <img 
                       src={activeContact.avatar} 
@@ -1096,9 +1102,16 @@ const Messages = () => {
         </div>
 
         {showRightSidebar && activeContact.id && (
-          <div className="hidden xl:flex xl:col-span-3 border-2 border-[#0f172a] rounded-[28px] p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex-col h-full max-h-full min-h-0 overflow-y-auto scrollbar-thin animate-in slide-in-from-right duration-200">
+          <div className={`${showRightSidebar ? 'fixed inset-0 z-50 m-4 flex' : 'hidden'} xl:relative xl:inset-auto xl:m-0 xl:z-auto xl:flex xl:col-span-3 border-2 border-[#0f172a] rounded-[28px] p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex-col h-full max-h-full min-h-0 overflow-y-auto scrollbar-thin animate-in slide-in-from-right duration-200`}>
             
-            <div className="text-center pb-5 border-b-2 border-slate-100 mb-5">
+            <div className="text-center pb-5 border-b-2 border-slate-100 mb-5 relative">
+              <button 
+                onClick={() => setShowRightSidebar(false)}
+                className="xl:hidden absolute left-0 top-0 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center transition-colors border-2 border-[#0f172a]"
+              >
+                <Trash2 size={14} className="opacity-0 hidden" />
+                <span className="font-black text-sm text-[#c93638]">X</span>
+              </button>
               <div className="relative w-20 h-20 mx-auto mb-3">
                 <img 
                   src={activeContact.avatar} 

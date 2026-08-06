@@ -80,7 +80,7 @@ const Hero = () => {
 
   return (
     <section className="px-5 py-[30px]" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-      <div className="max-w-[1320px] mx-auto flex items-center gap-[60px] border border-border-color rounded-[32px] p-[60px] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+      <div className="max-w-[1320px] mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-[60px] border border-border-color rounded-[32px] p-6 lg:p-[60px] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
         
         <div className="flex-1">
           <div className="inline-flex items-center gap-2 bg-[#fcebeb] text-primary px-4 py-1.5 rounded-full text-[0.85rem] font-semibold mb-5">
@@ -89,7 +89,7 @@ const Hero = () => {
           </div>
           
           <div key={activeIndex} className="animate-fadeSlideIn min-h-[190px] flex flex-col justify-center">
-            <h1 className="text-[3.2rem] font-extrabold leading-[1.15] tracking-tight mb-5 text-text-dark">
+            <h1 className="text-3xl sm:text-4xl lg:text-[3.2rem] font-extrabold leading-[1.2] lg:leading-[1.15] tracking-tight mb-4 lg:mb-5 text-text-dark">
               {currentBanner.tieu_de || 'Mua online không còn hên xui'}
             </h1>
             
@@ -98,7 +98,7 @@ const Hero = () => {
             </p>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button 
               onClick={() => navigate(currentBanner.duong_dan || '/feed')}
               className="bg-primary text-white border-none px-7 py-3.5 rounded-full font-semibold text-[1rem] flex items-center gap-2 cursor-pointer transition-colors hover:bg-primary-hover"
@@ -114,8 +114,8 @@ const Hero = () => {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col gap-4 max-w-[580px]">
-          <div className="relative rounded-[24px] overflow-hidden aspect-[4/3] bg-slate-100 shadow-xs">
+        <div className="flex-1 flex flex-col gap-4 w-full max-w-[580px]">
+          <div className="relative rounded-[24px] overflow-hidden aspect-video bg-slate-100 shadow-xs">
             {banners.map((img, index) => (
               <img 
                 key={img.id || index}

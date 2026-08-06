@@ -104,13 +104,40 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        if ($request->user()) {
-            $request->user()->currentAccessToken()->delete();
-        }
+        // Xóa tất cả token của user
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'status' => true,
-            'message' => 'Đã đăng xuất và hủy Token thành công!',
+            'message' => 'Đăng xuất thành công'
+        ]);
+    }
+
+    public function saveOnboarding(Request $request)
+    {
+        $user = $request->user();
+        
+        $validator = Validator::make($request->all(), [
+            'answers' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user->update([
+            'is_onboarded' => true,
+            'onboarding_data' => $request->answers
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Lưu dữ liệu Onboarding thành công!',
+            'user' => $user->load('vaiTro', 'capBacInfo')
         ]);
     }
 

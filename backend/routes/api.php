@@ -20,10 +20,12 @@ Route::get('/chat/presence-status', [ChatController::class, 'getPresenceStatus']
 Route::post('/chat/broadcast-status', [ChatController::class, 'broadcastStatus']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/onboarding', [AuthController::class, 'saveOnboarding']);
     Route::get('/user', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/profile/update', [ProfileController::class, 'update']);
     Route::post('/users/{id}/follow', [ProfileController::class, 'toggleFollow']);
+    Route::get('/users/connections', [ProfileController::class, 'getConnections']);
     Route::post('/posts/{id}/like', [ProfileController::class, 'toggleLikePost']);
     Route::post('/posts/{id}/comment', [ProfileController::class, 'addComment']);
     Route::post('/comments/{id}/like', [ProfileController::class, 'toggleLikeComment']);

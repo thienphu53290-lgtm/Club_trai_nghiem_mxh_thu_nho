@@ -620,7 +620,7 @@ const Profile = () => {
         </div>
       )}
 
-      <div className="max-w-[1320px] mx-auto px-5 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
+      <div className="max-w-[1320px] mx-auto px-2 sm:px-5 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4 lg:gap-8">
         
         <div className="flex flex-col">
           
@@ -657,9 +657,9 @@ const Profile = () => {
             )}
           </div>
 
-          <div className="flex justify-between items-end px-6 -mt-16 sm:-mt-20 mb-4 z-10 relative">
-            <div className="relative group">
-              <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full border-4 border-[#0f172a] overflow-hidden bg-white shadow-lg flex items-center justify-center relative">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end px-4 sm:px-6 mt-0 sm:-mt-20 mb-4 z-10 relative gap-3 sm:gap-0">
+            <div className="relative group -mt-14 sm:mt-0">
+              <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-[#0f172a] overflow-hidden bg-white shadow-lg flex items-center justify-center relative">
                 {profile.anh_dai_dien ? (
                   <img 
                     src={profile.anh_dai_dien} 
@@ -684,7 +684,7 @@ const Profile = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-2 sm:gap-3 mb-0 sm:mb-2 self-end sm:self-auto w-full sm:w-auto">
               {!isOwner ? (
                 <div className="flex flex-wrap items-center gap-2.5">
                   <button 
@@ -724,7 +724,7 @@ const Profile = () => {
                   onClick={() => { setEditTab('info'); setShowEditModal(true); }}
                   className="px-6 py-2.5 rounded-full font-black text-[0.95rem] border-2 border-[#0f172a] bg-white hover:bg-slate-900 hover:text-white text-slate-900 flex items-center gap-2 shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                 >
-                  <Edit3 size={17} /> Chỉnh Sửa Hồ Sơ
+                  <Edit3 size={17} /> Chỉnh Sửa
                 </button>
               )}
 
@@ -837,7 +837,7 @@ const Profile = () => {
                   ) : (
                     <div className="flex flex-col gap-6">
                       {posts.map((p) => (
-                        <div key={p.id} className={`border-2 ${p.ghim ? 'border-amber-400 bg-amber-50/20 shadow-[0_4px_20px_rgba(251,191,36,0.15)]' : 'border-[#0f172a] bg-white shadow-sm'} rounded-[32px] p-6 transition-all hover:shadow-md relative overflow-hidden`}>
+                        <div key={p.id} className={`border-2 ${p.ghim ? 'border-amber-400 bg-amber-50/20 shadow-[0_4px_20px_rgba(251,191,36,0.15)]' : 'border-[#0f172a] bg-white shadow-sm'} rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 transition-all hover:shadow-md relative overflow-hidden`}>
                           
                           {p.ghim == 1 && (
                             <div className="flex items-center gap-1.5 text-amber-800 bg-gradient-to-r from-amber-200 to-yellow-100 px-4 py-1.5 rounded-xl font-black text-xs w-fit mb-4 border border-amber-300">
@@ -1002,7 +1002,7 @@ const Profile = () => {
               )}
 
               {activeTab === 'Hồ sơ chi tiết' && (
-                <div className="border border-slate-200 rounded-[32px] p-6 sm:p-8 bg-white shadow-xs">
+                <div className="border border-slate-200 rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 bg-white shadow-xs">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <h2 className="font-black text-xl text-slate-900 m-0 flex items-center gap-2.5">
                       <Shield className="text-[#c93638]" size={24} /> 
@@ -1200,7 +1200,7 @@ const Profile = () => {
                   ) : (
                     <div className="flex flex-col gap-5">
                       {events.map((ev) => (
-                        <div key={ev.id} className="border-2 border-[#0f172a] rounded-[32px] p-6 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div key={ev.id} className="border-2 border-[#0f172a] rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 flex-1">
                             {ev.anh_bia && (
                               <div className="w-full sm:w-36 h-28 rounded-2xl overflow-hidden bg-slate-900 shrink-0 border border-slate-200">
@@ -1250,7 +1250,7 @@ const Profile = () => {
 
         <aside className="flex flex-col gap-6">
           
-          <div className="border border-slate-200/80 rounded-[28px] p-6 bg-white shadow-sm transition-all hover:shadow-md hover:border-rose-200/60">
+          <div className="border border-slate-200/80 rounded-[20px] sm:rounded-[28px] p-4 sm:p-6 bg-white shadow-sm transition-all hover:shadow-md hover:border-rose-200/60">
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center gap-2.5 font-black text-base text-slate-800">
                 <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#c93638]">
@@ -1326,7 +1326,7 @@ const Profile = () => {
             )}
           </button>
 
-          <div className="border border-slate-200/80 rounded-[28px] p-6 bg-white shadow-sm transition-all hover:shadow-md">
+          <div className="border border-slate-200/80 rounded-[20px] sm:rounded-[28px] p-4 sm:p-6 bg-white shadow-sm transition-all hover:shadow-md">
             <h3 className="font-black text-lg text-slate-800 mb-4 flex items-center gap-2">
               <Award className="text-[#c93638]" /> Huy hiệu & Danh hiệu ({badges.length})
             </h3>
@@ -1348,7 +1348,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="border border-slate-200/80 rounded-[28px] p-6 bg-white shadow-sm transition-all hover:shadow-md">
+          <div className="border border-slate-200/80 rounded-[20px] sm:rounded-[28px] p-4 sm:p-6 bg-white shadow-sm transition-all hover:shadow-md">
             <h3 className="font-black text-lg text-slate-800 mb-4 flex items-center justify-between">
               <span>Bạn bè Theo dõi ({followersList.length})</span>
               <Users size={20} className="text-slate-400" />

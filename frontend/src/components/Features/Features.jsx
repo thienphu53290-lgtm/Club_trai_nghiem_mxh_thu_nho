@@ -29,11 +29,11 @@ const Features = () => {
     <section className="px-5 py-[60px]">
       <div className="max-w-[1320px] mx-auto">
         <div className="mb-8">
-          <h2 className="text-[2rem] font-extrabold text-text-dark mb-2">Club có gì?</h2>
+          <h2 className="text-2xl md:text-[2rem] font-extrabold text-text-dark mb-2">Club có gì?</h2>
           <p className="text-text-light text-[1.05rem]">Bốn hoạt động chính giúp bạn quyết định mua sắm tự tin hơn.</p>
         </div>
         
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <div key={index} className="border border-border-color rounded-[24px] p-8 bg-white transition-shadow duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.03)]">
               <div className="w-14 h-14 bg-[#fcebeb] rounded-xl flex items-center justify-center mb-6 text-primary">

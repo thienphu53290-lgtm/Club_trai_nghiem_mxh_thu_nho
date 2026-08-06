@@ -91,6 +91,10 @@ PHAN FRONTEND (React - JavaScript)
     - Phien ban: ^7.18.2
     - Cac route: / (Home), /feed, /messages, /profile, /profile/:id, /auth
 
+[16B] Browser Image Compression 2.0
+    - Thu vien nen anh truoc khi upload (giam dung luong, tiet kiem bang thong).
+    - Phien ban: ^2.0
+
 [17] Axios 1.19.0
     - Thu vien goi HTTP request tu Frontend den Backend API.
     - Phien ban: ^1.19.0

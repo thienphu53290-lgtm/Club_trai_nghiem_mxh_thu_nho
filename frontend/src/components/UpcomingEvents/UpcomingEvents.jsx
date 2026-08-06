@@ -36,40 +36,40 @@ const UpcomingEvents = () => {
     <section className="px-5 py-[60px]">
       <div className="max-w-[1320px] mx-auto">
         <div className="mb-8">
-          <h2 className="text-[2rem] font-extrabold text-text-dark mb-2">Sự kiện sắp tới</h2>
+          <h2 className="text-2xl md:text-[2rem] font-extrabold text-text-dark mb-2">Sự kiện sắp tới</h2>
           <p className="text-text-light text-[1.05rem]">Nhấn vào từng banner để xem chi tiết buổi trải nghiệm tương ứng.</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-[30px]">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-[20px] sm:gap-[30px] overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden -mx-5 px-5 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
           {events.map(event => (
-            <div key={event.id} className="border border-border-color rounded-[24px] overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.05)] group">
-              <div className="relative h-[240px] overflow-hidden">
+            <div key={event.id} className="w-[280px] sm:w-auto snap-center shrink-0 border border-border-color rounded-[24px] overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.05)] group">
+              <div className="relative h-[160px] sm:h-[240px] overflow-hidden">
                 <img src={event.image} alt={event.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/80 z-10" />
                 
                 <div className="absolute top-4 left-4 right-4 flex justify-between z-20">
-                  <span className="px-3.5 py-1.5 rounded-2xl text-[0.85rem] font-bold bg-white text-text-dark">
+                  <span className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-2xl text-[0.75rem] sm:text-[0.85rem] font-bold bg-white text-text-dark">
                     {event.date}
                   </span>
-                  <span className="px-3.5 py-1.5 rounded-2xl text-[0.85rem] font-bold bg-primary text-white">
+                  <span className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-2xl text-[0.75rem] sm:text-[0.85rem] font-bold bg-primary text-white">
                     {event.type}
                   </span>
                 </div>
                 
-                <div className="absolute bottom-6 left-6 right-6 z-20 text-white">
-                  <h3 className="text-[1.25rem] font-extrabold mb-2 leading-tight">
+                <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 z-20 text-white">
+                  <h3 className="text-[1.1rem] sm:text-[1.25rem] font-extrabold mb-1 sm:mb-2 leading-tight">
                     {event.title}
                   </h3>
-                  <p className="text-[0.95rem] opacity-90">{event.time}</p>
+                  <p className="text-[0.85rem] sm:text-[0.95rem] opacity-90">{event.time}</p>
                 </div>
               </div>
               
-              <div className="p-6 flex justify-between items-center">
-                <span className="text-[0.95rem] text-text-light">
+              <div className="p-4 sm:p-6 flex justify-between items-center">
+                <span className="text-[0.85rem] sm:text-[0.95rem] text-text-light">
                   {event.available}
                 </span>
-                <a href="#" className="flex items-center gap-1.5 text-primary font-bold text-[0.95rem] no-underline hover:underline">
-                  Đăng ký ngay <ArrowRight size={16} />
+                <a href="#" className="flex items-center gap-1 sm:gap-1.5 text-primary font-bold text-[0.85rem] sm:text-[0.95rem] no-underline hover:underline">
+                  Đăng ký <ArrowRight size={14} className="sm:w-4 sm:h-4" />
                 </a>
               </div>
             </div>

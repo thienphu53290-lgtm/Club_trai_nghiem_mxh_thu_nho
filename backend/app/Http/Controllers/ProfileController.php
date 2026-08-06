@@ -308,6 +308,55 @@ class ProfileController extends Controller
         ], 200);
     }
 
+    public function getConnections(Request $request)
+    {
+        $user = $request->user('sanctum');
+        if (!$user) {
+            return response()->json(['message' => 'Bạn chưa đăng nhập.'], 401);
+        }
+
+        // Người mình đang theo dõi (Following)
+        $followingIds = DB::table('theo_doi')
+            ->where('nguoi_theo_doi_id', $user->id)
+            ->where('trang_thai', 1)
+            ->pluck('nguoi_duoc_theo_doi_id')
+            ->toArray();
+
+        // Người đang theo dõi mình (Followers)
+        $followerIds = DB::table('theo_doi')
+            ->where('nguoi_duoc_theo_doi_id', $user->id)
+            ->where('trang_thai', 1)
+            ->pluck('nguoi_theo_doi_id')
+            ->toArray();
+
+        // Bạn bè (Mutual followers - chéo nhau)
+        $mutualIds = array_intersect($followingIds, $followerIds);
+
+        // Fetch User data
+        $following = User::with('capBacInfo')->whereIn('id', $followingIds)->get();
+        $followers = User::with('capBacInfo')->whereIn('id', $followerIds)->get();
+        $mutuals = User::with('capBacInfo')->whereIn('id', $mutualIds)->get();
+
+        // Thêm trạng thái kết nối cho từng user trả về để frontend dễ xử lý
+        $mapStatus = function($usersList) use ($followingIds, $followerIds) {
+            return $usersList->map(function($u) use ($followingIds, $followerIds) {
+                $u->is_following = in_array($u->id, $followingIds);
+                $u->is_follower = in_array($u->id, $followerIds);
+                $u->is_mutual = $u->is_following && $u->is_follower;
+                return $u;
+            });
+        };
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'following' => $mapStatus($following),
+                'followers' => $mapStatus($followers),
+                'friends' => $mapStatus($mutuals), // Bạn bè là những người theo dõi chéo
+            ]
+        ]);
+    }
+
     public function toggleLikePost(Request $request, $postId)
     {
         $currentUser = $request->user();

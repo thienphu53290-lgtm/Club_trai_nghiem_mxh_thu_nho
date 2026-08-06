@@ -37,6 +37,8 @@ class User extends Authenticatable
         'trang_thai',
         'lan_cuoi_dang_nhap',
         'lan_cuoi_hoat_dong',
+        'is_onboarded',
+        'onboarding_data',
     ];
 
     protected $hidden = [
@@ -52,6 +54,8 @@ class User extends Authenticatable
             'lan_cuoi_hoat_dong' => 'datetime',
             'mat_khau' => 'hashed',
             'huy_chuong_danh_hieu' => 'array',
+            'is_onboarded' => 'boolean',
+            'onboarding_data' => 'array',
         ];
     }
 

@@ -27,10 +27,10 @@ const ProductDetail = () => {
         </button>
 
         {/* Product Hero Section */}
-        <div className="bg-white rounded-[32px] p-8 border border-border-color shadow-sm mb-8 flex gap-10">
+        <div className="bg-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-border-color shadow-sm mb-8 flex flex-col md:flex-row gap-6 md:gap-10">
           {/* Image */}
           <div 
-            className="w-[400px] h-[400px] shrink-0 rounded-[24px] overflow-hidden flex items-center justify-center relative"
+            className="w-full md:w-[400px] h-[300px] md:h-[400px] shrink-0 rounded-[24px] overflow-hidden flex items-center justify-center relative"
             style={{ backgroundColor: product.imageBg }}
           >
             <img 
@@ -50,7 +50,7 @@ const ProductDetail = () => {
             <span className="text-primary font-bold text-[1rem] tracking-wider uppercase mb-2">
               {product.category}
             </span>
-            <h1 className="text-[2.5rem] font-extrabold text-text-dark mb-4 leading-tight">
+            <h1 className="text-3xl md:text-[2.5rem] font-extrabold text-text-dark mb-4 leading-tight">
               {product.title}
             </h1>
             <p className="text-text-light text-[1.1rem] leading-relaxed mb-6">
@@ -69,7 +69,7 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <div className="mt-auto flex items-center justify-between">
+            <div className="mt-auto pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
               <div>
                 <div className="text-text-light text-[0.95rem] mb-1">Giá tham khảo</div>
                 <div className="text-[2rem] font-black text-primary">{product.price}</div>
@@ -82,7 +82,7 @@ const ProductDetail = () => {
         </div>
 
         {/* Review Section */}
-        <div className="bg-white rounded-[32px] p-8 border border-border-color shadow-sm">
+        <div className="bg-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-border-color shadow-sm">
           <h2 className="text-[1.8rem] font-bold text-text-dark mb-6">Cộng đồng đánh giá</h2>
           
           {/* Write Review Box */}

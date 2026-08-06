@@ -186,6 +186,14 @@ Frontend:
   Header.jsx > Link nav den trang su kien]
 
 ==============================================================
+CHUC NANG 14: ONBOARDING & MUA GOI VIP (Pricing)
+==============================================================
+Frontend:
+  Onboarding.jsx > Render [hien thi wizard hoi muc dich va nguon chuyen doi]
+  Pricing.jsx > Render [hien thi bang gia 4 goi cuoc, chon ky han thanh toan]
+  Header.jsx > NavLink to="/pricing" [Nang cap tai khoan]
+
+==============================================================
 MODEL RELATIONSHIPS
 ==============================================================
   User::vaiTro()       -> belongsTo VaiTro

@@ -141,8 +141,8 @@ const About = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="p-8 rounded-[32px] bg-[#eff6ff] text-slate-900 border-4 border-[#0f172a] shadow-[6px_6px_0px_0px_rgba(37,99,235,1)] relative overflow-hidden flex flex-col justify-between">
+      <div className="flex lg:grid lg:grid-cols-2 gap-5 sm:gap-8 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory lg:snap-none [&::-webkit-scrollbar]:hidden -mx-5 px-5 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
+        <div className="w-[300px] sm:w-[400px] lg:w-auto shrink-0 snap-center p-6 sm:p-8 rounded-[32px] bg-[#eff6ff] text-slate-900 border-4 border-[#0f172a] shadow-[6px_6px_0px_0px_rgba(37,99,235,1)] relative overflow-hidden flex flex-col justify-between">
           <div>
             <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black mb-6 border-2 border-[#0f172a] shadow-xs">
               <Target size={28} />
@@ -152,13 +152,13 @@ const About = () => {
               Sứ mệnh cao nhất của chúng tôi là xóa bỏ sự vô danh và rời rạc của các mạng xã hội truyền thống, trao quyền cho mỗi cá nhân tự do chia sẻ đánh giá thực tế. Chúng tôi muốn biến mỗi bài viết, mỗi tấm ảnh hay dòng tin nhắn trở thành một cầu nối bền chặt giữa những con người chung niềm đam mê trải nghiệm cuộc sống.
             </p>
           </div>
-          <div className="mt-8 pt-6 border-t-2 border-blue-200 flex items-center gap-3 text-xs font-black text-blue-800">
+          <div className="mt-8 pt-6 border-t-2 border-blue-200 flex items-center gap-3 text-[0.65rem] sm:text-xs font-black text-blue-800">
             <Shield className="text-blue-600 shrink-0" size={18} />
             <span>Cam kết minh bạch thông tin &amp; bảo mật tuyệt đối 100% cho cộng đồng.</span>
           </div>
         </div>
 
-        <div className="p-8 rounded-[32px] bg-[#fff5f5] text-slate-900 border-4 border-[#0f172a] shadow-[6px_6px_0px_0px_rgba(201,54,56,1)] relative overflow-hidden flex flex-col justify-between">
+        <div className="w-[300px] sm:w-[400px] lg:w-auto shrink-0 snap-center p-6 sm:p-8 rounded-[32px] bg-[#fff5f5] text-slate-900 border-4 border-[#0f172a] shadow-[6px_6px_0px_0px_rgba(201,54,56,1)] relative overflow-hidden flex flex-col justify-between">
           <div>
             <div className="w-14 h-14 rounded-2xl bg-[#c93638] text-white flex items-center justify-center font-black mb-6 border-2 border-[#0f172a] shadow-xs">
               <Globe size={28} />
@@ -168,7 +168,7 @@ const About = () => {
               Hướng tới năm 2030, <strong className="text-[#c93638] font-black">Club Trải Nghiệm</strong> đặt mục tiêu trở thành mạng xã hội chia sẻ trải nghiệm cá nhân hóa vững mạnh nhất Đông Nam Á. Chúng tôi liên tục mở rộng hệ thống Cấp Bậc (Gamification), tích hợp các giải pháp truyền tải dữ liệu siêu nhanh và kiến tạo một Không Gian Số Độc Quyền cho mọi thành viên uy tín.
             </p>
           </div>
-          <div className="mt-8 pt-6 border-t-2 border-[#fcebeb] flex items-center gap-3 text-xs font-black text-[#c93638]">
+          <div className="mt-8 pt-6 border-t-2 border-[#fcebeb] flex items-center gap-3 text-[0.65rem] sm:text-xs font-black text-[#c93638]">
             <Sparkles size={18} className="shrink-0" />
             <span>Nơi mỗi thành viên là một "Đại sứ trải nghiệm" thực thụ.</span>
           </div>

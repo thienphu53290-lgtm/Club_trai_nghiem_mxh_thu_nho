@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar } from 'lucide-react';
+import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar, Crown, Menu, Users } from 'lucide-react';
 import echo from '../../api/echo';
 import api from '../../api/axios';
 import OneSignal from 'react-onesignal';
 import NotificationPromptModal from './NotificationPromptModal';
 import NotificationCard from '../NotificationCard/NotificationCard';
+import ConfirmModal from '../Modal/ConfirmModal';
 
 const Header = () => {
   const navigate = useNavigate();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [notifications, setNotifications] = useState(() => {
     try {
       const saved = localStorage.getItem('club_notifications');
@@ -36,6 +38,7 @@ const Header = () => {
     } catch (e) { return null; }
   });
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const lastEventTimeRef = useRef(0);
   const userMenuRef = useRef(null);
   const notifMenuRef = useRef(null);
@@ -191,8 +194,8 @@ const Header = () => {
 
       setCurrentUser(null);
       setShowUserMenu(false);
+      setShowLogoutConfirm(false);
       window.dispatchEvent(new Event('user_auth_change'));
-      alert("👋 Bạn đã đăng xuất thành công khỏi Club Trải Nghiệm!");
     }
   };
 
@@ -254,16 +257,16 @@ const Header = () => {
     <header className="border-b border-border-color bg-bg-color sticky top-0 z-50">
       <div className="max-w-[1320px] mx-auto px-5 py-3 flex flex-col gap-3">
         {/* Top Row: Logo, Navigation, Actions */}
-        <div className="flex items-center justify-between gap-6">
+        <div className="flex items-center justify-between gap-2 sm:gap-6">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 cursor-pointer min-w-max">
-          <div className="bg-primary text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-[1.2rem]">k</div>
-          <span className="font-extrabold text-[1.2rem] tracking-tight text-text-dark">club trải nghiệm</span>
+        <div className="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer shrink-0">
+          <div className="bg-primary text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-extrabold text-[1rem] sm:text-[1.2rem] shrink-0">k</div>
+          <span className="font-extrabold text-[0.9rem] sm:text-[1.2rem] tracking-tight text-text-dark whitespace-nowrap">club trải nghiệm</span>
         </div>
 
 
-        {/* Navigation */}
-        <nav className="flex items-center gap-1 bg-slate-100 p-1 rounded-full">
+        {/* Navigation - Hidden on Mobile */}
+        <nav className="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-full">
           <NavLink 
             to="/" 
             className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-semibold transition-all px-4 py-2 rounded-full no-underline ${isActive ? 'text-primary bg-white shadow-sm' : 'text-slate-500 hover:text-text-dark'}`}
@@ -310,7 +313,7 @@ const Header = () => {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Realtime Notification Bell */}
           <div className="relative" ref={notifMenuRef}>
             <button 
@@ -327,7 +330,7 @@ const Header = () => {
 
             {/* Dropdown thông báo */}
             {showNotifDropdown && (
-              <div className="absolute right-0 top-12 w-[340px] sm:w-[380px] bg-white border-2 border-[#0f172a] rounded-3xl p-5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] z-[100] max-h-[420px] overflow-y-auto">
+              <div className="fixed left-4 right-4 top-[70px] sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[380px] bg-white border-2 border-[#0f172a] rounded-3xl p-5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] z-[100] max-h-[80vh] sm:max-h-[420px] overflow-y-auto">
                 <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
                   <h4 className="font-extrabold text-slate-900 text-[1.05rem] flex items-center gap-1.5 m-0">
                     <Sparkles size={18} className="text-[#c93638]" /> Thông báo Realtime
@@ -350,7 +353,9 @@ const Header = () => {
                         key={n.id} 
                         notification={n} 
                         onClick={() => handleNotificationClick(n)} 
-                        isToast={false} 
+                        onClose={() => {
+                          setNotifications(prev => prev.filter(item => item.id !== n.id));
+                        }}
                       />
                     ))}
                   </div>
@@ -367,11 +372,18 @@ const Header = () => {
             )}
           </div>
 
-          {currentUser ? (
+          {!currentUser ? (
+            <button 
+              onClick={() => navigate('/auth')} 
+              className="flex px-3.5 py-1.5 sm:px-6 sm:py-2.5 bg-[#c93638] text-white rounded-full font-bold text-[0.75rem] sm:text-[0.95rem] hover:bg-[#a82527] transition-colors border-none cursor-pointer items-center justify-center shadow-sm"
+            >
+              Đăng nhập
+            </button>
+          ) : (
             <div className="relative" ref={userMenuRef}>
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`flex items-center gap-2 px-3 py-1.5 sm:py-2 rounded-2xl border-2 border-[#0f172a] font-black text-xs sm:text-sm cursor-pointer transition-all active:translate-x-[1px] active:translate-y-[1px] ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl border-2 border-[#0f172a] font-black text-xs sm:text-sm cursor-pointer transition-all active:translate-x-[1px] active:translate-y-[1px] ${
                   showUserMenu 
                     ? 'bg-slate-900 text-amber-300 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] translate-x-0.5' 
                     : 'bg-white hover:bg-slate-100 text-slate-900 shadow-[3px_3px_0px_0px_rgba(15,23,42,1)]'
@@ -382,7 +394,7 @@ const Header = () => {
                   alt="Avatar" 
                   className="w-6 h-6 sm:w-7 sm:h-7 rounded-xl object-cover border border-[#0f172a] shrink-0" 
                 />
-                <span className="font-extrabold text-xs sm:text-sm max-w-[130px] truncate">
+                <span className="font-extrabold text-xs sm:text-sm max-w-[100px] sm:max-w-[150px] truncate">
                   {currentUser.ten_hien_thi || currentUser.ho_ten || 'Thành viên'}
                 </span>
               </button>
@@ -409,9 +421,23 @@ const Header = () => {
                   </NavLink>
 
                   <NavLink 
+                    to="/friends" 
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(14,165,233,1)] hover:border-sky-500"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-sky-50 text-sky-500 group-hover:bg-sky-500 group-hover:text-white border border-[#0f172a] transition-transform group-hover:scale-110 flex items-center justify-center shrink-0">
+                        <Users size={18} />
+                      </div>
+                      <span className="font-black whitespace-nowrap">Bạn bè & Kết nối</span>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-400 group-hover:text-sky-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </NavLink>
+
+                  <NavLink 
                     to="/admin" 
                     onClick={() => setShowUserMenu(false)}
-                    className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-slate-900 text-slate-900 hover:text-white font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]"
+                    className="hidden sm:flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-slate-900 text-slate-900 hover:text-white font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]"
                   >
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-xl bg-amber-300 text-slate-950 group-hover:bg-amber-400 border border-[#0f172a] transition-transform group-hover:scale-110 group-hover:-rotate-12 flex items-center justify-center shrink-0">
@@ -422,8 +448,32 @@ const Header = () => {
                     <span className="text-[11px] font-black bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full border border-slate-900 group-hover:scale-105 transition-transform shrink-0">VIP</span>
                   </NavLink>
 
+                  <div className="flex sm:hidden items-start gap-2.5 p-3.5 rounded-2xl bg-slate-50 border-2 border-slate-200">
+                    <div className="text-amber-500 shrink-0 mt-0.5"><Info size={16} /></div>
+                    <p className="text-[11px] font-bold text-slate-600 m-0 leading-tight">
+                      Để mở khóa toàn bộ tính năng quản trị hệ thống, vui lòng đăng nhập bằng máy tính.
+                    </p>
+                  </div>
+
+                  <NavLink 
+                    to="/pricing" 
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 text-slate-900 hover:text-white font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(147,51,234,1)] hover:border-purple-600"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-purple-100 text-purple-600 group-hover:bg-white/20 group-hover:text-white border border-[#0f172a] group-hover:border-white/30 transition-transform group-hover:scale-110 group-hover:-rotate-12 flex items-center justify-center shrink-0">
+                        <Crown size={18} />
+                      </div>
+                      <span className="font-black whitespace-nowrap">Nâng cấp tài khoản</span>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </NavLink>
+
                   <button 
-                    onClick={handleLogout}
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      setShowLogoutConfirm(true);
+                    }}
                     className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-rose-50 text-[#c93638] font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all cursor-pointer w-full text-left group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(201,54,56,1)] hover:border-[#c93638]"
                   >
                     <div className="flex items-center gap-3">
@@ -437,23 +487,61 @@ const Header = () => {
                 </div>
               )}
             </div>
-          ) : (
-            <NavLink 
-              to="/auth"
-              className="bg-[#f2a9a9] text-white border-none px-6 py-2.5 rounded-full font-bold text-[0.95rem] cursor-pointer transition-all hover:bg-primary no-underline flex items-center justify-center shadow-sm hover:shadow"
-            >
-              Đăng nhập
-            </NavLink>
           )}
+          
         </div>
         </div>
 
-        {/* Bottom Row: Search */}
-        <div className="w-full flex items-center bg-slate-100/80 rounded-full px-4 py-2.5 gap-2.5 border border-slate-200">
-          <Search className="text-slate-500" size={18} />
-          <input type="text" placeholder="Tìm kiếm sản phẩm, bài đánh giá, thành viên..." className="border-none bg-transparent w-full outline-none text-[0.95rem] text-text-dark placeholder-slate-400" />
+        {/* Bottom Row: Search & Mobile Menu */}
+        <div className="flex items-center gap-2">
+          <div className="w-full flex items-center bg-slate-100/80 rounded-full px-4 py-2.5 gap-2.5 border border-slate-200">
+            <Search className="text-slate-500 shrink-0" size={18} />
+            <input type="text" placeholder="Tìm kiếm sản phẩm, bài đánh giá..." className="border-none bg-transparent w-full outline-none text-[0.95rem] text-text-dark placeholder-slate-400" />
+          </div>
+
+          {/* Mobile Menu Toggle Button */}
+          <button 
+            className="lg:hidden p-2.5 bg-slate-100 text-slate-700 rounded-full border border-slate-200 cursor-pointer hover:bg-slate-200 transition-colors shrink-0 flex items-center justify-center shadow-xs"
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+          >
+            {showMobileMenu ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {showMobileMenu && (
+        <div className="lg:hidden w-full bg-white border-t border-slate-200 shadow-md animate-fadeSlideIn">
+          <nav className="flex flex-col p-3 gap-1">
+            <NavLink to="/" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold no-underline ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <Home size={20} /> Trang chủ
+            </NavLink>
+            <NavLink to="/feed" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold no-underline ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <Star size={20} /> Bảng tin
+            </NavLink>
+            <NavLink to="/products" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold no-underline ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <ShoppingBag size={20} /> Sản phẩm
+            </NavLink>
+            <NavLink to="/events" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold no-underline ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <Calendar size={20} /> Sự kiện
+            </NavLink>
+            <NavLink to="/messages" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold no-underline ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <MessageCircle size={20} /> Tin nhắn
+            </NavLink>
+            <NavLink to="/friends" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold no-underline ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <Users size={20} /> Bạn bè
+            </NavLink>
+            <NavLink to="/about" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold no-underline ${isActive ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <Info size={20} /> Giới thiệu
+            </NavLink>
+            {!currentUser && (
+               <NavLink to="/auth" className="flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-[#f2a9a9] text-white no-underline mt-2 justify-center" onClick={() => setShowMobileMenu(false)}>
+                  Đăng nhập / Tham gia ngay
+               </NavLink>
+            )}
+          </nav>
+        </div>
+      )}
 
       {/* Floating Realtime Toast Popup (Góc dưới bên phải) */}
       {showToast && latestNotif && (
@@ -467,6 +555,17 @@ const Header = () => {
 
       {/* Bộ Bảng Hỏi Xin Quyền Tự Động (Soft Prompt Modal) chuẩn Mạng xã hội cao cấp */}
       <NotificationPromptModal />
+
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+        title="Xác nhận đăng xuất"
+        message="Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không? Bạn sẽ không thể nhận thông báo mới cho đến khi đăng nhập lại."
+        variant="warning"
+        confirmText="Đăng xuất"
+        cancelText="Ở lại"
+      />
     </header>
   );
 };

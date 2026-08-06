@@ -52,10 +52,10 @@ const Auth = () => {
         </Link>
         
         {/* Form Đăng ký (Nằm dưới cùng, ẩn đi mặc định) */}
-        <SignUpForm />
+        <SignUpForm toggleAuthMode={toggleAuthMode} />
 
         {/* Form Đăng nhập (Nằm trên, hiển thị mặc định) */}
-        <SignInForm />
+        <SignInForm toggleAuthMode={toggleAuthMode} />
 
         {/* Lớp phủ chuyển động che một nửa container */}
         <AuthOverlay toggleAuthMode={toggleAuthMode} />

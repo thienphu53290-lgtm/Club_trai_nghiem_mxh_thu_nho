@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="px-5 pt-[60px] pb-5 border-t border-border-color bg-white">
       <div className="max-w-[1320px] mx-auto">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-[30px] mb-[50px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-[30px] mb-[50px]">
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-2.5 min-w-max cursor-pointer">
               <div className="bg-primary text-white w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-[1.2rem]">k</div>

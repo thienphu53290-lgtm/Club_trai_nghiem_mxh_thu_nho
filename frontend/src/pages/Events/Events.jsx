@@ -70,7 +70,7 @@ const Events = () => {
       <div className="max-w-[1320px] mx-auto px-5">
         
         {/* Hero Banner */}
-        <div className="w-full bg-indigo-900 rounded-[32px] overflow-hidden mb-12 relative h-[450px] flex items-center shadow-xl group">
+        <div className="w-full bg-indigo-900 rounded-[20px] sm:rounded-[32px] overflow-hidden mb-8 sm:mb-12 relative aspect-[4/3] sm:aspect-auto sm:h-[450px] flex items-center shadow-xl group">
           <img 
             src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2000&auto=format&fit=crop" 
             alt="Events Banner" 
@@ -78,14 +78,14 @@ const Events = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-950 via-indigo-900/80 to-transparent pointer-events-none"></div>
           
-          <div className="relative z-10 pl-12 max-w-2xl">
-            <span className="text-pink-400 font-bold tracking-widest uppercase text-sm mb-3 block animate-pulse">Sự Kiện Đặc Biệt</span>
-            <h1 className="text-[3.5rem] font-black text-white mb-4 leading-tight drop-shadow-lg">Kết Nối Đam Mê</h1>
-            <p className="text-indigo-100 text-[1.1rem] leading-relaxed mb-8">
+          <div className="relative z-10 pl-6 sm:pl-12 max-w-[85%] sm:max-w-2xl">
+            <span className="text-pink-400 font-bold tracking-widest uppercase text-[0.65rem] sm:text-sm mb-1.5 sm:mb-3 block animate-pulse">Sự Kiện Đặc Biệt</span>
+            <h1 className="text-[1.8rem] sm:text-[3.5rem] font-black text-white mb-2 sm:mb-4 leading-tight drop-shadow-lg">Kết Nối Đam Mê</h1>
+            <p className="text-indigo-100 text-[0.85rem] sm:text-[1.1rem] leading-relaxed mb-4 sm:mb-8 line-clamp-2 sm:line-clamp-none">
               Tham gia các sự kiện offline và workshop độc quyền để gặp gỡ, giao lưu cùng những người có chung đam mê trải nghiệm và công nghệ.
             </p>
-            <button className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3.5 px-8 rounded-full transition-all shadow-md hover:shadow-lg hover:-translate-y-1 flex items-center gap-2">
-              <Calendar size={18} /> Đăng ký tham gia ngay
+            <button className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 sm:py-3.5 px-5 sm:px-8 text-[0.85rem] sm:text-base rounded-full transition-all shadow-md hover:shadow-lg hover:-translate-y-1 flex items-center gap-1.5 sm:gap-2">
+              <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" /> Đăng ký tham gia ngay
             </button>
           </div>
         </div>

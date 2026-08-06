@@ -83,7 +83,7 @@ const ProductCard = ({ product }) => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={style}
-      className="border border-border-color rounded-[32px] p-5 bg-white cursor-pointer hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] group will-change-transform relative"
+      className="border border-border-color rounded-[24px] sm:rounded-[32px] p-4 sm:p-5 bg-white cursor-pointer hover:shadow-[0_30px_60px_rgba(0,0,0,0.12)] group will-change-transform relative"
     >
       <div 
         className="pointer-events-none absolute inset-0 rounded-[32px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -94,20 +94,20 @@ const ProductCard = ({ product }) => {
       />
 
       <div className="flex justify-between items-center mb-5 px-1 relative z-10">
-        <span className="bg-[#fcebeb] text-primary px-3 py-1.5 rounded-full text-[0.9rem] font-semibold flex items-center gap-1.5">
+        <span className="bg-[#fcebeb] text-primary px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[0.8rem] sm:text-[0.9rem] font-semibold flex items-center gap-1.5">
           <Flame size={14} />
           {product.badgeText}
         </span>
         <span className="text-black/60 text-[0.85rem] font-medium">{product.category}</span>
       </div>
       
-      <div className="relative rounded-[24px] flex items-center justify-center mb-6 overflow-hidden z-10" style={{ height: '320px', backgroundColor: product.imageBg }}>
+      <div className="relative rounded-[20px] sm:rounded-[24px] flex items-center justify-center mb-4 sm:mb-6 overflow-hidden z-10 h-[220px] sm:h-[320px]" style={{ backgroundColor: product.imageBg }}>
         <img src={product.image} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
       </div>
       
       <div className="px-2 relative z-10">
-        <h3 className="text-[1.2rem] font-bold mb-2 text-text-dark">{product.title}</h3>
-        <p className="text-text-light text-[0.95rem] mb-4 leading-relaxed">{product.desc}</p>
+        <h3 className="text-[1.1rem] sm:text-[1.2rem] font-bold mb-1 sm:mb-2 text-text-dark">{product.title}</h3>
+        <p className="text-text-light text-[0.85rem] sm:text-[0.95rem] mb-3 sm:mb-4 leading-relaxed">{product.desc}</p>
         
         <div className="flex items-center gap-2 mb-5">
           <div className="flex gap-0.5">
@@ -119,8 +119,8 @@ const ProductCard = ({ product }) => {
         </div>
         
         <div className="flex justify-between items-center pt-4 border-t border-border-color">
-          <div className="font-extrabold text-primary text-[1.15rem]">{product.price}</div>
-          <button className="bg-white border border-border-color px-4 py-2 rounded-full font-semibold text-[0.9rem] text-text-dark cursor-pointer transition-colors group-hover:bg-[#c93638] group-hover:text-white group-hover:border-[#c93638]">
+          <div className="font-extrabold text-primary text-[1rem] sm:text-[1.15rem]">{product.price}</div>
+          <button className="bg-white border border-border-color px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold text-[0.85rem] sm:text-[0.9rem] text-text-dark cursor-pointer transition-colors group-hover:bg-[#c93638] group-hover:text-white group-hover:border-[#c93638]">
             Xem đánh giá
           </button>
         </div>
@@ -133,9 +133,9 @@ const HotProducts = () => {
   return (
     <section className="px-5 py-[60px]">
       <div className="max-w-[1320px] mx-auto">
-        <div className="flex justify-between items-end mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4 sm:gap-0">
           <div>
-            <h2 className="flex items-center gap-3 text-[2rem] font-extrabold text-text-dark mb-2">
+            <h2 className="flex items-center gap-3 text-2xl md:text-[2rem] font-extrabold text-text-dark mb-2">
               <Flame className="text-primary" size={28} />
               Sản phẩm hot nhất
             </h2>
@@ -146,9 +146,11 @@ const HotProducts = () => {
           </a>
         </div>
 
-        <div className="grid grid-cols-3 gap-[30px]">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-[20px] sm:gap-[30px] overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden -mx-5 px-5 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
           {products.map(product => (
-            <ProductCard key={product.id} product={product} />
+            <div key={product.id} className="w-[280px] sm:w-auto snap-center shrink-0">
+              <ProductCard product={product} />
+            </div>
           ))}
         </div>
       </div>

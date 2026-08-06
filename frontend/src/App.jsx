@@ -12,6 +12,9 @@ import SuperAdmin from './pages/Admin/SuperAdmin';
 import Products from './pages/Products/Products';
 import ProductDetail from './pages/Products/ProductDetail';
 import Events from './pages/Events/Events';
+import Friends from './pages/Friends/Friends';
+import Pricing from './pages/Pricing/Pricing';
+import Onboarding from './pages/Onboarding/Onboarding';
 import api from './api/axios';
 import { runOneSignal } from './api/onesignal';
 
@@ -32,6 +35,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<Auth />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<SuperAdmin />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
@@ -46,6 +51,7 @@ function App() {
           <Route path="products" element={<Products />} />
           <Route path="products/:slug" element={<ProductDetail />} />
           <Route path="events" element={<Events />} />
+          <Route path="friends" element={<Friends />} />
         </Route>
       </Routes>
     </BrowserRouter>

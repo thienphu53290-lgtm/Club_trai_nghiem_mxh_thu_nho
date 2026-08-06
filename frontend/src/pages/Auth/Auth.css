@@ -302,3 +302,49 @@
   background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px);
   background-size: 28px 28px;
 }
+
+/* ====== MOBILE RESPONSIVE ====== */
+@media (max-width: 768px) {
+  .auth-container {
+    min-height: auto;
+    height: 85vh; 
+    border-radius: 32px;
+  }
+  
+  .sign-in-container, .sign-up-container {
+    width: 100%;
+    left: 0;
+  }
+  
+  .overlay-container {
+    display: none; /* Ẩn overlay che khuất trên mobile */
+  }
+  
+  /* Form đăng ký (ẩn mặc định, trượt từ phải sang) */
+  .sign-up-container {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(100%); 
+    transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+  }
+  .auth-container.right-panel-active .sign-up-container {
+    transform: translateX(0); 
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 5;
+    animation: none;
+  }
+
+  /* Form đăng nhập (hiển thị mặc định) */
+  .sign-in-container {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+  }
+  .auth-container.right-panel-active .sign-in-container {
+    transform: translateX(-100%); 
+    opacity: 0;
+    pointer-events: none;
+  }
+}

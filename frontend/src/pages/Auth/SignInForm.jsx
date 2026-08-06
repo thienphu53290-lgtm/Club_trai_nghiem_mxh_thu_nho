@@ -1,0 +1,103 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
+
+const SignInForm = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email || !password) {
+      setError('⚠️ Vui lòng nhập đầy đủ email và mật khẩu!');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await api.post('/login', { email, password });
+      if (res.data.status) {
+        // 1. Lưu thông tin Token Sanctum và dữ liệu user theo chuẩn MVC
+        localStorage.setItem('auth_token', res.data.access_token);
+        localStorage.setItem('current_user', JSON.stringify(res.data.user));
+
+        // 2. LÀM MỚI TRẠNG THÁI NHẮC THÔNG BÁO THEO PHIÊN (Session Token reset)
+        // Khi người dùng mới đăng nhập vào, chắc chắn khi bấm vào icon Chuông lần đầu sẽ được nhắc thông báo!
+        sessionStorage.removeItem('notif_prompt_shown_session');
+        sessionStorage.removeItem('skip_notif_prompt_session');
+
+        // 3. Thông báo cho Header cập nhật trạng thái
+        window.dispatchEvent(new Event('user_auth_change'));
+
+        // 4. Di chuyển về trang chủ hoặc profile
+        navigate('/');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || '❌ Đăng nhập thất bại! Vui lòng kiểm tra lại email hoặc mật khẩu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="form-container sign-in-container neu-bg flex items-center justify-center">
+      <form className="flex flex-col items-center justify-center px-12 text-center w-full h-full" onSubmit={handleSignIn}>
+        <h1 className="font-extrabold text-3xl mb-4 text-[#4a5568]">Sign In</h1>
+        
+        <div className="flex gap-4 mb-6">
+          <button type="button" className="neu-convex w-10 h-10 rounded-full flex items-center justify-center text-[#4a5568] hover:text-primary transition-colors border-none bg-transparent cursor-pointer font-bold text-lg">
+            f
+          </button>
+          <button type="button" className="neu-convex w-10 h-10 rounded-full flex items-center justify-center text-[#4a5568] hover:text-primary transition-colors border-none bg-transparent cursor-pointer font-bold text-lg">
+            X
+          </button>
+          <button type="button" className="neu-convex w-10 h-10 rounded-full flex items-center justify-center text-[#4a5568] hover:text-primary transition-colors border-none bg-transparent cursor-pointer font-bold text-lg">
+            in
+          </button>
+        </div>
+        
+        <span className="text-[13px] text-[#718096] font-medium mb-3">hoặc sử dụng tài khoản thành viên của bạn</span>
+        
+        {error && (
+          <div className="bg-red-50 text-red-600 text-[13px] p-2.5 rounded-xl font-bold border border-red-200 mb-3 w-full animate-fadeIn">
+            {error}
+          </div>
+        )}
+
+        <input 
+          type="email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email (vd: test@gmail.com)" 
+          className="neu-concave border-none px-5 py-3.5 mb-3.5 rounded-[15px] w-full text-[15px] font-medium text-[#4a5568] placeholder:text-[#a0aec0] focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+        />
+        <input 
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="Password (vd: password123)" 
+          className="neu-concave border-none px-5 py-3.5 mb-4 rounded-[15px] w-full text-[15px] font-medium text-[#4a5568] placeholder:text-[#a0aec0] focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+        />
+        
+        <a href="#" onClick={(e) => { e.preventDefault(); alert("Vui lòng liên hệ Admin để khôi phục mật khẩu test nhé!"); }} className="text-[13px] text-[#718096] font-semibold hover:text-[#4a5568] no-underline mb-6 transition-colors">
+          Quên mật khẩu? (Tài khoản mẫu: test@gmail.com / pass: password123)
+        </a>
+        
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="neu-convex bg-transparent border-none text-[#4a5568] font-bold text-[14px] uppercase tracking-wider px-12 py-3.5 rounded-[20px] cursor-pointer hover:text-primary transition-all shadow-md active:scale-95 disabled:opacity-50"
+        >
+          {loading ? '⏳ Đang xử lý...' : 'Sign In'}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default SignInForm;

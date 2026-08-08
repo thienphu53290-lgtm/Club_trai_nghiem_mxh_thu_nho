@@ -271,3 +271,4 @@ KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
   frontend/src/api/axios.js [cau hinh tu dong chuyen doi ket noi API sang Render khi chay tren Vercel va localhost khi dev]
 ================================================================
 - GET, POST, PUT, DELETE /admin/users: Các hàm CRUD cho Quản lý Người dùng
+- Hàm typing() [App\Http\Controllers\ChatTypingController]: Xử lý hiển thị trạng thái đang nhập tin nhắn. (Route: POST /api/chat/typing)

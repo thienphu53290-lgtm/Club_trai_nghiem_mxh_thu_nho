@@ -48,7 +48,7 @@ const SignUpForm = ({ toggleAuthMode }) => {
         }));
 
         setTimeout(() => {
-          window.location.href = '/onboarding';
+          navigate('/onboarding');
         }, 1500);
       }
     } catch (err) {

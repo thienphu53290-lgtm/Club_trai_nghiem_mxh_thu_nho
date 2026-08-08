@@ -34,7 +34,7 @@ function App() {
       api.get('/user')
         .then(response => {
           if (response.data.status === true) {
-            localStorage.setItem('current_user', JSON.stringify(response.data.data));
+            localStorage.setItem('current_user', JSON.stringify(response.data.user));
           }
         })
         .catch(error => {

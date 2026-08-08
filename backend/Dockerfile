@@ -26,4 +26,4 @@ RUN cp .env.example .env \
 ENV PORT=8000
 EXPOSE 8000
 
-CMD ["sh", "-c", "php artisan config:clear && php artisan route:clear && php artisan view:clear && touch database/database.sqlite && chmod -R 777 storage bootstrap/cache database database/database.sqlite && php artisan migrate --force --no-interaction && php artisan db:seed --force --no-interaction && php artisan serve --host=0.0.0.0 --port=${PORT}"]
+CMD ["sh", "-c", "php artisan config:clear && php artisan route:clear && php artisan view:clear && touch database/database.sqlite && chmod -R 777 storage bootstrap/cache database database/database.sqlite && php artisan migrate --force --no-interaction && php artisan db:seed --force --no-interaction && php artisan serve --host=0.0.0.0 --port=${PORT} --no-reload"]

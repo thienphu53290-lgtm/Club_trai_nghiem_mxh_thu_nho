@@ -72,3 +72,10 @@ Route::post('/test-logtail', function (Request $request) {
         'message' => 'Logtail test event dispatched from Laravel backend'
     ]);
 });
+Route::get('/debug-broadcast', function () {
+    return response()->json([
+        'default' => config('broadcasting.default'),
+        'pusher_cluster' => config('broadcasting.connections.pusher.options.cluster'),
+        'pusher_key' => config('broadcasting.connections.pusher.key'),
+    ]);
+});

@@ -48,6 +48,8 @@ Route::middleware(['auth:sanctum', 'check_status', 'crud_logger'])->group(functi
     Route::put('/feed/posts/{id}', [FeedController::class, 'update']);
     Route::delete('/feed/posts/{id}', [FeedController::class, 'destroy']);
     Route::get('/chat/conversations', [ChatController::class, 'getConversations']);
+    Route::put('/chat/read', [App\Http\Controllers\ChatController::class, 'markAsRead']);
+    Route::post('/chat/typing', [App\Http\Controllers\ChatTypingController::class, 'typing']);
     Route::get('/chat/messages/{partnerId}', [ChatController::class, 'getMessages']);
     Route::post('/chat/messages', [ChatController::class, 'sendMessage']);
     Route::delete('/chat/messages/{id}', [ChatController::class, 'deleteMessage']);

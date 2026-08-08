@@ -26,6 +26,9 @@ const Messages = () => {
   const [activeContactMenuId, setActiveContactMenuId] = useState(null);
   const [confirmConfig, setConfirmConfig] = useState(null);
   const [showGallery, setShowGallery] = useState(false);
+  const [typingStatus, setTypingStatus] = useState(null);
+  const typingTimeoutRef = useRef(null);
+  const lastTypingEmitRef = useRef(0);
   
   const showAlert = (message, title = 'Thông Báo', variant = 'info') => {
     let finalMessage = message;
@@ -146,6 +149,22 @@ const Messages = () => {
       .catch(() => {});
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setInputText(e.target.value);
+    const now = Date.now();
+    if (now - lastTypingEmitRef.current > 2500) {
+      lastTypingEmitRef.current = now;
+      api.post('/chat/typing', { receiver_id: activeId }).catch(() => {});
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -159,11 +178,28 @@ const Messages = () => {
     const handleLiveEvent = (event) => {
       if (!currentUserRef.current) return;
 
+      if (event.type === 'chat_typing' && event.data) {
+        const payload = event.data;
+        const myId = (intVal(currentUserRef.current.id) || currentUserRef.current.id);
+        if (intVal(payload.receiver_id) === intVal(myId) && intVal(payload.sender_id) === intVal(activeIdRef.current)) {
+          setTypingStatus(payload.sender_id);
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = setTimeout(() => {
+            setTypingStatus(null);
+          }, 3000);
+        }
+        return;
+      }
+
       if (event.type === 'new_chat_message' && event.data) {
         const payload = event.data;
         const myId = (intVal(currentUserRef.current.id) || currentUserRef.current.id);
         const isForMe = (intVal(payload.receiverId) === intVal(myId));
         const isFromMe = (intVal(payload.senderId) === intVal(myId));
+
+        if (isForMe && intVal(payload.senderId) === intVal(activeIdRef.current)) {
+           setTypingStatus(null);
+        }
 
         if (!isForMe && !isFromMe) return;
 
@@ -1023,6 +1059,19 @@ const Messages = () => {
                     </div>
                   );
                 })}
+                
+                {typingStatus && (
+                  <div className="flex items-end gap-3 self-start mb-6 w-full animate-fadeIn">
+                    <img src={activeContact.avatar} alt="Avatar" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" />
+                    <div className="bg-white rounded-2xl rounded-bl-sm py-3 px-4 shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-slate-100 flex gap-1.5 items-center">
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    </div>
+                  </div>
+                )}
+                
+                <div ref={messageContainerRef} />
               </div>
 
               <div className="relative shrink-0">
@@ -1079,12 +1128,13 @@ const Messages = () => {
                         <Smile size={18} />
                       </button>
 
-                      <input
-                        type="text"
+                      <textarea
                         value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                         placeholder={`Nhắn cho ${activeContact.name}...`}
-                        className="flex-1 py-2.5 sm:py-3 px-5 rounded-full border-2 border-[#0f172a] bg-white font-black text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-slate-50 transition-colors shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]"
+                        className="flex-1 bg-white py-2.5 sm:py-3 px-5 rounded-full border-2 border-[#0f172a] font-black text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-slate-50 transition-colors shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] resize-none leading-relaxed"
+                        rows="1"
                       />
 
                       <button 

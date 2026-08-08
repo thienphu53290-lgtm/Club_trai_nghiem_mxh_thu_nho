@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import api from '../../api/axios';
 
 const SignUpForm = ({ toggleAuthMode }) => {
@@ -37,9 +38,18 @@ const SignUpForm = ({ toggleAuthMode }) => {
 
         window.dispatchEvent(new Event('user_auth_change'));
 
-        alert(`🎉 Chúc mừng ${res.data.user.ho_ten} đã gia nhập Club Trải Nghiệm!`);
-        // Luôn chuyển hướng người mới đến trang Onboarding
-        navigate('/onboarding');
+        window.dispatchEvent(new CustomEvent('show_global_toast', {
+          detail: {
+            title: 'Đăng ký thành công!',
+            message: `🎉 Chúc mừng ${res.data.user.ho_ten} đã gia nhập Club Trải Nghiệm!`,
+            source: 'HỆ THỐNG',
+            type: 'success'
+          }
+        }));
+
+        setTimeout(() => {
+          window.location.href = '/onboarding';
+        }, 1500);
       }
     } catch (err) {
       setError(err.response?.data?.message || err.response?.data?.errors?.email?.[0] || '❌ Đăng ký thất bại. Vui lòng thử lại sau!');
@@ -103,14 +113,19 @@ const SignUpForm = ({ toggleAuthMode }) => {
           {loading ? 'Đang tải...' : 'SIGN UP'}
         </button>
 
-        {/* Mobile only switch button */}
-        <button 
-          type="button" 
-          onClick={toggleAuthMode}
-          className="md:hidden mt-5 text-[#4a5568] text-sm font-bold bg-transparent border-none underline"
-        >
-          Đã có tài khoản? Đăng nhập ngay
-        </button>
+        {/* Mobile View Toggle */}
+        <div className="mt-8 md:hidden">
+          <span className="text-[13px] text-[#718096] font-medium">
+            Đã có tài khoản?{' '}
+            <button 
+              type="button" 
+              onClick={toggleAuthMode}
+              className="text-primary font-bold hover:underline cursor-pointer bg-transparent border-none p-0"
+            >
+              Đăng nhập ngay
+            </button>
+          </span>
+        </div>
       </form>
     </div>
   );

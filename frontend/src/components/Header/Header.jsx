@@ -162,7 +162,7 @@ const Header = () => {
         return;
       }
 
-      if (data.type === 'user_status_change' || data.type === 'message_recalled') {
+      if (data.type === 'user_status_change' || data.type === 'message_recalled' || data.type === 'chat_typing') {
         return;
       }
 
@@ -171,8 +171,15 @@ const Header = () => {
 
     channel.listen('.live-event', handleEvent);
 
+    const handleGlobalToast = (e) => {
+      const data = e.detail;
+      triggerNotificationUI(data.title || 'Thông báo', data.message, data.source || "🔔 THÔNG BÁO CLUB", data.data || null, data.type || 'general');
+    };
+    window.addEventListener('show_global_toast', handleGlobalToast);
+
     return () => {
       channel.stopListening('.live-event', handleEvent);
+      window.removeEventListener('show_global_toast', handleGlobalToast);
     };
   }, []);
 

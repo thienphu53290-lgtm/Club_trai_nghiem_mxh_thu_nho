@@ -11,7 +11,8 @@
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
-        "logtail/monolog-logtail": "^3.3"
+        "logtail/monolog-logtail": "^3.3",
+        "pusher/pusher-php-server": "^7.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -301,6 +301,23 @@ class ProfileController extends Controller
             $isFollowing = true;
         }
 
+        if ($isFollowing) {
+            try {
+                RealtimeNotificationEvent::dispatch(
+                    'new_follow',
+                    '👥 Có người theo dõi mới!',
+                    "{$currentUser->ten_hien_thi} vừa mới theo dõi bạn. Hãy kiểm tra xem có nên theo dõi lại không nhé!",
+                    [
+                        'target_user_id' => $targetId,
+                        'follower_id' => $currentUser->id,
+                        'follower_name' => $currentUser->ten_hien_thi
+                    ]
+                );
+            } catch (\Throwable $e) {
+                // ignore
+            }
+        }
+
         return response()->json([
             'status' => 'success',
             'is_following' => $isFollowing,
@@ -315,43 +332,59 @@ class ProfileController extends Controller
             return response()->json(['message' => 'Bạn chưa đăng nhập.'], 401);
         }
 
-        // Người mình đang theo dõi (Following)
-        $followingIds = DB::table('theo_doi')
-            ->where('nguoi_theo_doi_id', $user->id)
-            ->where('trang_thai', 1)
-            ->pluck('nguoi_duoc_theo_doi_id')
-            ->toArray();
+        // Người mình đang theo dõi (Following) - Mới nhất lên đầu
+        $following = User::with('capBacInfo')
+            ->join('theo_doi', 'nguoi_dung.id', '=', 'theo_doi.nguoi_duoc_theo_doi_id')
+            ->where('theo_doi.nguoi_theo_doi_id', $user->id)
+            ->where('theo_doi.trang_thai', 1)
+            ->select('nguoi_dung.*', 'theo_doi.created_at as pivot_created_at')
+            ->orderBy('theo_doi.created_at', 'desc')
+            ->get()
+            ->unique('id');
 
-        // Người đang theo dõi mình (Followers)
-        $followerIds = DB::table('theo_doi')
-            ->where('nguoi_duoc_theo_doi_id', $user->id)
-            ->where('trang_thai', 1)
-            ->pluck('nguoi_theo_doi_id')
-            ->toArray();
+        // Người đang theo dõi mình (Followers) - Mới nhất lên đầu
+        $followers = User::with('capBacInfo')
+            ->join('theo_doi', 'nguoi_dung.id', '=', 'theo_doi.nguoi_theo_doi_id')
+            ->where('theo_doi.nguoi_duoc_theo_doi_id', $user->id)
+            ->where('theo_doi.trang_thai', 1)
+            ->select('nguoi_dung.*', 'theo_doi.created_at as pivot_created_at')
+            ->orderBy('theo_doi.created_at', 'desc')
+            ->get()
+            ->unique('id');
 
-        // Bạn bè (Mutual followers - chéo nhau)
+        $followingIds = $following->pluck('id')->toArray();
+        $followerIds = $followers->pluck('id')->toArray();
         $mutualIds = array_intersect($followingIds, $followerIds);
 
-        // Fetch User data
-        $following = User::with('capBacInfo')->whereIn('id', $followingIds)->get();
-        $followers = User::with('capBacInfo')->whereIn('id', $followerIds)->get();
-        $mutuals = User::with('capBacInfo')->whereIn('id', $mutualIds)->get();
+        // Phân loại danh sách (không bị trùng lặp)
+        $mutuals = $followers->filter(fn($u) => in_array($u->id, $mutualIds))->values();
+        $followingOnly = $following->filter(fn($u) => !in_array($u->id, $mutualIds))->values();
+        $followersOnly = $followers->filter(fn($u) => !in_array($u->id, $mutualIds))->values();
 
         // Thêm trạng thái kết nối cho từng user trả về để frontend dễ xử lý
         $mapStatus = function($usersList) use ($followingIds, $followerIds) {
             return $usersList->map(function($u) use ($followingIds, $followerIds) {
-                $u->is_following = in_array($u->id, $followingIds);
-                $u->is_follower = in_array($u->id, $followerIds);
-                $u->is_mutual = $u->is_following && $u->is_follower;
-                return $u;
+                $is_following = in_array($u->id, $followingIds);
+                $is_follower = in_array($u->id, $followerIds);
+                
+                return [
+                    'id' => $u->id,
+                    'ho_ten' => $u->ho_ten,
+                    'ten_hien_thi' => $u->ten_hien_thi,
+                    'anh_dai_dien' => $u->anh_dai_dien,
+                    'cap_bac_info' => $u->capBacInfo,
+                    'is_following' => $is_following,
+                    'is_follower' => $is_follower,
+                    'is_mutual' => $is_following && $is_follower,
+                ];
             });
         };
 
         return response()->json([
             'status' => true,
             'data' => [
-                'following' => $mapStatus($following),
-                'followers' => $mapStatus($followers),
+                'following' => $mapStatus($followingOnly),
+                'followers' => $mapStatus($followersOnly),
                 'friends' => $mapStatus($mutuals), // Bạn bè là những người theo dõi chéo
             ]
         ]);

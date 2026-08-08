@@ -139,11 +139,20 @@ Backend:
   LogtailService::crud() [gui nhat ky thao tac CRUD nguoi dung/du lieu sang Better Stack Logtail]
   LogtailService::alert() [gui canh bao he thong khach quan sang Better Stack]
   api.php > Route "/test-logtail" [endpoint API kiem tra phat tin hieu nhat ky audit sang Better Stack]
+  AdminController::dashboard() [API /api/admin/dashboard-stats tra ve doanh thu affiliate, thanh vien club, so lenh CRUD va bieu do dong]
+  AdminController::getLogs() [API /api/admin/logs tra ve danh sach log he thong tu bang nhat_ky de hien thi thuc te tren dashboard]
+  AdminController::getRoles() [API /api/admin/roles lay danh sach cac chuc danh Admin]
+  AdminController::addRole() [API POST /api/admin/roles them quyen han / vai tro moi vao he thong]
+  AdminController::getAdmins() [API /api/admin/admins lay danh sach nguoi dung co vai_tro_id >= 2]
+  AdminController::addAdmin() [API POST /api/admin/admins cap quyen Admin bang email]
+  AdminController::updateAdmin() [API PUT /api/admin/admins/{id} doi chuc danh Admin]
+  AdminController::revokeAdmin() [API DELETE /api/admin/admins/{id}/revoke thu hoi quyen Admin ve Nguoi dung]
+  CrudLoggerMiddleware [Middleware tu dong bat cac request POST/PUT/DELETE va luu log vao bang nhat_ky va Better Stack]
 
 Frontend:
   logtail.js > logAdminAction() & logCrudEvent() [module SDK @logtail/browser gui log giam sat ben thu 3 Better Stack]
-  SuperAdmin.jsx > renderOverviewTab() [hien thi thong ke tong quan, tong doanh thu affiliate, suc khoe he thong]
-  SuperAdmin.jsx > renderRevenueChart() [so do doanh thu thu te tuong tac theo cac moc Thoi gian: Ngay, Thang, Nam]
+  SuperAdmin.jsx > renderOverviewTab() [useEffect goi axios /api/admin/dashboard-stats lay tong doanh thu affiliate, thanh vien club dong bo theo thoi gian thuc]
+  SuperAdmin.jsx > renderRevenueChart() [so do doanh thu thu te tuong tac theo cac moc Thoi gian: Ngay, Thang, Nam tu API tra ve]
   AdminLayout.jsx > toggle(isSidebarOpen) & Header [layout rieng quan tri voi nut 3 gach mau trang mo cua so drawer ben trai, nut Cai dat, boc Outlet o giua]
   AdminFooter.jsx > companyInfo [footer thiet ke Neo-Brutalian hien thi thong tin cong ty CTN Corp, hotline, email ho tro va trang thai server Uptime]
   SuperAdmin.jsx > useOutletContext() [nhan state activeTab tu AdminLayout qua Outlet context]
@@ -217,6 +226,8 @@ BANG TOM TAT ROUTES
     GET    /api/test-connection
 
   CAN BEARER TOKEN (auth:sanctum):
+    GET    /api/admin/dashboard-stats
+    GET    /api/admin/logs
     GET    /api/user
     POST   /api/logout
     POST   /api/profile/update
@@ -235,6 +246,23 @@ BANG TOM TAT ROUTES
     POST   /api/chat/block/{id}
     POST   /api/chat/unblock/{id}
 
+==============================================================
+CHUC NANG 15: UTILITIES (CAC HAM TIEN ICH)
+==============================================================
+Frontend:
+  stringUtils.js > removeDiacritics() [loai bo dau tieng Viet]
+  stringUtils.js > matchSearch() [tim kiem khong phan biet hoa thuong va dau tieng Viet]
+
+==============================================================
+CHUC NANG 16: HE THONG GIAO DICH & DOANH THU (Transactions)
+==============================================================
+Backend:
+  Migration > create_payment_and_vip_tables [Cau truc csdl Két Sắt (giao_dich) theo mo hinh da hinh (Polymorphic), quan ly tich hop cac don hang/dich vu tu ve_su_kien, goi_vip]
+  Migration > goi_vip & lich_su_goi_vip [Bang quan ly danh muc goi VIP dang ban va lich su dang ky/het han cua nguoi dung, the hien nguyen tac tach biet menu va transaction]
+  Migration > su_kien [Them gia_ve]
+  Migration > dang_ky_su_kien [Them giao_dich_id de tracking doanh thu ve]
+
+
 ================================================================
 KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
   chay_du_an.sh [tu dong dẹp tien trinh cu tren cong 8000, 8080, 5173 va khoi chay dong thoi Backend, Reverb, Frontend]
@@ -242,3 +270,4 @@ KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
   backend/Dockerfile [cau hinh bo tri Docker cho Render Cloud tu dong chay migration va phuc vu tren cong HTTP]
   frontend/src/api/axios.js [cau hinh tu dong chuyen doi ket noi API sang Render khi chay tren Vercel va localhost khi dev]
 ================================================================
+- GET, POST, PUT, DELETE /admin/users: Các hàm CRUD cho Quản lý Người dùng

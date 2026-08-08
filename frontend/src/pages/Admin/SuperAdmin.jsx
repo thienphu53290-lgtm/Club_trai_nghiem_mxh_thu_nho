@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { logAdminAction } from '../../api/logtail';
 import api from '../../api/axios';
@@ -7,7 +7,7 @@ import {
   Activity, DollarSign, ArrowUpRight, CheckCircle2, AlertCircle, 
   Server, Database, LogOut, Home, ChevronRight, Search, Filter, 
   MoreVertical, MoreHorizontal, Plus, FileText, Layers, RefreshCw, 
-  Sparkles, Trash2, Edit, Eye, ShieldAlert, Menu, Sliders, Calendar, BarChart3, TrendingUp, X, ChevronsLeft
+  Sparkles, Trash2, Edit, Eye, ShieldAlert, Menu, Sliders, Calendar, BarChart3, TrendingUp, X, ChevronsLeft, Lock, Unlock
 } from 'lucide-react';
 
 const SuperAdmin = () => {
@@ -15,45 +15,129 @@ const SuperAdmin = () => {
   const { activeTab, setActiveTab, showNotification } = useOutletContext();
   const [revenuePeriod, setRevenuePeriod] = useState('month');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [stats, setStats] = useState({
+    total_affiliate_revenue: 0,
+    total_members: 0,
+    new_members_this_week: 0,
+    crud_operations_24h: 0,
+    chart_data: [],
+    recent_logs: []
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
+  const [sysLogs, setSysLogs] = useState([]);
+  const [logCounts, setLogCounts] = useState({ total: 0, crud: 0, auth: 0, system: 0 });
+  const [logFilter, setLogFilter] = useState('ALL');
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false);
+
+  // Admin Management States
+  const [adminList, setAdminList] = useState([]);
+  const [adminRoles, setAdminRoles] = useState([]);
+  const [isLoadingAdmins, setIsLoadingAdmins] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [adminFormData, setAdminFormData] = useState({ id: null, email: '', vai_tro_id: 2 });
+  
+  // Role Management States
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [isEditRoleMode, setIsEditRoleMode] = useState(false);
+  const [roleFormData, setRoleFormData] = useState({ id: null, ten: '', mo_ta: '' });
+  const [isSavingRole, setIsSavingRole] = useState(false);
+
+  // User Management States
+  const [usersList, setUsersList] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userFormData, setUserFormData] = useState({ email: '', ho_ten: '', mat_khau: '' });
+  const [isSavingUser, setIsSavingUser] = useState(false);
+  const [showPromoteModal, setShowPromoteModal] = useState(false);
+  const [promoteUserEmail, setPromoteUserEmail] = useState('');
+  const [promoteRoleId, setPromoteRoleId] = useState(2);
+
+  const fetchUsers = async (search = '') => {
+    setIsLoadingUsers(true);
+    try {
+      const res = await api.get(`/admin/users?search=${search}`);
+      if (res.data.status === 'success') {
+        setUsersList(res.data.data.data); // data.data because of pagination
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'overview') {
+      const fetchStats = async () => {
+        setIsLoadingStats(true);
+        try {
+          const res = await api.get(`/admin/dashboard-stats?period=${revenuePeriod}`);
+          if (res.data.status === 'success') {
+            setStats(res.data.data);
+          }
+        } catch (error) {
+          console.error("Error fetching admin stats:", error);
+        } finally {
+          setIsLoadingStats(false);
+        }
+      };
+      fetchStats();
+    } else if (activeTab === 'logs') {
+      const fetchLogs = async () => {
+        setIsLoadingLogs(true);
+        try {
+          const res = await api.get('/admin/logs');
+          if (res.data.status === 'success') {
+            setSysLogs(res.data.data.logs);
+            setLogCounts(res.data.data.counts);
+          }
+        } catch (error) {
+          console.error("Error fetching logs:", error);
+        } finally {
+          setIsLoadingLogs(false);
+        }
+      };
+      fetchLogs();
+    } else if (activeTab === 'admins') {
+      const fetchAdmins = async () => {
+        setIsLoadingAdmins(true);
+        try {
+          const [resAdmins, resRoles] = await Promise.all([
+            api.get('/admin/admins'),
+            api.get('/admin/roles')
+          ]);
+          if (resAdmins.data.status === 'success') setAdminList(resAdmins.data.data);
+          if (resRoles.data.status === 'success') setAdminRoles(resRoles.data.data);
+        } catch (error) {
+          console.error("Error fetching admins:", error);
+        } finally {
+          setIsLoadingAdmins(false);
+        }
+      };
+      fetchAdmins();
+    } else if (activeTab === 'users') {
+      fetchUsers(searchQuery);
+      // Also fetch roles for the promote modal if not already fetched
+      if (adminRoles.length === 0) {
+        api.get('/admin/roles').then(res => {
+          if (res.data.status === 'success') setAdminRoles(res.data.data);
+        }).catch(err => console.error(err));
+      }
+    }
+  }, [activeTab, revenuePeriod]);
 
   const handleSelectTab = (tabId) => {
     setActiveTab(tabId);
   };
 
   const getChartData = () => {
-    if (revenuePeriod === 'day') {
-      return [
-        { label: 'Thứ 2', val: '14.2M', pct: 45, isPeak: false },
-        { label: 'Thứ 3', val: '18.5M', pct: 60, isPeak: false },
-        { label: 'Thứ 4', val: '12.0M', pct: 40, isPeak: false },
-        { label: 'Thứ 5', val: '22.4M', pct: 72, isPeak: false },
-        { label: 'Thứ 6', val: '19.8M', pct: 65, isPeak: false },
-        { label: 'Thứ 7', val: '28.5M', pct: 90, isPeak: false },
-        { label: 'Chủ Nhật', val: '31.2M', pct: 100, isPeak: true, text: 'Hôm nay' },
-      ];
-    } else if (revenuePeriod === 'month') {
-      return [
-        { label: 'T1', val: '82M', pct: 55, isPeak: false },
-        { label: 'T2', val: '90M', pct: 62, isPeak: false },
-        { label: 'T3', val: '88M', pct: 60, isPeak: false },
-        { label: 'T4', val: '105M', pct: 74, isPeak: false },
-        { label: 'T5', val: '112M', pct: 80, isPeak: false },
-        { label: 'T6', val: '98M', pct: 70, isPeak: false },
-        { label: 'T7', val: '120M', pct: 88, isPeak: false },
-        { label: 'T8', val: '128.5M', pct: 100, isPeak: true, text: 'Hiện tại' },
-        { label: 'T9', val: '135M*', pct: 45, isPeak: false, isProjected: true },
-        { label: 'T10', val: '140M*', pct: 48, isPeak: false, isProjected: true },
-        { label: 'T11', val: '155M*', pct: 55, isPeak: false, isProjected: true },
-        { label: 'T12', val: '180M*', pct: 65, isPeak: false, isProjected: true },
-      ];
-    } else {
-      return [
-        { label: 'Năm 2023', val: '420M', pct: 35, isPeak: false },
-        { label: 'Năm 2024', val: '680M', pct: 55, isPeak: false },
-        { label: 'Năm 2025', val: '950M', pct: 78, isPeak: false },
-        { label: 'Năm 2026', val: '1.450M', pct: 100, isPeak: true, text: 'Năm nay' },
-      ];
+    if (stats.chart_data && stats.chart_data.length > 0) {
+      return stats.chart_data;
     }
+    return [];
   };
 
   const renderRevenueChart = () => (
@@ -89,7 +173,7 @@ const SuperAdmin = () => {
         </div>
       </div>
 
-      <div className="h-64 sm:h-72 flex items-end justify-between gap-2 sm:gap-4 pt-8 px-2 pb-2 border-b border-slate-200 overflow-x-auto">
+      <div className={`h-64 sm:h-72 flex items-end justify-between gap-2 sm:gap-4 pt-8 px-2 pb-2 border-b border-slate-200 overflow-x-auto ${isLoadingStats ? 'opacity-50 blur-[2px] animate-pulse' : ''}`}>
         {getChartData().map((col, i) => (
           <div key={i} className="flex-1 flex flex-col items-center gap-2 min-w-[45px] h-full justify-end group">
             <div className="text-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200">
@@ -156,7 +240,9 @@ const SuperAdmin = () => {
         <div className="bg-white border-2 border-[#0f172a] rounded-3xl p-5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:translate-y-[-2px] transition-all">
           <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">TỔNG DOANH THU AFFILIATE</p>
           <div className="flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">128.500.000đ</span>
+            <span className="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">
+              {isLoadingStats ? '...' : `${Number(stats.total_affiliate_revenue).toLocaleString('vi-VN')}đ`}
+            </span>
           </div>
           <p className="text-xs font-bold text-emerald-600 mt-2 flex items-center gap-1">
             <span>↑ +18.2%</span> <span className="text-slate-500 font-semibold">so với tuần trước</span>
@@ -166,10 +252,12 @@ const SuperAdmin = () => {
         <div className="bg-white border-2 border-[#0f172a] rounded-3xl p-5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:translate-y-[-2px] transition-all">
           <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">THÀNH VIÊN CLUB</p>
           <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-black text-slate-900 tracking-tight">1.243</span>
+            <span className="text-3xl font-black text-slate-900 tracking-tight">
+              {isLoadingStats ? '...' : Number(stats.total_members).toLocaleString('vi-VN')}
+            </span>
           </div>
           <p className="text-xs font-bold text-indigo-600 mt-2">
-            +38 thành viên tuần này
+            +{isLoadingStats ? '...' : stats.new_members_this_week} thành viên tuần này
           </p>
         </div>
 
@@ -186,10 +274,16 @@ const SuperAdmin = () => {
         <div className="bg-white border-2 border-[#0f172a] rounded-3xl p-5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:translate-y-[-2px] transition-all">
           <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">REALTIME REVERB & WS</p>
           <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-black text-amber-500 tracking-tight">Ổn định ⚡</span>
+            {isLoadingStats ? (
+              <span className="text-3xl font-black text-slate-400 tracking-tight">...</span>
+            ) : stats?.reverb_status === 'online' ? (
+              <span className="text-3xl font-black text-amber-500 tracking-tight">Ổn định ⚡</span>
+            ) : (
+              <span className="text-3xl font-black text-rose-500 tracking-tight">Mất kết nối ❌</span>
+            )}
           </div>
           <p className="text-xs font-bold text-slate-600 mt-2">
-            Cổng 8080 & 8000 kết nối mượt
+            {isLoadingStats ? 'Đang kiểm tra...' : `Cổng ${stats?.reverb_port || 8080} kết nối ${stats?.reverb_status === 'online' ? 'mượt' : 'thất bại'}`}
           </p>
         </div>
       </div>
@@ -278,14 +372,8 @@ const SuperAdmin = () => {
               Xem tất cả
             </button>
           </div>
-          <div className="space-y-4">
-            {[
-              { time: '09:12', user: 'Thu Hà', action: 'duyệt 4 bài đánh giá kem chống nắng và gắn nhãn xác minh', tag: 'Nội dung', color: 'bg-slate-100 text-slate-800' },
-              { time: '08:40', user: 'Hải Đăng', action: 'thực hiện lệnh CRUD thêm mới 15 sản phẩm Affiliate vào kho', tag: 'CRUD Dữ liệu', color: 'bg-rose-100 text-[#c93638]' },
-              { time: 'Hôm qua', user: 'Quang Huy', action: 'khóa 2 tài khoản spam link quảng cáo trái phép', tag: 'Người dùng', color: 'bg-amber-100 text-amber-900' },
-              { time: 'Hôm qua', user: 'Minh Anh', action: 'cập nhật cấu hình máy chủ Realtime Reverb lên cổng 8080', tag: 'Cấu hình', color: 'bg-indigo-100 text-indigo-900' },
-              { time: 'Hôm qua', user: 'Long Founder', action: 'cấp quyền Super Admin toàn quyền cho tài khoản Trưởng nhóm', tag: 'Super Admin', color: 'bg-emerald-100 text-emerald-900' },
-            ].map((item, idx) => (
+          <div className={`space-y-4 ${isLoadingStats ? 'opacity-50 blur-[2px] animate-pulse' : ''}`}>
+            {(stats.recent_logs && stats.recent_logs.length > 0 ? stats.recent_logs : []).map((item, idx) => (
               <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-100 last:border-0 gap-2 hover:bg-slate-50 rounded-xl px-2 transition-colors">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-black text-slate-400 w-16 shrink-0">{item.time}</span>
@@ -298,6 +386,9 @@ const SuperAdmin = () => {
                 </span>
               </div>
             ))}
+            {(!stats.recent_logs || stats.recent_logs.length === 0) && (
+              <p className="text-sm text-slate-500 font-bold text-center py-4">Chưa có nhật ký nào.</p>
+            )}
           </div>
         </div>
 
@@ -334,7 +425,7 @@ const SuperAdmin = () => {
               <div className="flex items-center justify-between py-1.5">
                 <span className="text-sm font-bold text-slate-700">Lệnh CRUD 24h qua</span>
                 <span className="px-3 py-1 rounded-full bg-indigo-300 border-2 border-slate-900 font-black text-xs text-slate-950 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                  342
+                  {isLoadingStats ? '...' : stats.crud_operations_24h}
                 </span>
               </div>
             </div>
@@ -353,6 +444,150 @@ const SuperAdmin = () => {
     </div>
   );
 
+  const handleSaveAdmin = async (e) => {
+    e.preventDefault();
+    try {
+      if (isEditMode) {
+        const res = await api.put(`/admin/admins/${adminFormData.id}`, { vai_tro_id: adminFormData.vai_tro_id });
+        if (res.data.status === 'success') {
+          showNotification('✅ ' + res.data.message);
+          setAdminList(adminList.map(a => a.id === adminFormData.id ? { ...a, vai_tro_id: adminFormData.vai_tro_id, role: adminRoles.find(r => r.id == adminFormData.vai_tro_id)?.ten, scope: adminRoles.find(r => r.id == adminFormData.vai_tro_id)?.mo_ta } : a));
+          setShowAdminModal(false);
+        }
+      } else {
+        const res = await api.post('/admin/admins', { email: adminFormData.email, vai_tro_id: adminFormData.vai_tro_id });
+        if (res.data.status === 'success') {
+          showNotification('✅ ' + res.data.message);
+          const refetch = await api.get('/admin/admins');
+          setAdminList(refetch.data.data);
+          setShowAdminModal(false);
+        }
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleRevokeAdmin = async (id, name) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn thu hồi quyền Admin của ${name}?`)) return;
+    try {
+      const res = await api.delete(`/admin/admins/${id}/revoke`);
+      if (res.data.status === 'success') {
+        showNotification('✅ ' + res.data.message);
+        setAdminList(adminList.filter(a => a.id !== id));
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleSaveUser = async (e) => {
+    e.preventDefault();
+    setIsSavingUser(true);
+    try {
+      const res = await api.post('/admin/users', userFormData);
+      if (res.data.status === 'success') {
+        showNotification('✅ ' + res.data.message);
+        setShowUserModal(false);
+        setUserFormData({ email: '', ho_ten: '', mat_khau: '' });
+        fetchUsers(searchQuery);
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setIsSavingUser(false);
+    }
+  };
+
+  const handleToggleUserStatus = async (id, currentStatus) => {
+    try {
+      const res = await api.put(`/admin/users/${id}/status`);
+      if (res.data.status === 'success') {
+        showNotification('✅ ' + res.data.message);
+        fetchUsers(searchQuery);
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleDeleteUser = async (id, name) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN người dùng ${name}? Hành động này không thể hoàn tác.`)) return;
+    try {
+      const res = await api.delete(`/admin/users/${id}`);
+      if (res.data.status === 'success') {
+        showNotification('✅ ' + res.data.message);
+        fetchUsers(searchQuery);
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handlePromoteUser = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/admin/admins', {
+        email: promoteUserEmail,
+        vai_tro_id: promoteRoleId
+      });
+      if (res.data.status === 'success') {
+        showNotification('✅ ' + res.data.message);
+        setShowPromoteModal(false);
+        fetchUsers(searchQuery);
+        // also fetch admins so the admins tab is updated
+        api.get('/admin/admins').then(r => setAdminList(r.data.data));
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleSaveRole = async (e) => {
+    e.preventDefault();
+    setIsSavingRole(true);
+    try {
+      if (isEditRoleMode) {
+        const res = await api.put(`/admin/roles/${roleFormData.id}`, { ten: roleFormData.ten, mo_ta: roleFormData.mo_ta });
+        if (res.data.status === 'success') {
+          showNotification('✅ ' + res.data.message);
+          const refetchRoles = await api.get('/admin/roles');
+          setAdminRoles(refetchRoles.data.data);
+          setIsEditRoleMode(false);
+          setRoleFormData({ id: null, ten: '', mo_ta: '' });
+        }
+      } else {
+        const res = await api.post('/admin/roles', { ten: roleFormData.ten, mo_ta: roleFormData.mo_ta });
+        if (res.data.status === 'success') {
+          showNotification('✅ ' + res.data.message);
+          const refetchRoles = await api.get('/admin/roles');
+          setAdminRoles(refetchRoles.data.data);
+          setRoleFormData({ id: null, ten: '', mo_ta: '' });
+        }
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setIsSavingRole(false);
+    }
+  };
+
+  const handleDeleteRole = async (id, ten) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa quyền "${ten}"? Các admin đang mang quyền này sẽ bị giáng cấp về Người dùng bình thường.`)) return;
+    try {
+      const res = await api.delete(`/admin/roles/${id}`);
+      if (res.data.status === 'success') {
+        showNotification('✅ ' + res.data.message);
+        const refetchRoles = await api.get('/admin/roles');
+        setAdminRoles(refetchRoles.data.data);
+        const refetchAdmins = await api.get('/admin/admins');
+        setAdminList(refetchAdmins.data.data);
+      }
+    } catch (err) {
+      showNotification('❌ Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   const renderAdminsTab = () => (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-2 border-slate-200">
@@ -360,79 +595,275 @@ const SuperAdmin = () => {
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 m-0">Quản lý đội ngũ Admin</h2>
           <p className="text-sm text-slate-600 font-semibold m-0 mt-1">Phân quyền Super Admin, cấp hoặc thu hồi quyền truy cập quản trị viên.</p>
         </div>
-        <button 
-          onClick={() => showNotification('🛡️ Đã bật giao diện cấp quyền Admin cho tài khoản mới!')}
-          className="bg-[#c93638] text-white hover:bg-[#b02e30] border-2 border-slate-900 px-5 py-2.5 rounded-2xl font-extrabold text-sm flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer w-fit"
-        >
-          <Plus size={18} /> Thêm Admin mới
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => {
+              setIsEditRoleMode(false);
+              setRoleFormData({ id: null, ten: '', mo_ta: '' });
+              setShowRoleModal(true);
+            }}
+            className="bg-slate-900 text-white hover:bg-slate-800 border-2 border-[#0f172a] px-5 py-2.5 rounded-2xl font-extrabold text-sm flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(201,54,56,1)] active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer w-fit"
+          >
+            <Settings size={18} className="text-rose-500" /> Quản lý Quyền
+          </button>
+          <button 
+            onClick={() => {
+              setIsEditMode(false);
+              setAdminFormData({ id: null, email: '', vai_tro_id: 2 });
+              setShowAdminModal(true);
+            }}
+            className="bg-[#c93638] text-white hover:bg-[#b02e30] border-2 border-slate-900 px-5 py-2.5 rounded-2xl font-extrabold text-sm flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer w-fit"
+          >
+            <Plus size={18} /> Thêm Admin mới
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white border-2 border-[#0f172a] rounded-3xl p-6 shadow-[5px_5px_0px_0px_rgba(15,23,42,1)] overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b-2 border-slate-900">
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Thành viên</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Vai trò</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Phạm vi quyền</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Trạng thái</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 text-right">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {[
-              { name: 'Long Founder', email: 'long@clubtrainghiem.vn', role: 'Super Admin Toàn Quyền', scope: 'Toàn quyền CRUD & Hệ thống', status: 'Active', color: 'bg-amber-300' },
-              { name: 'Thu Hà (Lead)', email: 'thuha@clubtrainghiem.vn', role: 'Admin Nội Dung', scope: 'Duyệt bài, xóa comment vi phạm', status: 'Active', color: 'bg-rose-200' },
-              { name: 'Hải Đăng', email: 'haidang@clubtrainghiem.vn', role: 'Admin Sự Kiện & Affiliate', scope: 'Quản lý sự kiện, cập nhật sản phẩm', status: 'Active', color: 'bg-emerald-200' },
-              { name: 'Quang Huy', email: 'huy@clubtrainghiem.vn', role: 'Admin Người Dùng', scope: 'Khóa tài khoản spam, xác minh TV', status: 'Review', color: 'bg-indigo-200' },
-            ].map((admin, index) => (
-              <tr key={index} className="hover:bg-slate-50 transition-colors">
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-slate-900 flex items-center justify-center font-black text-slate-800">
-                      {admin.name[0]}
-                    </div>
-                    <div>
-                      <p className="font-extrabold text-slate-900 text-sm m-0">{admin.name}</p>
-                      <p className="font-semibold text-slate-500 text-xs m-0">{admin.email}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-4 px-4">
-                  <span className={`px-3 py-1 rounded-full border border-slate-900 font-extrabold text-xs ${admin.color} text-slate-950 shadow-[1px_1px_0px_0px_rgba(15,23,42,1)]`}>
-                    {admin.role}
-                  </span>
-                </td>
-                <td className="py-4 px-4 font-bold text-sm text-slate-700">{admin.scope}</td>
-                <td className="py-4 px-4">
-                  <span className="flex items-center gap-1.5 font-bold text-xs text-emerald-600">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                    Hoạt động
-                  </span>
-                </td>
-                <td className="py-4 px-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <button 
-                      onClick={() => showNotification(`✏️ Đang chỉnh sửa quyền cho ${admin.name}`)}
-                      className="px-3 py-1 bg-white hover:bg-slate-900 hover:text-white text-slate-900 border border-slate-900 rounded-lg font-bold text-xs transition-colors cursor-pointer"
-                    >
-                      Sửa
-                    </button>
-                    {admin.role !== 'Super Admin Toàn Quyền' && (
-                      <button 
-                        onClick={() => showNotification(`⚠️ Đã thu hồi quyền Admin của ${admin.name}`)}
-                        className="px-3 py-1 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 border border-rose-300 rounded-lg font-bold text-xs transition-colors cursor-pointer"
-                      >
-                        Thu hồi
-                      </button>
-                    )}
-                  </div>
-                </td>
+      <div className="bg-white border-2 border-[#0f172a] rounded-3xl shadow-[5px_5px_0px_0px_rgba(15,23,42,1)] overflow-hidden">
+        <div className="max-h-[500px] overflow-y-auto custom-scrollbar overflow-x-auto p-6 pt-0">
+          <table className="w-full text-left border-collapse mt-6">
+            <thead>
+              <tr className="border-b-2 border-slate-900">
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Thành viên</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Vai trò</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Phạm vi quyền</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Trạng thái</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 text-right sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Thao tác</th>
               </tr>
-            ))}
+            </thead>
+          <tbody className={`divide-y divide-slate-100 ${isLoadingAdmins ? 'opacity-50 blur-[2px] animate-pulse' : ''}`}>
+            {adminList.length > 0 ? (
+              adminList.map((admin, index) => (
+                <tr key={index} className="hover:bg-slate-50 transition-colors">
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-slate-900 flex items-center justify-center font-black text-slate-800">
+                        {admin.name[0]}
+                      </div>
+                      <div>
+                        <p className="font-extrabold text-slate-900 text-sm m-0">{admin.name}</p>
+                        <p className="font-semibold text-slate-500 text-xs m-0">{admin.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className={`px-3 py-1 rounded-full border border-slate-900 font-extrabold text-xs ${admin.color} text-slate-950 shadow-[1px_1px_0px_0px_rgba(15,23,42,1)]`}>
+                      {admin.role}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 font-bold text-sm text-slate-700">{admin.scope}</td>
+                  <td className="py-4 px-4">
+                    <span className="flex items-center gap-1.5 font-bold text-xs text-emerald-600">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                      {admin.status_text}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => {
+                          setIsEditMode(true);
+                          setAdminFormData({ id: admin.id, email: admin.email, vai_tro_id: admin.vai_tro_id });
+                          setShowAdminModal(true);
+                        }}
+                        className="px-3 py-1 bg-white hover:bg-slate-900 hover:text-white text-slate-900 border border-slate-900 rounded-lg font-bold text-xs transition-colors cursor-pointer"
+                      >
+                        Sửa
+                      </button>
+                      {admin.vai_tro_id !== 3 && (
+                        <button 
+                          onClick={() => handleRevokeAdmin(admin.id, admin.name)}
+                          className="px-3 py-1 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 border border-rose-300 rounded-lg font-bold text-xs transition-colors cursor-pointer"
+                        >
+                          Thu hồi
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="py-8 text-center text-slate-500 font-bold">Chưa có quản trị viên nào.</td>
+              </tr>
+            )}
           </tbody>
         </table>
+        </div>
       </div>
+
+      {/* Modal Add Role */}
+      {showRoleModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div onClick={() => setShowRoleModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-fadeIn" />
+          <div className="relative z-10 w-full max-w-lg bg-white rounded-3xl border-4 border-[#0f172a] shadow-[12px_12px_0px_0px_rgba(201,54,56,1)] overflow-hidden animate-slideUp flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b-2 border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-black flex items-center justify-center text-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(201,54,56,1)]">
+                  <Settings size={20} />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 m-0 tracking-tight">Quản lý Vai trò (Roles)</h3>
+              </div>
+              <button onClick={() => setShowRoleModal(false)} className="text-slate-400 hover:text-slate-900 transition-colors p-2 rounded-xl hover:bg-slate-200">
+                <X size={20} className="stroke-[3]" />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto p-6 space-y-6">
+              {/* Form Add/Edit */}
+              <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
+                <h4 className="font-bold text-sm text-slate-900 mb-4 flex items-center gap-2">
+                  <Plus size={16} className="text-rose-500" /> {isEditRoleMode ? 'Chỉnh sửa Quyền' : 'Thêm Quyền Mới'}
+                </h4>
+                <form onSubmit={handleSaveRole} className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-900 uppercase tracking-wider mb-2">Tên Quyền / Vai trò</label>
+                    <input 
+                      type="text" 
+                      value={roleFormData.ten}
+                      onChange={(e) => setRoleFormData({...roleFormData, ten: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-slate-200 focus:border-[#c93638] focus:bg-white outline-none font-bold text-sm transition-all"
+                      placeholder="VD: Admin Hỗ Trợ, Mod..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-900 uppercase tracking-wider mb-2">Phạm vi quyền hạn (Mô tả)</label>
+                    <textarea 
+                      value={roleFormData.mo_ta}
+                      onChange={(e) => setRoleFormData({...roleFormData, mo_ta: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-slate-200 focus:border-[#c93638] focus:bg-white outline-none font-semibold text-sm transition-all min-h-[60px] resize-none"
+                      placeholder="VD: Chăm sóc khách hàng..."
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    {isEditRoleMode && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setIsEditRoleMode(false);
+                          setRoleFormData({ id: null, ten: '', mo_ta: '' });
+                        }} 
+                        className="px-4 py-2.5 rounded-xl font-bold text-xs border-2 border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors"
+                      >
+                        Hủy
+                      </button>
+                    )}
+                    <button type="submit" disabled={isSavingRole} className={`flex-1 py-2.5 rounded-xl font-black text-xs border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all ${isSavingRole ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#c93638] text-white hover:bg-[#a82527] active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer'}`}>
+                      {isSavingRole ? 'Đang lưu...' : (isEditRoleMode ? 'Lưu Thay Đổi' : 'Thêm Quyền')}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Role List */}
+              <div>
+                <h4 className="font-bold text-sm text-slate-900 mb-3">Danh sách Quyền đang có:</h4>
+                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                  {adminRoles.map((role) => (
+                    <div key={role.id} className="p-4 rounded-xl border-2 border-slate-100 hover:border-slate-300 transition-colors bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-black text-sm text-slate-900">{role.ten}</span>
+                          {(role.id === 2 || role.id === 3) && (
+                            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200">Hệ thống</span>
+                          )}
+                        </div>
+                        <p className="text-xs font-semibold text-slate-500 m-0">{role.mo_ta}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {role.id !== 1 && role.id !== 3 && (
+                          <>
+                            <button 
+                              onClick={() => {
+                                setIsEditRoleMode(true);
+                                setRoleFormData({ id: role.id, ten: role.ten, mo_ta: role.mo_ta });
+                              }}
+                              className="px-3 py-1.5 bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-900 border border-slate-200 rounded-lg font-bold text-xs transition-colors cursor-pointer"
+                            >
+                              Sửa
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteRole(role.id, role.ten)}
+                              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 border border-rose-200 rounded-lg font-bold text-xs transition-colors cursor-pointer"
+                            >
+                              Xóa
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Add/Edit Admin */}
+      {showAdminModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div onClick={() => setShowAdminModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-fadeIn" />
+          <div className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-md border-4 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] relative z-10">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-black text-slate-900 m-0">
+                {isEditMode ? 'Chỉnh sửa Quyền Admin' : 'Thêm Admin Mới'}
+              </h3>
+              <button onClick={() => setShowAdminModal(false)} className="text-slate-400 hover:text-slate-900">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveAdmin} className="space-y-4">
+              {!isEditMode && (
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Email người dùng</label>
+                  <input
+                    type="email"
+                    required
+                    value={adminFormData.email}
+                    onChange={(e) => setAdminFormData({...adminFormData, email: e.target.value})}
+                    placeholder="Nhập email tài khoản cần cấp quyền..."
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-slate-900 focus:outline-none font-semibold text-slate-900"
+                  />
+                  <p className="text-xs text-slate-500 mt-1 font-medium">Người dùng phải có tài khoản trước khi được cấp quyền.</p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Chức danh / Phạm vi quyền</label>
+                <select
+                  value={adminFormData.vai_tro_id}
+                  onChange={(e) => setAdminFormData({...adminFormData, vai_tro_id: parseInt(e.target.value)})}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-slate-900 focus:outline-none font-bold text-slate-900 appearance-none bg-slate-50"
+                >
+                  {adminRoles.map(role => (
+                    <option key={role.id} value={role.id}>{role.ten}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAdminModal(false)}
+                  className="px-5 py-2.5 rounded-xl font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl font-black text-white bg-[#c93638] hover:bg-[#b02e30] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900 active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer"
+                >
+                  {isEditMode ? 'Lưu thay đổi' : 'Cấp quyền Admin'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -451,94 +882,224 @@ const SuperAdmin = () => {
         </button>
       </div>
 
+
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
             type="text" 
-            placeholder="Tìm kiếm thành viên theo tên, email hoặc cấp bậc..."
+            placeholder="Tìm kiếm thành viên theo tên, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && fetchUsers(searchQuery)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-[#0f172a] rounded-2xl font-bold text-sm text-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus:outline-none focus:border-[#c93638]"
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-black text-slate-500 bg-white px-3.5 py-2 rounded-xl border-2 border-[#0f172a]">Tổng: 1.243 TV</span>
+          <span className="text-xs font-black text-slate-500 bg-white px-3.5 py-2 rounded-xl border-2 border-[#0f172a]">Hiển thị: {usersList.length} TV</span>
           <span className="text-xs font-black text-[#c93638] bg-rose-50 px-3.5 py-2 rounded-xl border border-rose-300">Quyền hạn: CRUD Tối đa</span>
         </div>
       </div>
 
-      <div className="bg-white border-2 border-[#0f172a] rounded-3xl p-6 shadow-[5px_5px_0px_0px_rgba(15,23,42,1)] overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b-2 border-slate-900">
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Thành viên Club</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Cấp bậc Gamification</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Ngày gia nhập</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900">Trạng thái</th>
-              <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 text-right">Toàn quyền CRUD</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {[
-              { id: 1, name: 'Minh Anh', email: 'minhanh@gmail.com', rank: '👑 Kim Cương VIP', date: '01/08/2026', status: 'Hoạt động', color: 'text-rose-600 bg-rose-50 border-rose-200' },
-              { id: 2, name: 'Hải Đăng', email: 'dang@gmail.com', rank: '🥇 Vàng', date: '28/07/2026', status: 'Hoạt động', color: 'text-amber-700 bg-amber-50 border-amber-200' },
-              { id: 3, name: 'Thanh Hà', email: 'thanhha@gmail.com', rank: '🥈 Bạc', date: '02/08/2026', status: 'Hoạt động', color: 'text-slate-700 bg-slate-100 border-slate-300' },
-              { id: 4, name: 'Tài Khoản Spam', email: 'quangcao123@yahoo.com', rank: '🥉 Đồng', date: 'Hôm nay', status: 'Đã khóa răn đe', color: 'text-slate-500 bg-rose-100 border-rose-400 font-line-through' },
-            ].map((u) => (
-              <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-slate-900 flex items-center justify-center font-black text-indigo-900 text-sm">
-                      {u.name[0]}
-                    </div>
-                    <div>
-                      <p className="font-extrabold text-slate-900 text-sm m-0">{u.name}</p>
-                      <p className="font-semibold text-slate-500 text-xs m-0">{u.email}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-4 px-4">
-                  <span className={`px-3 py-1 rounded-full border font-extrabold text-xs ${u.color}`}>
-                    {u.rank}
-                  </span>
-                </td>
-                <td className="py-4 px-4 font-bold text-sm text-slate-600">{u.date}</td>
-                <td className="py-4 px-4">
-                  <span className={`font-extrabold text-xs px-2.5 py-1 rounded-lg ${u.status === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300'}`}>
-                    {u.status}
-                  </span>
-                </td>
-                <td className="py-4 px-4 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
-                    <button 
-                      onClick={() => showNotification(`👁️ Đang đọc dữ liệu chi tiết (Read) của ${u.name}`)}
-                      title="Xem (Read)" 
-                      className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-xl transition-colors cursor-pointer"
-                    >
-                      <Eye size={15} />
-                    </button>
-                    <button 
-                      onClick={() => showNotification(`✏️ Đang cập nhật thông tin (Update) cho ${u.name}`)}
-                      title="Sửa (Update)" 
-                      className="p-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-xl transition-colors cursor-pointer"
-                    >
-                      <Edit size={15} />
-                    </button>
-                    <button 
-                      onClick={() => showNotification(`🗑️ Đã thực thi lệnh xóa dữ liệu (Delete) với ${u.name}`)}
-                      title="Xóa (Delete)" 
-                      className="p-2 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 border border-rose-300 rounded-xl transition-colors cursor-pointer"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                </td>
+      <div className="bg-white border-2 border-[#0f172a] rounded-3xl shadow-[5px_5px_0px_0px_rgba(15,23,42,1)] overflow-hidden">
+        <div className="max-h-[500px] overflow-y-auto custom-scrollbar overflow-x-auto p-6 pt-0">
+          <table className="w-full text-left border-collapse mt-6">
+            <thead>
+              <tr className="border-b-2 border-slate-900">
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Thành viên Club</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Cấp bậc Gamification</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Ngày tham gia</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Trạng thái</th>
+                <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 text-right sticky top-0 bg-white z-10 shadow-[0_2px_0_#0f172a]">Thao tác</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className={`divide-y divide-slate-100 ${isLoadingUsers ? 'opacity-50 blur-[2px] animate-pulse' : ''}`}>
+              {usersList.length > 0 ? (
+                usersList.map((u) => (
+                  <tr key={u.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-slate-900 flex items-center justify-center font-black text-indigo-900 text-sm">
+                          {u.ho_ten ? u.ho_ten[0] : 'U'}
+                        </div>
+                        <div>
+                          <p className="font-extrabold text-slate-900 text-sm m-0 flex items-center gap-2">
+                            {u.ho_ten}
+                            {u.vai_tro_id > 1 && (
+                              <ShieldCheck size={14} className="text-rose-500" title="Đã là Admin" />
+                            )}
+                          </p>
+                          <p className="font-semibold text-slate-500 text-xs m-0">{u.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`px-3 py-1 rounded-full border font-extrabold text-xs text-amber-700 bg-amber-50 border-amber-200`}>
+                        {u.cap_bac_hien_thi || 'Thành Viên Mới'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 font-bold text-sm text-slate-600">
+                      {new Date(u.created_at).toLocaleDateString('vi-VN')}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`font-extrabold text-xs px-2.5 py-1 rounded-lg ${u.trang_thai === 1 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300'}`}>
+                        {u.trang_thai === 1 ? 'Hoạt động' : 'Bị khóa'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {u.vai_tro_id === 1 && (
+                          <button 
+                            onClick={() => {
+                              setPromoteUserEmail(u.email);
+                              setShowPromoteModal(true);
+                            }}
+                            title="Nâng lên Admin" 
+                            className="p-2 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 border border-indigo-300 rounded-xl transition-colors cursor-pointer flex items-center gap-1 font-bold text-xs"
+                          >
+                            <ShieldCheck size={15} /> <span>Nâng Admin</span>
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => handleToggleUserStatus(u.id, u.trang_thai)}
+                          title={u.trang_thai === 1 ? "Khóa tài khoản" : "Mở khóa"} 
+                          className="p-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-xl transition-colors cursor-pointer"
+                        >
+                          {u.trang_thai === 1 ? <Lock size={15} /> : <Unlock size={15} />}
+                        </button>
+                        {u.vai_tro_id !== 3 && (
+                          <button 
+                            onClick={() => handleDeleteUser(u.id, u.ho_ten)}
+                            title="Xóa vĩnh viễn" 
+                            className="p-2 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 border border-rose-300 rounded-xl transition-colors cursor-pointer"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="py-8 text-center text-slate-500 font-bold">Không tìm thấy người dùng nào.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Modal Add User */}
+      {showUserModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div onClick={() => setShowUserModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-fadeIn" />
+          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl border-4 border-[#0f172a] shadow-[12px_12px_0px_0px_rgba(201,54,56,1)] overflow-hidden animate-slideUp">
+            <div className="p-6 border-b-2 border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-black flex items-center justify-center text-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(201,54,56,1)]">
+                  <Plus size={20} />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 m-0 tracking-tight">Thêm Người Dùng</h3>
+              </div>
+              <button onClick={() => setShowUserModal(false)} className="text-slate-400 hover:text-slate-900 transition-colors p-2 rounded-xl hover:bg-slate-200">
+                <X size={20} className="stroke-[3]" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveUser} className="space-y-4 p-6">
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Họ Tên</label>
+                <input 
+                  type="text" 
+                  value={userFormData.ho_ten}
+                  onChange={(e) => setUserFormData({...userFormData, ho_ten: e.target.value})}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-[#c93638] focus:bg-white outline-none font-bold text-sm transition-all"
+                  placeholder="Nhập họ tên"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Email</label>
+                <input 
+                  type="email" 
+                  value={userFormData.email}
+                  onChange={(e) => setUserFormData({...userFormData, email: e.target.value})}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-[#c93638] focus:bg-white outline-none font-bold text-sm transition-all"
+                  placeholder="Nhập email"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Mật khẩu ban đầu</label>
+                <input 
+                  type="password" 
+                  value={userFormData.mat_khau}
+                  onChange={(e) => setUserFormData({...userFormData, mat_khau: e.target.value})}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-[#c93638] focus:bg-white outline-none font-bold text-sm transition-all"
+                  placeholder="Nhập mật khẩu"
+                  required
+                />
+              </div>
+              <div className="pt-2">
+                <button type="submit" disabled={isSavingUser} className={`w-full py-3.5 rounded-2xl font-black text-sm border-2 border-[#0f172a] shadow-[4px_4px_0px_0px_rgba(23,23,42,1)] transition-all ${isSavingUser ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-700 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer'}`}>
+                  {isSavingUser ? 'Đang lưu...' : 'Tạo Tài Khoản'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Promote User */}
+      {showPromoteModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div onClick={() => setShowPromoteModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-fadeIn" />
+          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl border-4 border-[#0f172a] shadow-[12px_12px_0px_0px_rgba(201,54,56,1)] overflow-hidden animate-slideUp">
+            <div className="p-6 border-b-2 border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-900 text-white font-black flex items-center justify-center text-lg border-2 border-indigo-900 shadow-[2px_2px_0px_0px_rgba(79,70,229,1)]">
+                  <ShieldCheck size={20} />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 m-0 tracking-tight">Nâng Quyền Admin</h3>
+              </div>
+              <button onClick={() => setShowPromoteModal(false)} className="text-slate-400 hover:text-slate-900 transition-colors p-2 rounded-xl hover:bg-slate-200">
+                <X size={20} className="stroke-[3]" />
+              </button>
+            </div>
+            
+            <form onSubmit={handlePromoteUser} className="space-y-4 p-6">
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Thành viên</label>
+                <input 
+                  type="email" 
+                  value={promoteUserEmail}
+                  disabled
+                  className="w-full px-4 py-3 rounded-xl bg-slate-100 border-2 border-slate-200 outline-none font-bold text-sm text-slate-500 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Chọn Vai Trò Admin</label>
+                <select 
+                  value={promoteRoleId}
+                  onChange={(e) => setPromoteRoleId(Number(e.target.value))}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-[#4f46e5] focus:bg-white outline-none font-bold text-sm transition-all appearance-none cursor-pointer"
+                  required
+                >
+                  {adminRoles.filter(r => r.id !== 1 && r.id !== 3).map(role => (
+                    <option key={role.id} value={role.id}>{role.ten} ({role.mo_ta})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="pt-2">
+                <button type="submit" className="w-full py-3.5 rounded-2xl font-black text-sm border-2 border-[#0f172a] shadow-[4px_4px_0px_0px_rgba(23,23,42,1)] transition-all bg-indigo-600 text-white hover:bg-indigo-700 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex justify-center items-center gap-2">
+                  <ShieldCheck size={18} /> Xác Nhận Nâng Quyền
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -625,38 +1186,12 @@ const SuperAdmin = () => {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button className="px-4 py-2 bg-slate-900 text-white font-extrabold text-xs rounded-2xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(201,54,56,1)] cursor-pointer">Tất cả (3.842)</button>
-        <button className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 font-bold text-xs rounded-2xl border-2 border-slate-900 cursor-pointer">Lệnh CRUD (1.420)</button>
-        <button className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 font-bold text-xs rounded-2xl border-2 border-slate-900 cursor-pointer">Admin Phân Quyền (142)</button>
-        <button className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-100 font-bold text-xs rounded-2xl border-2 border-slate-900 cursor-pointer">WebSocket Reverb (532)</button>
+        <button onClick={() => setLogFilter('ALL')} className={`px-4 py-2 font-bold text-xs rounded-2xl border-2 border-slate-900 cursor-pointer ${logFilter === 'ALL' ? 'bg-slate-900 text-white font-extrabold shadow-[2px_2px_0px_0px_rgba(201,54,56,1)]' : 'bg-white text-slate-700 hover:bg-slate-100'}`}>Tất cả ({logCounts.total})</button>
+        <button onClick={() => setLogFilter('CRUD')} className={`px-4 py-2 font-bold text-xs rounded-2xl border-2 border-slate-900 cursor-pointer ${logFilter === 'CRUD' ? 'bg-slate-900 text-white font-extrabold shadow-[2px_2px_0px_0px_rgba(201,54,56,1)]' : 'bg-white text-slate-700 hover:bg-slate-100'}`}>Lệnh CRUD ({logCounts.crud})</button>
+        <button onClick={() => setLogFilter('AUTH')} className={`px-4 py-2 font-bold text-xs rounded-2xl border-2 border-slate-900 cursor-pointer ${logFilter === 'AUTH' ? 'bg-slate-900 text-white font-extrabold shadow-[2px_2px_0px_0px_rgba(201,54,56,1)]' : 'bg-white text-slate-700 hover:bg-slate-100'}`}>Admin Phân Quyền ({logCounts.auth})</button>
+        <button onClick={() => setLogFilter('SYSTEM')} className={`px-4 py-2 font-bold text-xs rounded-2xl border-2 border-slate-900 cursor-pointer ${logFilter === 'SYSTEM' ? 'bg-slate-900 text-white font-extrabold shadow-[2px_2px_0px_0px_rgba(201,54,56,1)]' : 'bg-white text-slate-700 hover:bg-slate-100'}`}>Hệ thống ({logCounts.system})</button>
       </div>
 
-      <div className="bg-slate-900 text-white rounded-3xl p-6 border-3 border-[#0f172a] shadow-[6px_6px_0px_0px_rgba(201,54,56,1)] flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#c93638] to-amber-400 text-slate-950 font-black flex items-center justify-center text-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(255,255,255,0.3)] shrink-0">
-            🛡️
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-black text-base text-white m-0">Better Stack (Logtail) Audit Engine</h4>
-              <span className="bg-emerald-400 text-slate-950 text-[11px] px-2.5 py-0.5 rounded-md font-black border border-slate-950 shadow-xs">Active (1GB Free Tier)</span>
-            </div>
-            <p className="text-xs text-slate-300 font-semibold m-0 mt-1">
-              Hệ thống giám sát log quốc tế chuẩn WORM chống xóa dấu vết & tự động đồng bộ mọi thao tác CRUD.
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            logAdminAction('TEST_LOGTAIL_SIGNAL', { user: 'Super Admin', ip: '127.0.0.1', target: 'Live Audit Desk' });
-            api.post('/test-logtail', { user: 'Super Admin', source: 'Laravel Backend Test' }).catch(() => {});
-            showNotification('⚡ Đã bắn log thực thi sang Better Stack (Logtail)! Kiểm tra Console hoặc Dashboard Better Stack.');
-          }}
-          className="px-4 py-3 rounded-2xl bg-amber-400 hover:bg-white text-slate-950 font-black text-xs border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.9)] hover:shadow-[4px_4px_0px_0px_rgba(201,54,56,1)] transition-all cursor-pointer active:translate-x-[2px] active:translate-y-[2px] shrink-0"
-        >
-          🧪 Bắn Log Mẫu Sang Better Stack
-        </button>
-      </div>
 
       <div className="bg-white border-2 border-[#0f172a] rounded-3xl p-6 shadow-[5px_5px_0px_0px_rgba(15,23,42,1)] overflow-x-auto">
         <table className="w-full text-left border-collapse">
@@ -669,28 +1204,36 @@ const SuperAdmin = () => {
               <th className="py-3 px-4 text-xs font-black uppercase tracking-wider text-slate-900 text-right">Trạng thái</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 font-medium text-sm">
-            {[
-              { time: '16:15:02', user: 'Super Admin (Bạn)', action: 'Truy cập Bảng Quản Trị Tối Cao (Super Admin Dashboard)', type: 'AUTH_ADMIN', badge: 'bg-amber-100 text-amber-950 border-amber-400' },
-              { time: '16:12:45', user: 'Thu Hà', action: 'Duyệt bài đăng #4502 trên Bảng tin cộng đồng [UPDATE]', type: 'UPDATE_POST', badge: 'bg-emerald-100 text-emerald-950 border-emerald-400' },
-              { time: '15:58:11', user: 'Hải Đăng', action: 'Thêm sản phẩm Kem Chống Nắng mới vào Affiliate [CREATE]', type: 'CREATE_ITEM', badge: 'bg-indigo-100 text-indigo-950 border-indigo-400' },
-              { time: '15:40:22', user: 'Quang Huy', action: 'Khóa tài khoản vi phạm spam comment #214 [DELETE/LOCK]', type: 'DELETE_USER', badge: 'bg-rose-100 text-[#c93638] border-rose-400' },
-              { time: '15:30:00', user: 'System Reverb', action: 'Phát tín hiệu Realtime Notification tới 1.240 thành viên', type: 'WEBSOCKET_BROADCAST', badge: 'bg-slate-100 text-slate-900 border-slate-300' },
-            ].map((log, idx) => (
-              <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                <td className="py-3.5 px-4 font-black text-slate-500 text-xs">{log.time}</td>
-                <td className="py-3.5 px-4 font-extrabold text-slate-900">{log.user}</td>
-                <td className="py-3.5 px-4 font-bold text-slate-700">{log.action}</td>
-                <td className="py-3.5 px-4">
-                  <span className={`px-2.5 py-0.5 rounded-lg border font-black text-[11px] ${log.badge}`}>
-                    {log.type}
-                  </span>
-                </td>
-                <td className="py-3.5 px-4 text-right font-black text-xs text-emerald-600">
-                  ✔ Thành công
+          <tbody className={`divide-y divide-slate-100 font-medium text-sm ${isLoadingLogs ? 'opacity-50 blur-[2px] animate-pulse' : ''}`}>
+            {sysLogs.length > 0 ? (
+              sysLogs.filter(log => {
+                if (logFilter === 'ALL') return true;
+                if (logFilter === 'CRUD') return ['CREATE_ITEM', 'UPDATE_USER', 'MESSAGE'].includes(log.type);
+                if (logFilter === 'AUTH') return log.type === 'AUTH' || log.type === 'AUTH_ADMIN';
+                if (logFilter === 'SYSTEM') return log.type === 'SYSTEM';
+                return true;
+              }).map((log, idx) => (
+                <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                  <td className="py-3.5 px-4 font-black text-slate-500 text-xs">{log.time}</td>
+                  <td className="py-3.5 px-4 font-extrabold text-slate-900">{log.user}</td>
+                  <td className="py-3.5 px-4 font-bold text-slate-700">{log.action}</td>
+                  <td className="py-3.5 px-4">
+                    <span className={`px-2.5 py-0.5 rounded-lg border font-black text-[11px] ${log.badge}`}>
+                      {log.type}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-black text-xs text-emerald-600">
+                    ✔ Thành công
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="py-8 text-center text-slate-500 font-bold">
+                  {isLoadingLogs ? 'Đang tải dữ liệu nhật ký...' : 'Chưa có nhật ký hệ thống nào.'}
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

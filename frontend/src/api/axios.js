@@ -43,7 +43,28 @@ api.interceptors.response.use(
     } catch (e) {}
     return response;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      const url = error.response.config?.url || '';
+      if (!url.includes('/login')) {
+        const hadToken = localStorage.getItem('auth_token');
+        
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('current_user');
+        window.dispatchEvent(new Event('user_auth_change'));
+        
+        if (error.response.data?.message === 'account_locked') {
+          localStorage.setItem('account_locked', 'true');
+        }
+        
+        // Chỉ redirect nếu user đang có token (bị hết hạn/bị xóa) hoặc tài khoản bị khóa
+        if (hadToken || error.response.data?.message === 'account_locked') {
+          window.location.href = error.response.data?.message === 'account_locked' ? '/' : '/auth';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
 );
 
 export default api;

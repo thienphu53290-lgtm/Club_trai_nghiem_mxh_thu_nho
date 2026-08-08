@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Users, UserPlus, UserCheck, Search, ChevronRight } from 'lucide-react';
 import api from '../../api/axios';
+import { matchSearch } from '../../utils/stringUtils';
 
 const Friends = () => {
-  const [activeTab, setActiveTab] = useState('friends');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'friends');
   const [connections, setConnections] = useState({
     friends: [],
     following: [],
@@ -16,6 +18,12 @@ const Friends = () => {
 
   useEffect(() => {
     fetchConnections();
+  }, [location.key]);
+
+  useEffect(() => {
+    const handleNewFollow = () => fetchConnections();
+    window.addEventListener('new_follow_received', handleNewFollow);
+    return () => window.removeEventListener('new_follow_received', handleNewFollow);
   }, []);
 
   const fetchConnections = async () => {
@@ -43,8 +51,8 @@ const Friends = () => {
 
   const currentList = connections[activeTab] || [];
   const filteredList = currentList.filter(user => 
-    user.ten_hien_thi?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    user.ho_ten?.toLowerCase().includes(searchQuery.toLowerCase())
+    matchSearch(user.ten_hien_thi, searchQuery) || 
+    matchSearch(user.ho_ten, searchQuery)
   );
 
   const getActionBtn = (user) => {
@@ -158,7 +166,7 @@ const Friends = () => {
       </div>
 
       {/* List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-3 max-h-[calc(100vh-320px)] sm:max-h-[calc(100vh-350px)] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
         {filteredList.length > 0 ? (
           filteredList.map(user => (
             <div 
@@ -178,6 +186,11 @@ const Friends = () => {
                   <h3 className="font-extrabold text-sm sm:text-base text-slate-800 truncate pr-2 group-hover:text-[#c93638] transition-colors">
                     {user.ten_hien_thi || user.ho_ten}
                   </h3>
+                  {user.ten_hien_thi && user.ho_ten && user.ten_hien_thi !== user.ho_ten && (
+                    <p className="text-xs font-medium text-slate-500 mt-0.5 truncate pr-2">
+                      {user.ho_ten}
+                    </p>
+                  )}
                   {user.cap_bac_info && (
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 whitespace-nowrap">

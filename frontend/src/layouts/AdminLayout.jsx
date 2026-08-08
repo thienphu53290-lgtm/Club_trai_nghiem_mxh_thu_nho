@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import AdminFooter from '../components/Footer/AdminFooter';
 import { 
@@ -8,7 +8,27 @@ import {
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('current_user');
+      if (!saved) {
+        navigate('/');
+        return;
+      }
+      const parsed = JSON.parse(saved);
+      const user = parsed?.user?.id ? parsed.user : parsed;
+      if (!user || (user.vai_tro_id !== 3 && user.email !== 'superadmin@clubtrainghiem.com')) {
+        navigate('/');
+      }
+    } catch (e) {
+      navigate('/');
+    }
+  }, [navigate]);
+
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem('admin_active_tab') || 'overview';
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -27,6 +47,7 @@ const AdminLayout = () => {
 
   const handleSelectTab = (tabId) => {
     setActiveTab(tabId);
+    sessionStorage.setItem('admin_active_tab', tabId);
     setIsSidebarOpen(false);
   };
 

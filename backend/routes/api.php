@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\AdminController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -19,7 +20,21 @@ Route::post('/chat/heartbeat', [ChatController::class, 'heartbeat']);
 Route::get('/chat/presence-status', [ChatController::class, 'getPresenceStatus']);
 Route::post('/chat/broadcast-status', [ChatController::class, 'broadcastStatus']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'check_status', 'crud_logger'])->group(function () {
+    Route::get('/admin/dashboard-stats', [AdminController::class, 'dashboard']);
+    Route::get('/admin/logs', [AdminController::class, 'getLogs']);
+    Route::get('/admin/users', [AdminController::class, 'getUsers']);
+    Route::post('/admin/users', [AdminController::class, 'createUser']);
+    Route::put('/admin/users/{id}/status', [AdminController::class, 'toggleUserStatus']);
+    Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
+    Route::get('/admin/roles', [AdminController::class, 'getRoles']);
+    Route::post('/admin/roles', [AdminController::class, 'addRole']);
+    Route::put('/admin/roles/{id}', [AdminController::class, 'updateRole']);
+    Route::delete('/admin/roles/{id}', [AdminController::class, 'deleteRole']);
+    Route::get('/admin/admins', [AdminController::class, 'getAdmins']);
+    Route::post('/admin/admins', [AdminController::class, 'addAdmin']);
+    Route::put('/admin/admins/{id}', [AdminController::class, 'updateAdmin']);
+    Route::delete('/admin/admins/{id}/revoke', [AdminController::class, 'revokeAdmin']);
     Route::post('/onboarding', [AuthController::class, 'saveOnboarding']);
     Route::get('/user', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);

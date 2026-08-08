@@ -26,8 +26,10 @@ class LogtailService
 
         foreach ($endpoints as $url) {
             try {
-                Http::withToken($token)->post($url, array_merge(['message' => "[ADMIN_AUDIT] {$action}"], $payload));
+                $response = Http::withToken($token)->post($url, array_merge(['message' => "[ADMIN_AUDIT] {$action}"], $payload));
+                Log::channel('single')->info("BetterStack Response for $url: " . $response->status() . " - " . $response->body());
             } catch (\Throwable $e) {
+                Log::channel('single')->error("BetterStack HTTP Exception for $url: " . $e->getMessage());
             }
         }
 

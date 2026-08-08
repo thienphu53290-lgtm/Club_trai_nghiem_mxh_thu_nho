@@ -20,14 +20,24 @@ class DatabaseSeeder extends Seeder
             ['ten' => 'Người Đọc', 'mo_ta' => 'Thành viên đọc bài, thưởng thức và thảo luận trải nghiệm', 'trang_thai' => 1]
         );
 
-        $roleAdmin = VaiTro::firstOrCreate(
+        $roleAdminContent = VaiTro::firstOrCreate(
             ['id' => 2],
-            ['ten' => 'Quản Trị Viên (Admin)', 'mo_ta' => 'Quản trị viên duyệt bài, quản lý thành viên và nội dung', 'trang_thai' => 1]
+            ['ten' => 'Admin Nội Dung', 'mo_ta' => 'Duyệt bài, xóa bình luận vi phạm', 'trang_thai' => 1]
         );
 
         $roleSuperAdmin = VaiTro::firstOrCreate(
             ['id' => 3],
-            ['ten' => 'Siêu Quản Trị (Super Admin)', 'mo_ta' => 'Chủ sở hữu hệ thống với đặc quyền toàn vẹn tối cao', 'trang_thai' => 1]
+            ['ten' => 'Siêu Quản Trị (Super Admin Toàn Quyền)', 'mo_ta' => 'Chủ sở hữu hệ thống với đặc quyền toàn vẹn tối cao', 'trang_thai' => 1]
+        );
+
+        $roleAdminEvent = VaiTro::firstOrCreate(
+            ['id' => 4],
+            ['ten' => 'Admin Sự Kiện & Affiliate', 'mo_ta' => 'Quản lý sự kiện, cập nhật sản phẩm', 'trang_thai' => 1]
+        );
+
+        $roleAdminUser = VaiTro::firstOrCreate(
+            ['id' => 5],
+            ['ten' => 'Admin Người Dùng', 'mo_ta' => 'Khóa tài khoản spam, xác minh thành viên', 'trang_thai' => 1]
         );
 
         $ranks = [
@@ -157,7 +167,7 @@ class DatabaseSeeder extends Seeder
             User::firstOrCreate(
                 ['email' => $admin['email']],
                 [
-                    'vai_tro_id' => $roleAdmin->id,
+                    'vai_tro_id' => $roleAdminContent->id,
                     'mat_khau' => $commonPassword,
                     'ho_ten' => $admin['ho_ten'],
                     'ten_hien_thi' => $admin['ten_hien_thi'],

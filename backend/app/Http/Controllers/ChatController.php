@@ -77,7 +77,7 @@ class ChatController extends Controller
             $lastMessageText = 'Bắt đầu cuộc trò chuyện mới';
             if ($lastMsg) {
                 if ($lastMsg->is_recalled) {
-                    $lastMessageText = '🚫 Tin nhắn này đã được thu hồi';
+                    $lastMessageText = 'Tin nhắn đã thu hồi';
                 } else {
                     $lastMessageText = $lastMsg->noi_dung ?: ($lastMsg->hinh_anh_url ? '[Hình ảnh]' : 'Tin nhắn mới');
                 }
@@ -235,7 +235,7 @@ class ChatController extends Controller
                 $messages[] = [
                     'id' => $m->id,
                     'senderId' => $isMe ? 'me' : $m->nguoi_gui_id,
-                    'text' => $isRecalled ? '🚫 Tin nhắn này đã được thu hồi' : $m->noi_dung,
+                    'text' => $isRecalled ? 'Tin nhắn đã thu hồi' : $m->noi_dung,
                     'imageUrl' => $isRecalled ? null : $m->hinh_anh_url,
                     'time' => Carbon::parse($m->created_at)->format('H:i, d/m'),
                     'isMe' => $isMe,

@@ -9,6 +9,7 @@ import api from '../../api/axios';
 import echo from '../../api/echo';
 import { ConfirmModal } from '../../components/Modal';
 import Modal from '../../components/Modal/Modal';
+import { matchSearch } from '../../utils/stringUtils';
 
 const Messages = () => {
   const navigate = useNavigate();
@@ -253,7 +254,7 @@ const Messages = () => {
           if (hasMsg) {
             const updatedMsgs = (c.messages || []).map(m => intVal(m.id) === intVal(payload.id) ? {
               ...m,
-              text: '🚫 Tin nhắn này đã được thu hồi',
+              text: 'Tin nhắn đã thu hồi',
               imageUrl: null,
               isRecalled: true
             } : m);
@@ -335,9 +336,9 @@ const Messages = () => {
   
   const filteredContacts = contacts.filter(c => {
     const matchesSearch = 
-      (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.product || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.lastMessage || '').toLowerCase().includes(searchQuery.toLowerCase());
+      matchSearch(c.name, searchQuery) ||
+      matchSearch(c.product, searchQuery) ||
+      matchSearch(c.lastMessage, searchQuery);
     
     if (filterTab === 'unread') return matchesSearch && c.unread > 0;
     if (filterTab === 'vip') return matchesSearch && c.isVerified;
@@ -475,7 +476,7 @@ const Messages = () => {
         } else if (type === 'everyone') {
           updatedMsgs = updatedMsgs.map(m => intVal(m.id) === intVal(msgId) ? {
             ...m,
-            text: '🚫 Tin nhắn này đã được thu hồi',
+            text: 'Tin nhắn đã thu hồi',
             imageUrl: null,
             isRecalled: true
           } : m);
@@ -963,7 +964,7 @@ const Messages = () => {
                       )}
 
                       <div className="flex flex-col min-w-0">
-                        <div className={`py-3 px-4 rounded-[20px] border-2 border-[#0f172a] font-black text-xs sm:text-[13px] leading-relaxed shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] ${msg.isMe ? 'bg-[#c93638] text-white rounded-tr-none' : 'bg-white text-slate-900 rounded-tl-none'} ${msg.isRecalled ? 'italic text-slate-400 bg-slate-100 border-dashed' : ''}`}>
+                        <div className={`py-3 px-4 rounded-[20px] border-2 border-[#0f172a] font-black text-xs sm:text-[13px] leading-relaxed shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] ${msg.isRecalled ? 'italic text-slate-500 bg-slate-100 border-dashed ' + (msg.isMe ? 'rounded-tr-none' : 'rounded-tl-none') : (msg.isMe ? 'bg-[#c93638] text-white rounded-tr-none' : 'bg-white text-slate-900 rounded-tl-none')}`}>
                           {msg.imageUrl ? (
                             <img src={msg.imageUrl} alt="attached" onClick={() => window.open(msg.imageUrl, '_blank')} className="max-w-[220px] sm:max-w-[260px] rounded-xl border border-white/20 shadow-xs block my-1 object-cover cursor-pointer" />
                           ) : null}

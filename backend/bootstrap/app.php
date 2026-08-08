@@ -13,8 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'crud_logger' => \App\Http\Middleware\CrudLoggerMiddleware::class,
+            'check_status' => \App\Http\Middleware\CheckUserStatus::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

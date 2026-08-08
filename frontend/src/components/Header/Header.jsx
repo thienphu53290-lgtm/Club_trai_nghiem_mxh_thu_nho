@@ -80,6 +80,12 @@ const Header = () => {
       });
       return;
     }
+
+    if (n.type === 'new_follow') {
+      navigate('/friends', { state: { activeTab: 'followers' } });
+      return;
+    }
+
     let postId = n.chatData?.post_id || n.chatData?.id || n.data?.post_id || n.data?.id;
     if (!postId && n.type !== 'new_chat_message') {
       postId = 'latest';
@@ -141,6 +147,18 @@ const Header = () => {
           return;
         }
         triggerNotificationUI(data.title, data.message, "💬 TIN NHẮN MỚI", data.data, 'new_chat_message');
+        return;
+      }
+
+      if (data.type === 'new_follow' && data.data) {
+        const myId = currentLoggedUser ? parseInt(currentLoggedUser.id, 10) : null;
+        const targetId = parseInt(data.data.target_user_id, 10);
+
+        if (!myId || targetId !== myId) {
+          return;
+        }
+        triggerNotificationUI(data.title, data.message, "👥 KẾT NỐI MỚI", data.data, 'new_follow');
+        window.dispatchEvent(new Event('new_follow_received'));
         return;
       }
 
@@ -434,26 +452,30 @@ const Header = () => {
                     <ChevronRight size={18} className="text-slate-400 group-hover:text-sky-500 group-hover:translate-x-0.5 transition-all shrink-0" />
                   </NavLink>
 
-                  <NavLink 
-                    to="/admin" 
-                    onClick={() => setShowUserMenu(false)}
-                    className="hidden sm:flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-slate-900 text-slate-900 hover:text-white font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-amber-300 text-slate-950 group-hover:bg-amber-400 border border-[#0f172a] transition-transform group-hover:scale-110 group-hover:-rotate-12 flex items-center justify-center shrink-0">
-                        <ShieldCheck size={18} />
-                      </div>
-                      <span className="font-black whitespace-nowrap">Bảng Quản Trị Tối Cao</span>
-                    </div>
-                    <span className="text-[11px] font-black bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full border border-slate-900 group-hover:scale-105 transition-transform shrink-0">VIP</span>
-                  </NavLink>
+                  {(currentUser?.vai_tro_id === 3 || currentUser?.email === 'superadmin@clubtrainghiem.com') && (
+                    <>
+                      <NavLink 
+                        to="/admin" 
+                        onClick={() => setShowUserMenu(false)}
+                        className="hidden sm:flex items-center justify-between px-3.5 py-3 rounded-2xl bg-white hover:bg-slate-900 text-slate-900 hover:text-white font-extrabold text-sm border-2 border-[#0f172a] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] transition-all no-underline group hover:translate-x-1.5 hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-amber-300 text-slate-950 group-hover:bg-amber-400 border border-[#0f172a] transition-transform group-hover:scale-110 group-hover:-rotate-12 flex items-center justify-center shrink-0">
+                            <ShieldCheck size={18} />
+                          </div>
+                          <span className="font-black whitespace-nowrap">Bảng Quản Trị Tối Cao</span>
+                        </div>
+                        <span className="text-[11px] font-black bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full border border-slate-900 group-hover:scale-105 transition-transform shrink-0">VIP</span>
+                      </NavLink>
 
-                  <div className="flex sm:hidden items-start gap-2.5 p-3.5 rounded-2xl bg-slate-50 border-2 border-slate-200">
-                    <div className="text-amber-500 shrink-0 mt-0.5"><Info size={16} /></div>
-                    <p className="text-[11px] font-bold text-slate-600 m-0 leading-tight">
-                      Để mở khóa toàn bộ tính năng quản trị hệ thống, vui lòng đăng nhập bằng máy tính.
-                    </p>
-                  </div>
+                      <div className="flex sm:hidden items-start gap-2.5 p-3.5 rounded-2xl bg-slate-50 border-2 border-slate-200">
+                        <div className="text-amber-500 shrink-0 mt-0.5"><Info size={16} /></div>
+                        <p className="text-[11px] font-bold text-slate-600 m-0 leading-tight">
+                          Để mở khóa toàn bộ tính năng quản trị hệ thống, vui lòng đăng nhập bằng máy tính.
+                        </p>
+                      </div>
+                    </>
+                  )}
 
                   <NavLink 
                     to="/pricing" 

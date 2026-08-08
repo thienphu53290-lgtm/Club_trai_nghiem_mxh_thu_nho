@@ -79,3 +79,10 @@ Route::get('/debug-broadcast', function () {
         'pusher_key' => config('broadcasting.connections.pusher.key'),
     ]);
 });
+Route::get('/debug-env', function () {
+    return response()->json([
+        'env_helper' => env('BROADCAST_CONNECTION'),
+        'getenv' => getenv('BROADCAST_CONNECTION'),
+        'server' => $_SERVER['BROADCAST_CONNECTION'] ?? null,
+    ]);
+});

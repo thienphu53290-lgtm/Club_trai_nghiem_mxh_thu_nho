@@ -9,6 +9,10 @@ import {
   MoreVertical, MoreHorizontal, Plus, FileText, Layers, RefreshCw, 
   Sparkles, Trash2, Edit, Eye, ShieldAlert, Menu, Sliders, Calendar, BarChart3, TrendingUp, X, ChevronsLeft, Lock, Unlock
 } from 'lucide-react';
+import ContentAdmin from './ContentAdmin';
+import EventAdmin from './EventAdmin';
+import FinanceAdmin from './FinanceAdmin';
+import SupportAdmin from './SupportAdmin';
 
 const SuperAdmin = () => {
   const navigate = useNavigate();
@@ -1247,6 +1251,10 @@ const SuperAdmin = () => {
       {activeTab === 'users' && renderUsersTab()}
       {activeTab === 'config' && renderConfigTab()}
       {activeTab === 'logs' && renderLogsTab()}
+      {activeTab === 'content' && <ContentAdmin />}
+      {activeTab === 'event' && <EventAdmin />}
+      {activeTab === 'finance' && <FinanceAdmin />}
+      {activeTab === 'support' && <SupportAdmin />}
     </div>
   );
 };

@@ -12,6 +12,29 @@ use App\Services\CloudinaryService;
 
 class FeedController extends Controller
 {
+    public function getSuggestions(Request $request)
+    {
+        $suggestions = DB::table('nguoi_dung')
+            ->leftJoin('cap_bac', 'nguoi_dung.cap_bac_id', '=', 'cap_bac.id')
+            ->select(
+                'nguoi_dung.id',
+                'nguoi_dung.ho_ten',
+                'nguoi_dung.ten_hien_thi',
+                'nguoi_dung.anh_dai_dien',
+                'nguoi_dung.cap_bac as ten_cap_bac',
+                'cap_bac.anh_cap_bac'
+            )
+            ->where('nguoi_dung.trang_thai', 1)
+            ->inRandomOrder()
+            ->limit(5)
+            ->get();
+            
+        return response()->json([
+            'status' => 'success',
+            'suggestions' => $suggestions
+        ]);
+    }
+
     public function index(Request $request)
     {
         $currentUser = $request->user('sanctum');
@@ -504,6 +527,49 @@ class FeedController extends Controller
         ], 200);
     }
 
+    public function savePost(Request $request, $id)
+    {
+        $user = $request->user('sanctum');
+        if (!$user) {
+            return response()->json(['message' => 'Bạn chưa đăng nhập.'], 401);
+        }
+
+        $post = DB::table('bai_viet')->where('id', $id)->first();
+        if (!$post) {
+            return response()->json(['message' => 'Bài viết không tồn tại.'], 404);
+        }
+
+        $collectionName = $request->input('collection_name', 'Lưu tự do');
+
+        $existing = DB::table('da_luu')
+            ->where('nguoi_dung_id', $user->id)
+            ->where('loai', 'post')
+            ->where('doi_tuong_id', $id)
+            ->first();
+
+        if ($existing) {
+            DB::table('da_luu')->where('id', $existing->id)->delete();
+            return response()->json([
+                'status' => 'success',
+                'action' => 'unsaved',
+                'message' => 'Đã bỏ lưu bài viết.'
+            ], 200);
+        } else {
+            DB::table('da_luu')->insert([
+                'nguoi_dung_id' => $user->id,
+                'ten_bo_suu_tap' => $collectionName,
+                'loai' => 'post',
+                'doi_tuong_id' => $id,
+                'created_at' => now(),
+            ]);
+            return response()->json([
+                'status' => 'success',
+                'action' => 'saved',
+                'message' => 'Đã lưu bài viết vào bộ sưu tập.'
+            ], 200);
+        }
+    }
+
     public function recordAffiliateClick(Request $request)
     {
         $user = $request->user('sanctum');
@@ -515,5 +581,24 @@ class FeedController extends Controller
             'created_at' => now(),
         ]);
         return response()->json(['status' => 'success']);
+    }
+
+    public function myCollections(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $collections = DB::table('da_luu')
+            ->where('nguoi_dung_id', $user->id)
+            ->select('ten_bo_suu_tap')
+            ->distinct()
+            ->pluck('ten_bo_suu_tap');
+
+        return response()->json([
+            'status' => 'success',
+            'collections' => $collections
+        ], 200);
     }
 }

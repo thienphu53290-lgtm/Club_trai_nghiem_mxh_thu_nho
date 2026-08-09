@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar, Crown, Menu, Users } from 'lucide-react';
+import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar, Crown, Menu, Users, BellRing, Eye } from 'lucide-react';
 import echo from '../../api/echo';
-import api from '../../api/axios';
+import api, { DEFAULT_AVATAR } from '../../api/axios';
 import OneSignal from 'react-onesignal';
 import NotificationPromptModal from './NotificationPromptModal';
 import NotificationCard from '../NotificationCard/NotificationCard';
@@ -117,12 +117,6 @@ const Header = () => {
     setLatestNotif(newNotif);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 6000);
-
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      try {
-        new Notification(newNotif.title, { body: newNotif.message, icon: '/favicon.svg' });
-      } catch (e) {}
-    }
   };
 
   useEffect(() => {
@@ -386,11 +380,8 @@ const Header = () => {
                   </div>
                 )}
                 <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col gap-2">
-                  <button onClick={promptOneSignalPush} className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-xl font-extrabold text-xs transition-colors border-none cursor-pointer flex items-center justify-center gap-1.5 shadow-sm">
-                    🔔 Xin quyền Desktop Push (OneSignal / OS)
-                  </button>
-                  <button onClick={() => { setShowNotifDropdown(false); window.dispatchEvent(new Event('open_notif_prompt_modal')); }} className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[11px] transition-colors border-none cursor-pointer flex items-center justify-center gap-1.5">
-                    👀 Xem thử Bảng Mời Bật Thông Báo (Soft Prompt)
+                  <button onClick={() => { setShowNotifDropdown(false); window.dispatchEvent(new Event('open_notif_prompt_modal')); }} className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[11px] transition-colors border-none cursor-pointer flex items-center justify-center gap-2">
+                    <Eye size={16} className="text-slate-500" /> Mời bật thông báo
                   </button>
                 </div>
               </div>
@@ -415,7 +406,7 @@ const Header = () => {
                 }`}
               >
                 <img 
-                  src={currentUser.anh_dai_dien || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"} 
+                  src={currentUser.anh_dai_dien || DEFAULT_AVATAR} 
                   alt="Avatar" 
                   className="w-6 h-6 sm:w-7 sm:h-7 rounded-xl object-cover border border-[#0f172a] shrink-0" 
                 />

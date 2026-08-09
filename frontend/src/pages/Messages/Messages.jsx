@@ -1234,29 +1234,7 @@ const Messages = () => {
               </div>
             </div>
 
-            <div className="mb-4">
-              <button
-                onClick={() => toggleSection('product')}
-                className="w-full flex items-center justify-between py-2 bg-transparent border-none cursor-pointer font-black text-slate-900 text-xs uppercase tracking-wider text-left"
-              >
-                <span className="flex items-center gap-2">
-                  <ShoppingBag size={16} className="text-[#c93638]" />
-                  <span>SẢN PHẨM QUAN Tâm</span>
-                </span>
-                {openSections.product ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              </button>
 
-              {openSections.product && (
-                <div className="mt-2 p-3.5 rounded-2xl bg-slate-50 border-2 border-[#0f172a] shadow-2xs">
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">Đang trao đổi về</span>
-                  <p className="font-black text-slate-900 text-sm m-0">{activeContact.product || 'Trao đổi trải nghiệm'}</p>
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200/80">
-                    <span className="text-xs font-black text-[#c93638]">{activeContact.productPrice || 'Thảo luận riêng'}</span>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">✓ Club Verified</span>
-                  </div>
-                </div>
-              )}
-            </div>
 
             <div className="mb-4">
               <button
@@ -1313,50 +1291,22 @@ const Messages = () => {
               )}
             </div>
 
-            <div className="mb-4">
-              <button
-                onClick={() => toggleSection('privacy')}
-                className="w-full flex items-center justify-between py-2 bg-transparent border-none cursor-pointer font-black text-slate-900 text-xs uppercase tracking-wider text-left"
+            <div className="mt-4 pt-4 border-t border-slate-200/80 space-y-2">
+              <button 
+                onClick={() => handleToggleBlock(activeContact.id, activeContact.name, activeContact.isBlockedByMe)}
+                className="w-full py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-black text-xs flex items-center justify-center gap-2 bg-white cursor-pointer transition-colors"
               >
-                <span className="flex items-center gap-2">
-                  <Lock size={16} className="text-[#c93638]" />
-                  <span>BẢO MẬT & QUYỀN RIÊNG TƯ</span>
-                </span>
-                {openSections.privacy ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                <AlertCircle size={15} />
+                <span>{activeContact.isBlockedByMe ? 'Bỏ chặn người này' : 'Chặn người này'}</span>
               </button>
 
-              {openSections.privacy && (
-                <div className="mt-2 space-y-2">
-                  <div className="p-3 rounded-xl bg-[#fcebeb]/60 border border-[#fcebeb] text-slate-800 text-xs font-bold flex items-center gap-2">
-                    <Shield size={18} className="text-[#c93638] shrink-0" />
-                    <span>Hội thoại được bảo vệ bởi lớp mã hóa end-to-end của Club Trải Nghiệm.</span>
-                  </div>
-
-                  <button 
-                    onClick={() => handleToggleBlock(activeContact.id, activeContact.name, activeContact.isBlockedByMe)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-black text-xs flex items-center justify-center gap-2 bg-white cursor-pointer transition-colors"
-                  >
-                    <AlertCircle size={15} />
-                    <span>{activeContact.isBlockedByMe ? 'Bỏ chặn người này' : 'Chặn người này'}</span>
-                  </button>
-
-                  <button 
-                    onClick={togglePartnerOnline}
-                    className={`w-full py-2.5 px-3 rounded-xl border-2 border-[#0f172a] font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 shadow-2xs ${activeContact.online ? 'bg-amber-100 hover:bg-amber-200 text-amber-900' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900'}`}
-                  >
-                    <Sparkles size={16} />
-                    <span>Test Realtime Presence ({activeContact.online ? 'Chuyển Offline' : 'Bật Online 🟢'})</span>
-                  </button>
-
-                  <button 
-                    onClick={() => handleDeleteConversation(activeContact.id, activeContact.name)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-rose-200 hover:bg-rose-50 text-[#c93638] font-black text-xs flex items-center justify-center gap-2 bg-white cursor-pointer transition-colors"
-                  >
-                    <Trash2 size={15} />
-                    <span>Xóa lịch sử trò chuyện này</span>
-                  </button>
-                </div>
-              )}
+              <button 
+                onClick={() => handleDeleteConversation(activeContact.id, activeContact.name)}
+                className="w-full py-2.5 px-3 rounded-xl border border-rose-200 hover:bg-rose-50 text-[#c93638] font-black text-xs flex items-center justify-center gap-2 bg-white cursor-pointer transition-colors"
+              >
+                <Trash2 size={15} />
+                <span>Xóa lịch sử trò chuyện này</span>
+              </button>
             </div>
 
             <div className="mt-auto pt-4 text-center">

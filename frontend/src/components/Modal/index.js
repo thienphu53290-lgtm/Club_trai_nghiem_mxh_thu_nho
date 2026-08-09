@@ -5,3 +5,6 @@ export { default as ConfirmModal } from './ConfirmModal';
 export { default as FormModal } from './FormModal';
 export { default as CommentModal } from './CommentModal';
 export { default as DisclaimerModal } from './DisclaimerModal';
+export { default as SavePostModal } from './SavePostModal';
+export { default as CollectionListModal } from './CollectionListModal';
+export { default as CollectionDetailModal } from './CollectionDetailModal';

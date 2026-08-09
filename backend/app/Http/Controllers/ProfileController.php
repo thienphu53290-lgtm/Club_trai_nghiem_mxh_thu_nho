@@ -150,10 +150,13 @@ class ProfileController extends Controller
                 if ($item->loai === 'post') {
                     $post = DB::table('bai_viet')->where('id', $item->doi_tuong_id)->first();
                     $item->tieu_de = $post->tieu_de ?? 'Bài review trải nghiệm';
+                    $item->noi_dung = $post->noi_dung ?? '';
+                    $item->hashtags = $post->hashtags ?? '[]';
                     $item->anh_minh_hoa = $post->anh_bia ?? 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop&q=80';
                 } elseif ($item->loai === 'product') {
                     $prod = DB::table('san_pham')->where('id', $item->doi_tuong_id)->first();
                     $item->tieu_de = $prod->ten ?? 'Sản phẩm trải nghiệm';
+                    $item->noi_dung = $prod->mo_ta ?? '';
                     $item->anh_minh_hoa = $prod->anh_dai_dien ?? 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80';
                 }
                 return $item;

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
-import api from '../../api/axios';
+import api, { DEFAULT_AVATAR } from '../../api/axios';
 import echo from '../../api/echo';
 import { 
   BadgeCheck, Settings, UserPlus, Calendar, MapPin, Sparkles, Shield, 
   BookOpen, Users, Heart, Package, Link as LinkIcon, MoreHorizontal, 
   Maximize, Type, Link2, MessageSquare, ThumbsUp, MessageCircle, Share2,
-  Check, Star, Award, Camera, Image, X, Upload, Globe, Phone, Mail, Edit3, Pin, Send, FolderHeart, CalendarCheck, Trash2, ShoppingBag
+  Check, Star, Award, Camera, Image, X, Upload, Globe, Phone, Mail, Edit3, Pin, Send, FolderHeart, CalendarCheck, Trash2, ShoppingBag, Music, Lightbulb, Lock, Bookmark, Layers
 } from 'lucide-react';
-import { FormModal, ImageModal, ConfirmModal, CommentModal } from '../../components/Modal';
+import { FormModal, ImageModal, ConfirmModal, CommentModal, SavePostModal, CollectionListModal, CollectionDetailModal } from '../../components/Modal';
 
 const Profile = () => {
   const { id } = useParams();
@@ -35,6 +35,9 @@ const Profile = () => {
   const [commentText, setCommentText] = useState('');
   const [interactionMessage, setInteractionMessage] = useState('');
   const [openMenuPostId, setOpenMenuPostId] = useState(null);
+  const [savePostModal, setSavePostModal] = useState({ isOpen: false, postId: null, isLoading: false });
+  const [showCollectionListModal, setShowCollectionListModal] = useState(false);
+  const [activeCollection, setActiveCollection] = useState(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -129,6 +132,9 @@ const Profile = () => {
     so_dien_thoai: '',
     dia_chi: '',
     website: '',
+    facebook: '',
+    instagram: '',
+    tiktok: '',
     anh_dai_dien: '',
     anh_bia: '',
   });
@@ -162,6 +168,9 @@ const Profile = () => {
           so_dien_thoai: resData.profile.so_dien_thoai || '',
           dia_chi: resData.profile.dia_chi || '',
           website: resData.profile.website || '',
+          facebook: resData.profile.facebook || '',
+          instagram: resData.profile.instagram || '',
+          tiktok: resData.profile.tiktok || '',
           anh_dai_dien: resData.profile.anh_dai_dien || '',
           anh_bia: resData.profile.anh_bia || '',
         });
@@ -365,6 +374,9 @@ const Profile = () => {
       formData.append('so_dien_thoai', editForm.so_dien_thoai);
       formData.append('dia_chi', editForm.dia_chi);
       formData.append('website', editForm.website);
+      formData.append('facebook', editForm.facebook || '');
+      formData.append('instagram', editForm.instagram || '');
+      formData.append('tiktok', editForm.tiktok || '');
       
       if (!avatarFile && editForm.anh_dai_dien) {
         formData.append('anh_dai_dien', editForm.anh_dai_dien);
@@ -399,6 +411,35 @@ const Profile = () => {
       alert(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleOpenSaveModal = (postId) => {
+    setSavePostModal({ isOpen: true, postId, isLoading: false });
+    setOpenMenuPostId(null);
+  };
+
+  const handleSavePost = async (collectionName) => {
+    if (!savePostModal.postId) return;
+    setSavePostModal(prev => ({ ...prev, isLoading: true }));
+    try {
+      const res = await api.post(`/feed/posts/${savePostModal.postId}/save`, { collection_name: collectionName });
+      if (res.data && res.data.status === 'success') {
+        setInteractionMessage(res.data.message);
+        setTimeout(() => setInteractionMessage(''), 3000);
+        
+        // Refresh collections if viewing own profile
+        if (isOwner) {
+          const profileRes = await api.get(`/profile/${id}`);
+          if (profileRes.data && profileRes.data.status === 'success') {
+            setCollections(profileRes.data.data.collections || []);
+          }
+        }
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || 'Có lỗi xảy ra khi lưu bài viết.');
+    } finally {
+      setSavePostModal({ isOpen: false, postId: null, isLoading: false });
     }
   };
 
@@ -635,13 +676,12 @@ const Profile = () => {
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-rose-950 via-slate-900 to-black text-white">
                 <Image size={44} className="text-rose-400 mb-2 opacity-80 animate-pulse" />
                 <p className="font-black text-base md:text-lg mb-1">Trang Trí Không Gian Cảm Xúc Của Bạn</p>
-                <p className="text-xs text-slate-300 max-w-sm">Hãy thêm một bức ảnh bìa lung linh để thể hiện phong cách trải nghiệm độc quyền của {profile.ten_hien_thi || profile.ho_ten}!</p>
                 {isOwner && (
                   <button 
                     onClick={() => { setEditTab('media'); setShowEditModal(true); }} 
                     className="mt-4 px-5 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs flex items-center gap-2 border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
                   >
-                    <Upload size={14} /> 🖼️ Thêm Ảnh Bìa Ngay
+                    <Camera size={15} /> Thêm Ảnh Bìa Ngay
                   </button>
                 )}
               </div>
@@ -660,17 +700,11 @@ const Profile = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end px-4 sm:px-6 mt-0 sm:-mt-20 mb-4 z-10 relative gap-3 sm:gap-0">
             <div className="relative group -mt-14 sm:mt-0">
               <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-[#0f172a] overflow-hidden bg-white shadow-lg flex items-center justify-center relative">
-                {profile.anh_dai_dien ? (
-                  <img 
-                    src={profile.anh_dai_dien} 
-                    alt={profile.ten_hien_thi} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-tr from-amber-400 via-rose-500 to-indigo-600 flex flex-col items-center justify-center text-white font-black text-4xl sm:text-5xl select-none">
-                    {(profile.ten_hien_thi || profile.ho_ten || 'U').charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <img 
+                  src={profile.anh_dai_dien || DEFAULT_AVATAR} 
+                  alt={profile.ten_hien_thi} 
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               {isOwner && (
@@ -704,7 +738,7 @@ const Profile = () => {
                       const chatTarget = {
                         id: profile?.id || 999,
                         name: profile?.ten_hien_thi || profile?.ho_ten || 'Thành viên Club',
-                        avatar: profile?.anh_dai_dien || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+                        avatar: profile?.anh_dai_dien || DEFAULT_AVATAR,
                         roleTitle: profile?.cap_bac || '👑 Kim Cương VIP',
                         isVerified: true,
                         isFollowing: isFollowing,
@@ -849,11 +883,7 @@ const Profile = () => {
                           <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-3">
                               <div className="w-11 h-11 rounded-full border border-[#0f172a] overflow-hidden bg-slate-100 shrink-0 flex items-center justify-center">
-                                {profile.anh_dai_dien ? (
-                                  <img src={profile.anh_dai_dien} alt={profile.ten_hien_thi} className="w-full h-full object-cover" />
-                                ) : (
-                                  <span className="font-black text-sm text-slate-700">{(profile.ten_hien_thi || 'U').charAt(0)}</span>
-                                )}
+                                <img src={profile.anh_dai_dien || DEFAULT_AVATAR} alt={profile.ten_hien_thi} className="w-full h-full object-cover" />
                               </div>
                               <div>
                                 <h4 className="font-black text-base text-slate-900 flex items-center gap-1.5">
@@ -1010,7 +1040,7 @@ const Profile = () => {
                     </h2>
                     {isOwner && (
                       <span className="text-xs font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/80 shrink-0 flex items-center gap-1.5 w-fit">
-                        <span>💡 Bấm nút quyền riêng tư để ẩn/hiện với công chúng</span>
+                        <span><Lightbulb size={14} className="inline-block -mt-0.5 text-amber-500" /> Bấm nút quyền riêng tư để ẩn/hiện với công chúng</span>
                       </span>
                     )}
                   </div>
@@ -1020,7 +1050,7 @@ const Profile = () => {
                       <div>
                         <div className="flex justify-between items-center mb-1.5">
                           <span className="text-xs font-black text-slate-400 uppercase tracking-wider">HỌ VÀ TÊN THỰC</span>
-                          <span className="px-2.5 py-1 rounded-xl text-[11px] font-black bg-slate-200/70 text-slate-600">🌐 Mặc định công khai</span>
+                          <span className="px-2.5 py-1 rounded-xl text-[11px] font-black bg-slate-200/70 text-slate-600 flex items-center gap-1"><Globe size={12} /> Mặc định công khai</span>
                         </div>
                         <p className="font-black text-slate-900 text-base m-0 pt-0.5">{profile.ho_ten || 'Chưa cập nhật'}</p>
                       </div>
@@ -1036,12 +1066,12 @@ const Profile = () => {
                               onClick={() => togglePrivacy('email', 'Email liên kết')}
                               className={`px-2.5 py-1 rounded-xl text-[11px] font-black border cursor-pointer transition-all flex items-center gap-1 shadow-2xs ${privacy.email === 'private' ? 'bg-amber-50 text-amber-700 border-amber-200/80 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100'}`}
                             >
-                              {privacy.email === 'private' ? '🔒 Đang ẩn (Chỉ mình tôi)' : '🌐 Công khai'}
+                              {privacy.email === 'private' ? <><Lock size={12} /> Đang ẩn (Chỉ mình tôi)</> : <><Globe size={12} /> Công khai</>}
                             </button>
                           )}
                         </div>
                         <p className="font-black text-slate-900 text-base m-0 pt-0.5">
-                          {(!isOwner && privacy.email === 'private') ? <span className="text-slate-400 italic font-bold">••••••••@••••.com (Đã ẩn theo quyền riêng tư 🔒)</span> : profile.email}
+                          {(!isOwner && privacy.email === 'private') ? <span className="text-slate-400 italic font-bold flex items-center gap-1">••••••••@••••.com (Đã ẩn theo quyền riêng tư <Lock size={14} />)</span> : profile.email}
                         </p>
                       </div>
                     </div>
@@ -1056,12 +1086,12 @@ const Profile = () => {
                               onClick={() => togglePrivacy('so_dien_thoai', 'Số điện thoại')}
                               className={`px-2.5 py-1 rounded-xl text-[11px] font-black border cursor-pointer transition-all flex items-center gap-1 shadow-2xs ${privacy.so_dien_thoai === 'private' ? 'bg-amber-50 text-amber-700 border-amber-200/80 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100'}`}
                             >
-                              {privacy.so_dien_thoai === 'private' ? '🔒 Đang ẩn (Chỉ mình tôi)' : '🌐 Công khai'}
+                              {privacy.so_dien_thoai === 'private' ? <><Lock size={12} /> Đang ẩn (Chỉ mình tôi)</> : <><Globe size={12} /> Công khai</>}
                             </button>
                           )}
                         </div>
                         <p className="font-black text-slate-900 text-base m-0 pt-0.5">
-                          {(!isOwner && privacy.so_dien_thoai === 'private') ? <span className="text-slate-400 italic font-bold">•••• ••• ••• (Đã ẩn theo quyền riêng tư 🔒)</span> : (profile.so_dien_thoai || '•••••••••• (Chưa cập nhật)')}
+                          {(!isOwner && privacy.so_dien_thoai === 'private') ? <span className="text-slate-400 italic font-bold flex items-center gap-1">•••• ••• ••• (Đã ẩn theo quyền riêng tư <Lock size={14} />)</span> : (profile.so_dien_thoai || '•••••••••• (Chưa cập nhật)')}
                         </p>
                       </div>
                     </div>
@@ -1076,12 +1106,12 @@ const Profile = () => {
                               onClick={() => togglePrivacy('dia_chi', 'Địa điểm cư trú')}
                               className={`px-2.5 py-1 rounded-xl text-[11px] font-black border cursor-pointer transition-all flex items-center gap-1 shadow-2xs ${privacy.dia_chi === 'private' ? 'bg-amber-50 text-amber-700 border-amber-200/80 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100'}`}
                             >
-                              {privacy.dia_chi === 'private' ? '🔒 Đang ẩn (Chỉ mình tôi)' : '🌐 Công khai'}
+                              {privacy.dia_chi === 'private' ? <><Lock size={12} /> Đang ẩn (Chỉ mình tôi)</> : <><Globe size={12} /> Công khai</>}
                             </button>
                           )}
                         </div>
                         <p className="font-black text-slate-900 text-base m-0 pt-0.5">
-                          {(!isOwner && privacy.dia_chi === 'private') ? <span className="text-slate-400 italic font-bold">Đã ẩn theo cài đặt riêng tư 🔒</span> : (profile.dia_chi || 'Việt Nam')}
+                          {(!isOwner && privacy.dia_chi === 'private') ? <span className="text-slate-400 italic font-bold flex items-center gap-1">Đã ẩn theo cài đặt riêng tư <Lock size={14} /></span> : (profile.dia_chi || 'Việt Nam')}
                         </p>
                       </div>
                     </div>
@@ -1096,38 +1126,38 @@ const Profile = () => {
                           onClick={() => togglePrivacy('mang_xa_hoi', 'Mạng xã hội')}
                           className={`px-3 py-1.5 rounded-xl text-xs font-black border cursor-pointer transition-all flex items-center gap-1.5 w-fit shadow-2xs ${privacy.mang_xa_hoi === 'private' ? 'bg-amber-50 text-amber-700 border-amber-200/80 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100'}`}
                         >
-                          {privacy.mang_xa_hoi === 'private' ? '🔒 Đang ẩn (Chỉ mình tôi)' : '🌐 Công khai'}
+                          {privacy.mang_xa_hoi === 'private' ? <><Lock size={12} /> Đang ẩn (Chỉ mình tôi)</> : <><Globe size={12} /> Công khai</>}
                         </button>
                       )}
                     </div>
                     {(!isOwner && privacy.mang_xa_hoi === 'private') ? (
                       <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-500 font-extrabold text-xs flex items-center gap-2">
-                        <span>🔒 Người dùng này đã ẩn danh sách các liên kết mạng xã hội của họ.</span>
+                        <span><Lock size={14} className="inline-block -mt-0.5 text-slate-400" /> Người dùng này đã ẩn danh sách các liên kết mạng xã hội của họ.</span>
                       </div>
                     ) : (
                       <div className="flex flex-wrap gap-3">
                         {profile.facebook ? (
-                          <a href={profile.facebook} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-blue-600 text-white font-black text-xs rounded-xl no-underline hover:bg-blue-700 transition-colors shadow-sm">
-                            📘 Facebook Profile
+                          <a href={profile.facebook} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-blue-600 text-white font-black text-xs rounded-xl no-underline hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-1.5">
+                            <Globe size={14} /> Facebook Profile
                           </a>
                         ) : (
-                          <span className="px-4 py-2 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl">📘 Facebook (Chưa gắn link)</span>
+                          <span className="px-4 py-2 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl flex items-center gap-1.5"><Globe size={14} /> Facebook (Chưa gắn link)</span>
                         )}
 
                         {profile.instagram ? (
-                          <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-white font-black text-xs rounded-xl no-underline hover:opacity-90 transition-opacity shadow-sm">
-                            📸 Instagram VIP
+                          <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-white font-black text-xs rounded-xl no-underline hover:opacity-90 transition-opacity shadow-sm flex items-center gap-1.5">
+                            <Camera size={14} /> Instagram VIP
                           </a>
                         ) : (
-                          <span className="px-4 py-2 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl">📸 Instagram (Chưa gắn link)</span>
+                          <span className="px-4 py-2 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl flex items-center gap-1.5"><Camera size={14} /> Instagram (Chưa gắn link)</span>
                         )}
 
                         {profile.tiktok ? (
-                          <a href={profile.tiktok} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-slate-950 text-white font-black text-xs rounded-xl no-underline hover:bg-slate-800 transition-colors shadow-sm">
-                            🎵 TikTok Creator
+                          <a href={profile.tiktok} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-slate-950 text-white font-black text-xs rounded-xl no-underline hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5">
+                            <Music size={14} /> TikTok Creator
                           </a>
                         ) : (
-                          <span className="px-4 py-2 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl">🎵 TikTok (Chưa gắn link)</span>
+                          <span className="px-4 py-2 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl flex items-center gap-1.5"><Music size={14} /> TikTok (Chưa gắn link)</span>
                         )}
                       </div>
                     )}
@@ -1151,33 +1181,57 @@ const Profile = () => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {collections.map((col, idx) => (
-                        <div key={idx} className="border-2 border-[#0f172a] rounded-[28px] p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] group cursor-pointer hover:-translate-y-1 transition-all flex flex-col justify-between">
-                          <div>
-                            <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 mb-4 relative">
-                              <img src={col.anh_bia} alt={col.ten_bo_suu_tap} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                              <div className="absolute top-3 left-3 bg-black/70 text-amber-300 font-black text-xs px-3 py-1 rounded-full backdrop-blur-md border border-white/20">
-                                🌟 {col.so_luong} món đồ & review
+                      {collections.slice(0, 2).map((col, idx) => {
+                        const isLastAndMore = idx === 1 && collections.length > 2;
+                        const remainingCount = collections.length - 2;
+                        
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => {
+                              if (isLastAndMore) {
+                                setShowCollectionListModal(true);
+                              } else {
+                                setActiveCollection(col);
+                              }
+                            }}
+                            className={`border-2 border-[#0f172a] rounded-[28px] p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] group transition-all flex flex-col justify-between relative cursor-pointer ${isLastAndMore ? 'hover:-translate-y-1' : 'hover:-translate-y-1'}`}
+                          >
+                            <div>
+                              <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 mb-4 relative">
+                                <img src={col.anh_bia} alt={col.ten_bo_suu_tap} className={`w-full h-full object-cover transition-transform duration-500 ${isLastAndMore ? 'group-hover:scale-105' : ''}`} />
+                                <div className="absolute top-3 left-3 bg-black/70 text-amber-300 font-black text-xs px-3 py-1 rounded-full backdrop-blur-md border border-white/20">
+                                  🌟 {col.so_luong} món đồ & review
+                                </div>
+                                {isLastAndMore && (
+                                  <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center transition-all">
+                                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-2 border border-white/40">
+                                      <Layers size={28} className="text-white" />
+                                    </div>
+                                    <span className="text-white font-black text-2xl">+{remainingCount}</span>
+                                    <span className="text-white/80 font-bold text-xs uppercase tracking-wider mt-1">Xem tất cả kho</span>
+                                  </div>
+                                )}
+                              </div>
+                              <h3 className={`font-black text-lg text-slate-900 transition-colors leading-tight mb-2 ${isLastAndMore ? 'group-hover:text-[#c93638]' : ''}`}>
+                                {col.ten_bo_suu_tap}
+                              </h3>
+                              <div className="space-y-1.5 mt-2">
+                                {col.items.slice(0, 2).map((item, i) => (
+                                  <p key={i} className="text-xs font-extrabold text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/80 truncate m-0 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-[#c93638] shrink-0"></span>
+                                    <span className="truncate">{item.tieu_de}</span>
+                                  </p>
+                                ))}
                               </div>
                             </div>
-                            <h3 className="font-black text-lg text-slate-900 group-hover:text-[#c93638] transition-colors leading-tight mb-2">
-                              {col.ten_bo_suu_tap}
-                            </h3>
-                            <div className="space-y-1.5 mt-2">
-                              {col.items.slice(0, 2).map((item, i) => (
-                                <p key={i} className="text-xs font-extrabold text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/80 truncate m-0 flex items-center gap-1.5">
-                                  <span className="w-2 h-2 rounded-full bg-[#c93638] shrink-0"></span>
-                                  <span className="truncate">{item.tieu_de}</span>
-                                </p>
-                              ))}
+                            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-black text-indigo-600">
+                              <span>Khám phá trọn bộ ➔</span>
+                              <span className="text-slate-400 font-semibold">Được thẩm định bởi Club</span>
                             </div>
                           </div>
-                          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-black text-indigo-600">
-                            <span>Khám phá trọn bộ ➔</span>
-                            <span className="text-slate-400 font-semibold">Được thẩm định bởi Club</span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1198,15 +1252,18 @@ const Profile = () => {
                       <p className="text-slate-500 text-sm max-w-md mx-auto">Hãy tìm kiếm các sự kiện offline hay workshop trải nghiệm để góp mặt cùng cộng đồng nhé.</p>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-5">
-                      {events.map((ev) => (
-                        <div key={ev.id} className="border-2 border-[#0f172a] rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
+                    <div className="flex flex-col gap-5 max-h-[600px] overflow-y-auto pr-2">
+                      {events.map((ev, idx) => (
+                        <div key={`${ev.id}-${idx}`} className="border-2 border-[#0f172a] rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 flex-1">
-                            {ev.anh_bia && (
-                              <div className="w-full sm:w-36 h-28 rounded-2xl overflow-hidden bg-slate-900 shrink-0 border border-slate-200">
-                                <img src={ev.anh_bia} alt={ev.tieu_de} className="w-full h-full object-cover" />
-                              </div>
-                            )}
+                            <div className="w-full sm:w-36 h-28 rounded-2xl overflow-hidden bg-slate-900 shrink-0 border border-slate-200">
+                              <img 
+                                src={ev.anh_bia || 'http://localhost:8000/avt/skien_mac_dinh.png'} 
+                                alt={ev.tieu_de} 
+                                onError={(e) => { e.target.onerror = null; e.target.src = 'http://localhost:8000/avt/skien_mac_dinh.png'; }}
+                                className="w-full h-full object-cover" 
+                              />
+                            </div>
                             <div>
                               <div className="flex items-center gap-2 mb-2">
                                 <span className="text-[11px] font-black uppercase bg-emerald-100 text-emerald-800 px-3 py-0.5 rounded-full border border-emerald-300">
@@ -1365,11 +1422,7 @@ const Profile = () => {
                     className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors group border border-transparent hover:border-slate-200/70"
                   >
                     <div className="w-11 h-11 rounded-2xl border border-slate-200 overflow-hidden bg-slate-100 shrink-0 flex items-center justify-center font-black text-slate-600 shadow-2xs">
-                      {f.anh_dai_dien ? (
-                        <img src={f.anh_dai_dien} alt={f.ten_hien_thi} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{(f.ten_hien_thi || f.ho_ten || 'F').charAt(0)}</span>
-                      )}
+                        <img src={f.anh_dai_dien || DEFAULT_AVATAR} alt={f.ten_hien_thi} className="w-full h-full object-cover" />
                     </div>
                     <div className="overflow-hidden">
                       <h4 className="font-black text-sm text-slate-800 group-hover:text-[#c93638] transition-colors truncate">
@@ -1389,6 +1442,7 @@ const Profile = () => {
 
       </div>
 
+
       <FormModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
@@ -1399,8 +1453,8 @@ const Profile = () => {
         iconBg="bg-rose-50 border-rose-200"
         size="lg"
         tabs={[
-          { id: 'info', label: 'Thông Tin & Tiểu Sử', icon: '📝' },
-          { id: 'media', label: 'Ảnh Bìa & Avatar', icon: '🖼️' }
+          { id: 'info', label: 'Thông Tin & Tiểu Sử', icon: <Edit3 size={16} /> },
+          { id: 'media', label: 'Ảnh Bìa & Avatar', icon: <Image size={16} /> }
         ]}
         activeTab={editTab}
         onTabChange={setEditTab}
@@ -1478,6 +1532,42 @@ const Profile = () => {
                 className="w-full p-3.5 border border-slate-200 rounded-2xl font-semibold text-sm text-slate-900 bg-slate-50/80 focus:bg-white focus:border-rose-400 focus:ring-2 focus:ring-rose-100 outline-none transition-all"
               />
             </div>
+
+            <div className="pt-4 border-t border-slate-200/80">
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wide mb-4 flex items-center gap-1.5"><Globe size={14} className="text-indigo-600" /> Liên Kết Mạng Xã Hội</h4>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><Globe size={12} className="text-blue-600" /> Link Facebook</label>
+                  <input 
+                    type="text" 
+                    value={editForm.facebook || ''} 
+                    onChange={(e) => setEditForm({...editForm, facebook: e.target.value})}
+                    placeholder="VD: https://facebook.com/..."
+                    className="w-full p-3.5 border border-slate-200 rounded-2xl font-semibold text-sm text-slate-900 bg-slate-50/80 focus:bg-white focus:border-rose-400 focus:ring-2 focus:ring-rose-100 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><Camera size={12} className="text-pink-500" /> Link Instagram</label>
+                  <input 
+                    type="text" 
+                    value={editForm.instagram || ''} 
+                    onChange={(e) => setEditForm({...editForm, instagram: e.target.value})}
+                    placeholder="VD: https://instagram.com/..."
+                    className="w-full p-3.5 border border-slate-200 rounded-2xl font-semibold text-sm text-slate-900 bg-slate-50/80 focus:bg-white focus:border-rose-400 focus:ring-2 focus:ring-rose-100 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wide mb-1.5 flex items-center gap-1.5"><Music size={12} className="text-slate-900" /> Link TikTok</label>
+                  <input 
+                    type="text" 
+                    value={editForm.tiktok || ''} 
+                    onChange={(e) => setEditForm({...editForm, tiktok: e.target.value})}
+                    placeholder="VD: https://tiktok.com/@..."
+                    className="w-full p-3.5 border border-slate-200 rounded-2xl font-semibold text-sm text-slate-900 bg-slate-50/80 focus:bg-white focus:border-rose-400 focus:ring-2 focus:ring-rose-100 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1493,12 +1583,12 @@ const Profile = () => {
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <span>U</span>
+                    <img src={DEFAULT_AVATAR} alt="Avatar" className="w-full h-full object-cover" />
                   )}
                 </div>
                 <div className="flex-1">
                   <label className="inline-block px-4 py-2.5 bg-slate-900 text-white hover:bg-slate-800 rounded-xl font-extrabold text-xs cursor-pointer shadow-sm transition-all mb-2">
-                    📁 Chọn File Ảnh Từ Máy Tính...
+                    <span className="flex items-center gap-1.5"><Upload size={14} /> Chọn File Ảnh Từ Máy Tính...</span>
                     <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'avatar')} className="hidden" />
                   </label>
                   <p className="text-[11px] text-slate-500 font-medium m-0">Hoặc bạn có thể dán trực tiếp đường link ảnh (URL) bên dưới:</p>
@@ -1525,7 +1615,7 @@ const Profile = () => {
               )}
 
               <label className="inline-block px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-extrabold text-xs cursor-pointer shadow-sm transition-all mb-2">
-                📁 Chọn File Ảnh Bìa Từ Máy Tính...
+                <span className="flex items-center gap-1.5"><Upload size={14} /> Chọn File Ảnh Bìa Từ Máy Tính...</span>
                 <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'cover')} className="hidden" />
               </label>
               <p className="text-[11px] text-slate-500 font-medium mb-2.5 m-0">Hoặc dán link ảnh URL cho ảnh bìa:</p>
@@ -1671,6 +1761,29 @@ const Profile = () => {
         currentUser={isOwner ? profile : { ten_hien_thi: 'Bạn', anh_dai_dien: profile?.anh_dai_dien }}
         onSendComment={handleSendComment}
         onLikeComment={handleLikeComment}
+      />
+
+      <SavePostModal 
+        isOpen={savePostModal.isOpen}
+        onClose={() => setSavePostModal({ isOpen: false, postId: null, isLoading: false })}
+        onSave={handleSavePost}
+        isLoading={savePostModal.isLoading}
+      />
+
+      <CollectionListModal
+        isOpen={showCollectionListModal}
+        onClose={() => setShowCollectionListModal(false)}
+        collections={collections}
+        onSelectCollection={(col) => {
+          setShowCollectionListModal(false);
+          setActiveCollection(col);
+        }}
+      />
+
+      <CollectionDetailModal
+        isOpen={!!activeCollection}
+        onClose={() => setActiveCollection(null)}
+        collection={activeCollection}
       />
 
     </div>

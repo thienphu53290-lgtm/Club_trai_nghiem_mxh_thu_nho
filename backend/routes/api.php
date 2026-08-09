@@ -14,13 +14,22 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/profile/{id?}', [ProfileController::class, 'show']);
 Route::get('/feed/posts', [FeedController::class, 'index']);
+Route::get('/feed/suggestions', [FeedController::class, 'getSuggestions']);
 Route::get('/banners/hero', [BannerController::class, 'getHeroBanners']);
+use App\Http\Controllers\EventController;
+
+Route::get('/events', [EventController::class, 'index']);
+Route::get('/events/{slug}', [EventController::class, 'show']);
+Route::get('/event-packages', [App\Http\Controllers\EventPackageController::class, 'index']);
 
 Route::post('/chat/heartbeat', [ChatController::class, 'heartbeat']);
 Route::get('/chat/presence-status', [ChatController::class, 'getPresenceStatus']);
 Route::post('/chat/broadcast-status', [ChatController::class, 'broadcastStatus']);
 
 Route::middleware(['auth:sanctum', 'check_status', 'crud_logger'])->group(function () {
+    Route::post('/events', [EventController::class, 'store']);
+    Route::post('/events/{id}/register', [EventController::class, 'register']);
+    Route::post('/events/payment/{ma_giao_dich}/confirm', [EventController::class, 'confirmPayment']);
     Route::get('/admin/dashboard-stats', [AdminController::class, 'dashboard']);
     Route::get('/admin/logs', [AdminController::class, 'getLogs']);
     Route::get('/admin/users', [AdminController::class, 'getUsers']);
@@ -47,6 +56,8 @@ Route::middleware(['auth:sanctum', 'check_status', 'crud_logger'])->group(functi
     Route::post('/feed/posts', [FeedController::class, 'store']);
     Route::put('/feed/posts/{id}', [FeedController::class, 'update']);
     Route::delete('/feed/posts/{id}', [FeedController::class, 'destroy']);
+    Route::get('/feed/collections', [FeedController::class, 'myCollections']);
+    Route::post('/feed/posts/{id}/save', [FeedController::class, 'savePost']);
     Route::get('/chat/conversations', [ChatController::class, 'getConversations']);
     Route::put('/chat/read', [App\Http\Controllers\ChatController::class, 'markAsRead']);
     Route::post('/chat/typing', [App\Http\Controllers\ChatTypingController::class, 'typing']);

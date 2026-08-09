@@ -3,7 +3,8 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import AdminFooter from '../components/Footer/AdminFooter';
 import { 
   ShieldCheck, LayoutDashboard, Users, Sliders, FileText, 
-  Menu, Settings, Home, ChevronRight, X, ChevronsLeft, Sparkles
+  Menu, Settings, Home, ChevronRight, X, ChevronsLeft, Sparkles,
+  Edit3, CalendarDays, DollarSign, LifeBuoy, ExternalLink
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -43,6 +44,13 @@ const AdminLayout = () => {
     { id: 'users', label: 'Quản lý Người dùng (CRUD)', icon: Users, badge: '1.243' },
     { id: 'config', label: 'Cấu hình hệ thống', icon: Sliders, badge: 'Reverb ⚡' },
     { id: 'logs', label: 'Nhật ký hệ thống', icon: FileText, badge: '3.842' },
+  ];
+
+  const subAdminModules = [
+    { id: 'content', label: 'Content Admin (Nội dung)', icon: Edit3, hoverColor: 'hover:border-emerald-500 hover:shadow-[6px_6px_0px_0px_rgba(16,185,129,1)]' },
+    { id: 'event', label: 'Event Admin (Sự kiện)', icon: CalendarDays, hoverColor: 'hover:border-purple-500 hover:shadow-[6px_6px_0px_0px_rgba(168,85,247,1)]' },
+    { id: 'finance', label: 'Finance Admin (Tài chính)', icon: DollarSign, hoverColor: 'hover:border-teal-500 hover:shadow-[6px_6px_0px_0px_rgba(20,184,166,1)]' },
+    { id: 'support', label: 'Support Admin (CSKH)', icon: LifeBuoy, hoverColor: 'hover:border-pink-500 hover:shadow-[6px_6px_0px_0px_rgba(236,72,153,1)]' },
   ];
 
   const handleSelectTab = (tabId) => {
@@ -127,22 +135,39 @@ const AdminLayout = () => {
                     );
                   })}
                 </div>
-              </div>
 
-              <div className="mt-8 pt-5 border-t-2 border-slate-200">
-                <div className="bg-slate-900 text-white rounded-3xl p-6 border-2 border-[#0f172a] shadow-[5px_5px_0px_0px_rgba(201,54,56,1)]">
-                  <h4 className="font-black text-base text-amber-300 m-0 mb-2 flex items-center gap-2">
-                    <ShieldCheck size={20} /> Quyền tối cao Super Admin
-                  </h4>
-                  <p className="text-xs text-slate-300 font-semibold leading-relaxed m-0 mb-4">
-                    Bạn đang sở hữu chìa khóa điều khiển cao nhất của Club Trải Nghiệm. Mọi tác vụ CRUD đều được sao lưu tự động.
-                  </p>
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-ping"></span>
-                    Hệ thống bảo mật 2 lớp: KÍCH HOẠT
+                <div className="mt-8 pt-5 border-t-2 border-slate-200">
+                  <div className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center justify-between px-1 mb-4">
+                    <span>Phân Hệ Cấp Dưới</span>
+                    <span className="text-emerald-600 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-300 font-black shadow-sm">Sub-Admins</span>
+                  </div>
+                  <div className="space-y-4">
+                    {subAdminModules.map((item, idx) => {
+                      const IconComp = item.icon;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setIsSidebarOpen(false);
+                            handleSelectTab(item.id);
+                          }}
+                          className={`w-full p-4 rounded-2xl font-extrabold text-sm border-2 border-[#0f172a] bg-white text-slate-700 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:-translate-y-1 ${item.hoverColor} transition-all duration-200 flex items-center justify-between cursor-pointer group`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl border-2 border-[#0f172a] bg-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                              <IconComp size={18} strokeWidth={2.5} />
+                            </div>
+                            <span>{item.label}</span>
+                          </div>
+                          <ExternalLink size={18} className="text-slate-400 group-hover:text-slate-900 transition-colors" />
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
+
+
             </div>
             <div 
               onClick={() => setIsSidebarOpen(false)}

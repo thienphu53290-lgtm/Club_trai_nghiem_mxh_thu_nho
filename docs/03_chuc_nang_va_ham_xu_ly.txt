@@ -40,6 +40,7 @@ CHUC NANG 3: BANG TIN (Feed)
 ==============================================================
 Backend:
   FeedController::index()
+  FeedController::getSuggestions() [lay ngau nhien danh sach nguoi dung goi y ket ban]
   FeedController::store() [tao bai viet & phat realtime event new_post]
   FeedController::update() [cap nhat bai viet & phat realtime event update_post]
   FeedController::destroy() [xoa bai viet & phat realtime event delete_post]
@@ -58,6 +59,7 @@ Frontend:
   Feed.jsx > handleAddComment()
   Feed.jsx > handleLikeComment()
   Feed.jsx > handleAffiliateClick()
+  Feed.jsx > handleFollowSuggestion() [thuc hien viec theo doi truc tiep tu danh sach goi y va xoa khoi danh sach sau khi thao tac thanh cong]
 
 ==============================================================
 CHUC NANG 4: TIN NHAN (Messages)
@@ -164,6 +166,40 @@ Frontend:
   Header.jsx > userMenu [menu rap Nguoi dung & Bang Quan Tri mau trang sang rong rai tren 1 dong chu chuan Minimalist Neo-Brutanlist voi icon Lucide]
 
 ==============================================================
+CHUC NANG 9.B: BANG QUAN TRI NOI DUNG (Content Admin Dashboard)
+==============================================================
+Frontend:
+  ContentAdminLayout.jsx > toggle(isSidebarOpen) & Header [Layout danh rieng cho admin kiem duyet, tich hop nut Menu Hamburger kieu Pill-shape (Mẫu 2), mau xanh Emerald chu dao, co khoi canh bao luu log Audit]
+  ContentAdmin.jsx > renderReviewTab() [Giao dien duyet bai bi report voi thiet ke kieu Tinder-style, the hien 2 nut to mau Xanh (Keep) / Do (Delete/Ban) bieu dat hanh dong nhanh]
+  ContentAdmin.jsx > renderSpamTab() [Giao dien quan ly User Spam]
+  App.jsx > Route "/content-admin" [boc trong ContentAdminLayout va dieu huong toi giao dien duyet bai]
+
+==============================================================
+CHUC NANG 9.C: BANG QUAN TRI SU KIEN (Event Admin Dashboard)
+==============================================================
+Frontend:
+  EventAdminLayout.jsx > toggle(isSidebarOpen) & Header [Layout danh rieng cho admin su kien, tich hop nut Menu Hamburger kieu Hinh Tron (Mẫu 1), mau Tim (Purple) chu dao, tap trung vao dieu phoi va check-in]
+  EventAdmin.jsx > renderScheduleTab() [Giao dien quan ly lich trinh su kien voi thiet ke kieu Kanban Board (Trello-style), chia lam 3 cot: Sap toi, Dang dien ra, Da ket thuc voi cac the Card the hien trang thai khac nhau]
+  EventAdmin.jsx > renderPlaceholder() [Giao dien cho tinh nang Check-in va Thong ke ve]
+  App.jsx > Route "/event-admin" [boc trong EventAdminLayout va dieu huong toi giao dien dieu phoi su kien]
+
+==============================================================
+CHUC NANG 9.D: BANG QUAN TRI TAI CHINH (Finance Admin Dashboard)
+==============================================================
+Frontend:
+  FinanceAdminLayout.jsx > toggle(isSidebarOpen) & Header [Layout danh rieng cho admin tai chinh, tich hop nut Menu Hamburger kieu Hinh Thoi (Diamond), mau Xanh ngoc (Teal) chu dao]
+  FinanceAdmin.jsx > renderCashflowTab() [Giao dien quan ly dong tien, bao cao the hien so lieu tong quan ve Doanh thu, Chiet khau, Loi nhuan]
+  App.jsx > Route "/finance-admin" [boc trong FinanceAdminLayout va dieu huong toi giao dien bao cao tai chinh]
+
+==============================================================
+CHUC NANG 9.E: BANG QUAN TRI CHAM SOC KHACH HANG (Support Admin Dashboard)
+==============================================================
+Frontend:
+  SupportAdminLayout.jsx > toggle(isSidebarOpen) & Header [Layout danh rieng cho admin ho tro, tich hop nut Menu Hamburger kieu Bot Bien/Dam may, mau Hong (Pink) chu dao]
+  SupportAdmin.jsx > renderLiveChatTab() [Giao dien Chat ho tro truc tuyen, chia 2 cot: Danh sach hoi thoai va Khung chat, hien thi file dinh kem]
+  App.jsx > Route "/support-admin" [boc trong SupportAdminLayout va dieu huong toi giao dien cham soc khach hang]
+
+==============================================================
 CHUC NANG 10: POPUP THONG BAO TINH CHAT DU AN (Disclaimer Modal)
 ==============================================================
 Frontend:
@@ -189,10 +225,17 @@ Frontend:
 ==============================================================
 CHUC NANG 13: TRANG SU KIEN (Events)
 ==============================================================
+Backend:
+  EventController::index() [API GET /api/events lay danh sach su kien kem logic loc Online/Offline, the hien so luong tham gia, so ve mien phi con lai va cac tag giai thuong/giveaway]
+  EventController::show() [API GET /api/events/{slug} lay chi tiet 1 su kien bao gom thu_vien_anh, check trang thai dang ky cua user]
+  EventController::register() [API POST /api/events/{id}/register xu ly dang ky ve su kien (Mien phi, Early Bird hoac tra phi tao transaction), kem theo he thong gui Mail (EventTicketMail) ve email_nhan_ve cua nguoi dung]
+  EventController::confirmPayment() [API POST /api/events/payment/{ma_giao_dich}/confirm xu ly gia lap thanh toan, chuyen trang thai giao dich va gui mail ve dien tu]
+
 Frontend:
-  Events.jsx > Giao dien trang danh sach cac su kien va workshop sap dien ra (Su dung mock data)
-  App.jsx > Route /events
-  Header.jsx > Link nav den trang su kien]
+  Events.jsx > fetchEvents() [lay du lieu that, render card, nut Xem Chi Tiet dieu huong sang trang Detail]
+  EventDetail.jsx > [Trang chi tiet hien thi Carousel nhieu anh, hien thi chi tiet, va popup modal xac nhan Dang ky nam o day]
+  App.jsx > Route /events va /events/:slug
+  Header.jsx > Link nav den trang su kien
 
 ==============================================================
 CHUC NANG 14: ONBOARDING & MUA GOI VIP (Pricing)
@@ -218,6 +261,7 @@ BANG TOM TAT ROUTES
     POST   /api/login
     GET    /api/profile/{id?}
     GET    /api/feed/posts
+    GET    /api/feed/suggestions
     GET    /api/banners/hero
     POST   /api/chat/heartbeat
     GET    /api/chat/presence-status
@@ -272,3 +316,5 @@ KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
 ================================================================
 - GET, POST, PUT, DELETE /admin/users: Các hàm CRUD cho Quản lý Người dùng
 - Hàm typing() [App\Http\Controllers\ChatTypingController]: Xử lý hiển thị trạng thái đang nhập tin nhắn. (Route: POST /api/chat/typing)
+- Hàm savePost() [App\Http\Controllers\FeedController]: Xử lý tính năng lưu bài viết vào Bộ sưu tập. (Route: POST /api/feed/posts/{id}/save)
+- CollectionDetailModal.jsx > onClick() [Khi ấn vào bài viết trong bộ sưu tập đã lưu, hệ thống sẽ điều hướng sang trang bản tin Feed và cuộn tới đúng bài viết đó thay vì mở rộng inline]

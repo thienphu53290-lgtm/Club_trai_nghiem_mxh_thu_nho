@@ -36,6 +36,7 @@ class AuthController extends Controller
             'ten_hien_thi' => $request->ho_ten,
             'email' => $request->email,
             'mat_khau' => Hash::make($request->password),
+            'anh_dai_dien' => url('/avt/avatar-mac-dinh.jpg'),
             'trang_thai' => 1,
             'lan_cuoi_dang_nhap' => now(),
         ]);

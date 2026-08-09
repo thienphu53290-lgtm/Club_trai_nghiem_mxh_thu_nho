@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import api from '../../api/axios';
+import api, { DEFAULT_AVATAR } from '../../api/axios';
 import echo from '../../api/echo';
 import { 
   Sparkles, Users, Bookmark, Calendar, Image as ImageIcon, Smile, ShoppingBag,
   MapPin, Heart, Maximize, MessageCircle, Share2, Trash2, Send, Shield, Flame, Plus, X, PlusCircle, MoreHorizontal, Edit3, RefreshCcw
 } from 'lucide-react';
-import { ImageModal, FormModal, ConfirmModal, CommentModal } from '../../components/Modal';
+import { ImageModal, FormModal, ConfirmModal, CommentModal, SavePostModal } from '../../components/Modal';
 import imageCompression from 'browser-image-compression';
 
 const Feed = () => {
@@ -29,6 +29,7 @@ const Feed = () => {
   const [createPostModal, setCreatePostModal] = useState({ isOpen: false, title: '', content: '', inputUrl: '', images: [], showProduct: false, productName: '', productPrice: '', productPlatform: 'Link mua sắm', productUrl: '', isSaving: false });
   const [editPostModal, setEditPostModal] = useState({ isOpen: false, id: null, tieu_de: '', noi_dung: '', hashtags: '', showProduct: false, san_pham_ten: '', san_pham_gia: '', san_pham_san: 'Link mua sắm', san_pham_url: '', isLoading: false });
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, postId: null, isLoading: false });
+  const [savePostModal, setSavePostModal] = useState({ isOpen: false, postId: null, isLoading: false });
   const [openMenuPostId, setOpenMenuPostId] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -50,6 +51,29 @@ const Feed = () => {
       showToast('Khởi tạo bảng tin gặp vấn đề kết nối', 'error');
     } finally {
       if (!silent) setLoading(false);
+    }
+  };
+
+  const refreshSuggestions = async () => {
+    try {
+      const res = await api.get('/feed/suggestions');
+      if (res.data && res.data.status === 'success') {
+        setSuggestions(res.data.suggestions || []);
+      }
+    } catch (error) {
+      showToast('Không thể tải gợi ý mới', 'error');
+    }
+  };
+
+  const handleFollowSuggestion = async (userId, userName) => {
+    try {
+      const res = await api.post(`/users/${userId}/follow`);
+      if (res.data) {
+        showToast(`Đã theo dõi ${userName}!`, 'success');
+        setSuggestions(prev => prev.filter(u => u.id !== userId));
+      }
+    } catch (error) {
+      showToast('Có lỗi xảy ra khi thực hiện theo dõi', 'error');
     }
   };
 
@@ -405,9 +429,32 @@ const Feed = () => {
         refreshCurrentUser();
       }
     } catch (error) {
-      showToast(error.response?.data?.message || 'Không thể đăng bài lúc này', 'error');
-    } finally {
+      showToast(error.response?.data?.message || 'Có lỗi xảy ra', 'error');
       setCreatePostModal(prev => ({ ...prev, isSaving: false }));
+    }
+  };
+
+  const handleOpenSaveModal = (postId) => {
+    if (!currentUser) {
+      navigate('/auth');
+      return;
+    }
+    setSavePostModal({ isOpen: true, postId, isLoading: false });
+    setOpenMenuPostId(null);
+  };
+
+  const handleSavePost = async (collectionName) => {
+    if (!savePostModal.postId) return;
+    setSavePostModal(prev => ({ ...prev, isLoading: true }));
+    try {
+      const res = await api.post(`/feed/posts/${savePostModal.postId}/save`, { collection_name: collectionName });
+      if (res.data && res.data.status === 'success') {
+        showToast(res.data.message, 'success');
+      }
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Có lỗi xảy ra khi lưu bài viết.', 'error');
+    } finally {
+      setSavePostModal({ isOpen: false, postId: null, isLoading: false });
     }
   };
 
@@ -651,11 +698,7 @@ const Feed = () => {
               <div className="flex items-center gap-4 mb-4 cursor-pointer" onClick={() => navigate('/profile/me')}>
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c93638] to-amber-500 p-0.5 shadow-md shrink-0">
                   <div className="w-full h-full bg-white rounded-[14px] overflow-hidden flex items-center justify-center font-black text-slate-800">
-                    {currentUser.anh_dai_dien ? (
-                      <img src={currentUser.anh_dai_dien} alt={currentUser.ten_hien_thi} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xl">{(currentUser.ten_hien_thi || currentUser.ho_ten || 'U').charAt(0)}</span>
-                    )}
+                    <img src={currentUser.anh_dai_dien || DEFAULT_AVATAR} alt={currentUser.ten_hien_thi} className="w-full h-full object-cover" />
                   </div>
                 </div>
                 <div className="overflow-hidden">
@@ -690,12 +733,8 @@ const Feed = () => {
               {activeMembers.map(user => (
                 <div key={user.id} className="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group">
                   <div className="relative shrink-0" onClick={() => navigate(`/profile/${user.id}`)}>
-                    <div className="w-11 h-11 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center font-bold text-slate-600 shadow-2xs">
-                      {user.anh_dai_dien ? (
-                        <img src={user.anh_dai_dien} alt={user.ten_hien_thi} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{(user.ten_hien_thi || user.ho_ten || 'U').charAt(0)}</span>
-                      )}
+                    <div className="w-12 h-12 rounded-[18px] border-[3px] border-white shadow-[0_4px_10px_rgba(0,0,0,0.1)] overflow-hidden shrink-0 flex items-center justify-center font-black text-slate-400 text-lg bg-slate-100">
+                      <img src={user.anh_dai_dien || DEFAULT_AVATAR} alt={user.ten_hien_thi} className="w-full h-full object-cover" />
                     </div>
                     {user.online && (
                       <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
@@ -762,12 +801,8 @@ const Feed = () => {
 
           <div className="border border-slate-200/80 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 bg-white shadow-sm hover:shadow-md transition-all">
             <div className="flex gap-4 mb-5 items-center">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center font-extrabold text-slate-600 shadow-2xs">
-                {currentUser?.anh_dai_dien ? (
-                  <img src={currentUser.anh_dai_dien} alt="Me" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-lg">{(currentUser?.ten_hien_thi || currentUser?.ho_ten || currentUser?.name || currentUser?.email || 'U').charAt(0).toUpperCase()}</span>
-                )}
+              <div className="w-[45px] h-[45px] sm:w-[50px] sm:h-[50px] rounded-2xl border-2 border-slate-200/50 overflow-hidden shrink-0 shadow-inner bg-slate-100 flex items-center justify-center font-black text-slate-400">
+                <img src={currentUser?.anh_dai_dien || DEFAULT_AVATAR} alt="Me" className="w-full h-full object-cover" />
               </div>
               <div 
                 onClick={() => currentUser ? setCreatePostModal({ isOpen: true, title: '', content: '', inputUrl: '', images: [], isSaving: false }) : navigate('/auth')}
@@ -829,11 +864,7 @@ const Feed = () => {
                       onClick={() => navigate(`/profile/${post.nguoi_dung_id}`)}
                       className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border border-slate-200 overflow-hidden bg-slate-100 shrink-0 cursor-pointer hover:ring-2 ring-rose-300 transition-all flex items-center justify-center font-black text-slate-600 shadow-2xs"
                     >
-                      {post.anh_dai_dien ? (
-                        <img src={post.anh_dai_dien} alt={post.ten_hien_thi} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-lg">{(post.ten_hien_thi || post.ho_ten || 'U').charAt(0)}</span>
-                      )}
+                      <img src={post.anh_dai_dien || DEFAULT_AVATAR} alt={post.ten_hien_thi} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -888,6 +919,13 @@ const Feed = () => {
 
                     {openMenuPostId === post.id && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-30 animate-in fade-in zoom-in-95 duration-150">
+                        <button
+                          onClick={() => handleOpenSaveModal(post.id)}
+                          className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2.5 transition-colors cursor-pointer border-none bg-transparent"
+                        >
+                          <Bookmark size={16} />
+                          <span>Lưu bài viết</span>
+                        </button>
                         {(post.is_owner || Number(currentUser?.id) === Number(post.nguoi_dung_id) || Number(currentUser?.vai_tro_id) >= 2 || currentUser?.email === 'superadmin@clubtrainghiem.com') ? (
                           <>
                             <button
@@ -1026,19 +1064,24 @@ const Feed = () => {
           
           <div className="bg-white border border-slate-200/80 rounded-[32px] p-6 shadow-sm hover:shadow-md transition-all">
             <h3 className="font-extrabold text-base text-slate-900 mb-5 flex items-center justify-between">
-              <span>Gợi ý kết nối mới</span>
-              <Users size={18} className="text-slate-400" />
+              <span className="flex items-center gap-2">
+                Gợi ý kết nối mới
+                <Users size={18} className="text-slate-400" />
+              </span>
+              <button 
+                onClick={refreshSuggestions}
+                title="Làm mới danh sách"
+                className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer active:scale-95"
+              >
+                <RefreshCcw size={14} />
+              </button>
             </h3>
             <div className="flex flex-col gap-4">
               {suggestions.map(user => (
                 <div key={user.id} className="flex justify-between items-center gap-3">
                   <div className="flex items-center gap-3 cursor-pointer group flex-1 overflow-hidden" onClick={() => navigate(`/profile/${user.id}`)}>
                     <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center font-bold text-slate-600 shadow-2xs">
-                      {user.anh_dai_dien ? (
-                        <img src={user.anh_dai_dien} alt={user.ten_hien_thi} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{(user.ten_hien_thi || user.ho_ten || 'S').charAt(0)}</span>
-                      )}
+                      <img src={user.anh_dai_dien || DEFAULT_AVATAR} alt={user.ten_hien_thi} className="w-full h-full object-cover" />
                     </div>
                     <div className="overflow-hidden">
                       <h4 className="font-extrabold text-sm text-slate-900 group-hover:text-[#c93638] transition-colors truncate m-0">
@@ -1058,10 +1101,13 @@ const Feed = () => {
                     </div>
                   </div>
                   <button 
-                    onClick={() => { showToast(`Đã gửi tín hiệu kết nối tới ${user.ten_hien_thi || user.ho_ten}!`); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFollowSuggestion(user.id, user.ten_hien_thi || user.ho_ten);
+                    }}
                     className="bg-rose-50 hover:bg-[#c93638] text-[#c93638] hover:text-white px-4 py-2 rounded-2xl font-black text-xs border border-rose-100 hover:border-transparent cursor-pointer transition-all shadow-2xs shrink-0 active:scale-95"
                   >
-                    Kết Nối
+                    Follow
                   </button>
                 </div>
               ))}
@@ -1385,6 +1431,12 @@ const Feed = () => {
         onPreviewImage={setPreviewImage}
       />
 
+      <SavePostModal 
+        isOpen={savePostModal.isOpen}
+        onClose={() => setSavePostModal({ isOpen: false, postId: null, isLoading: false })}
+        onSave={handleSavePost}
+        isLoading={savePostModal.isLoading}
+      />
     </div>
   );
 };

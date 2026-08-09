@@ -12,7 +12,17 @@ import Auth from './pages/Auth/Auth';
 import SuperAdmin from './pages/Admin/SuperAdmin';
 import Products from './pages/Products/Products';
 import ProductDetail from './pages/Products/ProductDetail';
+import ContentAdminLayout from './layouts/ContentAdminLayout';
+import ContentAdmin from './pages/Admin/ContentAdmin';
+import EventAdminLayout from './layouts/EventAdminLayout';
+import EventAdmin from './pages/Admin/EventAdmin';
+import FinanceAdminLayout from './layouts/FinanceAdminLayout';
+import FinanceAdmin from './pages/Admin/FinanceAdmin';
+import SupportAdminLayout from './layouts/SupportAdminLayout';
+import SupportAdmin from './pages/Admin/SupportAdmin';
 import Events from './pages/Events/Events';
+import EventDetail from './pages/Events/EventDetail';
+import CreateEvent from './pages/Events/CreateEvent';
 import Friends from './pages/Friends/Friends';
 import Pricing from './pages/Pricing/Pricing';
 import Onboarding from './pages/Onboarding/Onboarding';
@@ -27,7 +37,7 @@ function App() {
     if (localStorage.getItem('account_locked') === 'true') {
       setShowLockedModal(true);
     }
-    runOneSignal();
+    // runOneSignal();
 
     const token = localStorage.getItem('auth_token');
     if (token) {
@@ -61,6 +71,18 @@ function App() {
           <Route path="/admin" element={<SuperAdmin />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
         </Route>
+        <Route path="/content-admin" element={<ContentAdminLayout />}>
+          <Route index element={<ContentAdmin />} />
+        </Route>
+        <Route path="/event-admin" element={<EventAdminLayout />}>
+          <Route index element={<EventAdmin />} />
+        </Route>
+        <Route path="/finance-admin" element={<FinanceAdminLayout />}>
+          <Route index element={<FinanceAdmin />} />
+        </Route>
+        <Route path="/support-admin" element={<SupportAdminLayout />}>
+          <Route index element={<SupportAdmin />} />
+        </Route>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="feed" element={<Feed />} />
@@ -71,6 +93,8 @@ function App() {
           <Route path="products" element={<Products />} />
           <Route path="products/:slug" element={<ProductDetail />} />
           <Route path="events" element={<Events />} />
+          <Route path="events/create" element={<CreateEvent />} />
+          <Route path="events/:slug" element={<EventDetail />} />
           <Route path="friends" element={<Friends />} />
         </Route>
       </Routes>

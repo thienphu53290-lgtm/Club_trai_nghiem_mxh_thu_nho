@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://club-trai-nghiem-mxh-thu-nho.onrender.com/api' : 'http://localhost:8000/api');
+export const BACKEND_URL = API_BASE_URL.replace('/api', '');
+export const DEFAULT_AVATAR = `${BACKEND_URL}/avt/avatar-mac-dinh.jpg`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,

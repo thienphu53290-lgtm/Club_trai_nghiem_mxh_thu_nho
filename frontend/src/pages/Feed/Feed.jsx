@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { ImageModal, FormModal, ConfirmModal, CommentModal, SavePostModal } from '../../components/Modal';
 import imageCompression from 'browser-image-compression';
+import AdBanner from '../../components/AdBanner/AdBanner';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Feed = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [topics, setTopics] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [feedAds, setFeedAds] = useState([]);
   
   const [toast, setToast] = useState(null);
   const [activeCommentPostId, setActiveCommentPostId] = useState(null);
@@ -40,12 +42,18 @@ const Feed = () => {
   const fetchFeedData = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
-      const res = await api.get('/feed/posts');
-      if (res.data && res.data.status === 'success') {
-        setPosts(res.data.posts || []);
-        setActiveMembers(res.data.active_members || []);
-        setSuggestions(res.data.suggestions || []);
-        setTopics(res.data.topics || []);
+      const [feedRes, adsRes] = await Promise.all([
+        api.get('/feed/posts'),
+        api.get('/events/ads').catch(() => ({ data: { feed_ads: [] } }))
+      ]);
+      if (feedRes.data && feedRes.data.status === 'success') {
+        setPosts(feedRes.data.posts || []);
+        setActiveMembers(feedRes.data.active_members || []);
+        setSuggestions(feedRes.data.suggestions || []);
+        setTopics(feedRes.data.topics || []);
+      }
+      if (adsRes.data) {
+        setFeedAds(adsRes.data.feed_ads || []);
       }
     } catch (error) {
       showToast('Khởi tạo bảng tin gặp vấn đề kết nối', 'error');
@@ -324,7 +332,6 @@ const Feed = () => {
       const compressedImages = [];
       for (const file of selectedFiles) {
         if (file.type.startsWith('image/')) {
-          // Bỏ qua nén nếu là ảnh gif
           if (file.type === 'image/gif') {
             compressedImages.push({
               type: 'file',
@@ -855,9 +862,9 @@ const Feed = () => {
               Chưa có khoảnh khắc hay album ảnh nào được chia sẻ trên bảng tin. Hãy là người đầu tiên bứt phá! 🏆
             </div>
           ) : (
-            posts.map(post => (
-              <article key={post.id} id={`post-${post.id}`} className="border border-slate-200/80 rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col gap-5">
-                
+            posts.map((post, index) => (
+              <React.Fragment key={post.id}>
+                <article id={`post-${post.id}`} className="border border-slate-200/80 rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col gap-5">                
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div 
@@ -1041,6 +1048,9 @@ const Feed = () => {
                 </div>
 
               </article>
+              {index === 4 && feedAds.length > 0 && <AdBanner event={feedAds[0]} />}
+              {index === 19 && feedAds.length > 1 && <AdBanner event={feedAds[1]} />}
+              </React.Fragment>
             ))
           )}
 

@@ -17,7 +17,10 @@ Route::get('/feed/posts', [FeedController::class, 'index']);
 Route::get('/feed/suggestions', [FeedController::class, 'getSuggestions']);
 Route::get('/banners/hero', [BannerController::class, 'getHeroBanners']);
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventPackageController;
 
+// Event routes
+Route::get('/events/ads', [EventController::class, 'getAds']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{slug}', [EventController::class, 'show']);
 Route::get('/event-packages', [App\Http\Controllers\EventPackageController::class, 'index']);
@@ -31,6 +34,9 @@ Route::middleware(['auth:sanctum', 'check_status', 'crud_logger'])->group(functi
     Route::post('/events/{id}/register', [EventController::class, 'register']);
     Route::post('/events/payment/{ma_giao_dich}/confirm', [EventController::class, 'confirmPayment']);
     Route::get('/admin/dashboard-stats', [AdminController::class, 'dashboard']);
+    Route::get('/admin/events', [AdminController::class, 'getEvents']);
+    Route::put('/admin/events/{id}/status', [AdminController::class, 'updateEventStatus']);
+    Route::post('/admin/events/checkin', [AdminController::class, 'checkIn']);
     Route::get('/admin/logs', [AdminController::class, 'getLogs']);
     Route::get('/admin/users', [AdminController::class, 'getUsers']);
     Route::post('/admin/users', [AdminController::class, 'createUser']);

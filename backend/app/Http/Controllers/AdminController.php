@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\SuKien;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -477,5 +478,81 @@ class AdminController extends Controller
         $user->delete();
 
         return response()->json(['status' => 'success', 'message' => 'Đã xóa người dùng vĩnh viễn.']);
+    }
+
+    public function getEvents(Request $request)
+    {
+        // Get all events with attendee count
+        $events = SuKien::withCount('dangKySuKien as attendees')
+            ->orderBy('thoi_gian_bat_dau', 'asc')
+            ->get();
+            
+        return response()->json([
+            'status' => 'success',
+            'events' => $events
+        ]);
+    }
+
+    public function updateEventStatus($id, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|integer|in:1,2,3'
+        ]);
+
+        $event = SuKien::findOrFail($id);
+        $event->trang_thai = $request->status;
+        $event->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã cập nhật trạng thái sự kiện thành công.',
+            'event' => $event
+        ]);
+    }
+
+    public function checkIn(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string'
+        ]);
+
+        $code = trim($request->code);
+        $dangKyId = null;
+
+        // Parse QR Code format: TICKET-{dangKyId}-{userId}
+        if (preg_match('/^TICKET-(\d+)-(\d+)$/', $code, $matches)) {
+            $dangKyId = $matches[1];
+        } 
+        // Parse Manual ID format: TICKET-00001
+        elseif (preg_match('/^TICKET-(\d+)$/', $code, $matches)) {
+            $dangKyId = (int)$matches[1];
+        }
+        else {
+            return response()->json(['status' => 'error', 'message' => 'Mã vé không hợp lệ!'], 400);
+        }
+
+        $dangKy = \App\Models\DangKySuKien::with(['suKien', 'nguoiDung'])->find($dangKyId);
+
+        if (!$dangKy) {
+            return response()->json(['status' => 'error', 'message' => 'Không tìm thấy thông tin vé!'], 404);
+        }
+
+        if ($dangKy->check_in_at) {
+            return response()->json(['status' => 'error', 'message' => 'Vé này đã được check-in vào lúc ' . \Carbon\Carbon::parse($dangKy->check_in_at)->format('H:i d/m/Y')], 400);
+        }
+
+        $dangKy->check_in_at = Carbon::now();
+        $dangKy->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Check-in thành công!',
+            'data' => [
+                'ho_ten' => $dangKy->ho_ten,
+                'email' => $dangKy->email_nhan_ve,
+                'su_kien' => $dangKy->suKien ? $dangKy->suKien->tieu_de : 'Sự kiện không xác định',
+                'check_in_at' => $dangKy->check_in_at
+            ]
+        ]);
     }
 }

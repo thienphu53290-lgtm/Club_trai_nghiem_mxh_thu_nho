@@ -1415,9 +1415,9 @@ const Profile = () => {
               <p className="text-xs font-semibold text-slate-400 py-2">Chưa có ai theo dõi tài khoản này.</p>
             ) : (
               <div className="flex flex-col gap-3.5">
-                {followersList.map((f) => (
+                {followersList.map((f, index) => (
                   <div 
-                    key={f.id} 
+                    key={`${f.id}-${index}`} 
                     onClick={() => navigate(`/profile/${f.id}`)}
                     className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors group border border-transparent hover:border-slate-200/70"
                   >

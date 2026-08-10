@@ -318,3 +318,11 @@ KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
 - Hàm typing() [App\Http\Controllers\ChatTypingController]: Xử lý hiển thị trạng thái đang nhập tin nhắn. (Route: POST /api/chat/typing)
 - Hàm savePost() [App\Http\Controllers\FeedController]: Xử lý tính năng lưu bài viết vào Bộ sưu tập. (Route: POST /api/feed/posts/{id}/save)
 - CollectionDetailModal.jsx > onClick() [Khi ấn vào bài viết trong bộ sưu tập đã lưu, hệ thống sẽ điều hướng sang trang bản tin Feed và cuộn tới đúng bài viết đó thay vì mở rộng inline]
+
+- [GET] /api/events/ads : (EventController@getAds) Lấy danh sách các sự kiện có mua gói quảng cáo để hiển thị lên Feed và Home
+- Footer.jsx > handleSubscribe() [Xử lý form Đăng ký nhận tin ở Footer]
+- UpcomingEvents.jsx > fetchEvents() [Lấy danh sách 3 sự kiện mới nhất từ /api/events để hiển thị ở trang chủ thay vì dùng mock data tĩnh]
+
+- [GET] /api/admin/events : (AdminController@getEvents) Lấy danh sách toàn bộ sự kiện kèm số lượng người tham dự để hiển thị trên bảng Kanban Điều phối sự kiện
+- [PUT] /api/admin/events/{id}/status : (AdminController@updateEventStatus) Cập nhật trạng thái sự kiện (1: Sắp tới, 2: Đang diễn ra, 3: Kết thúc) từ giao diện EventAdmin
+- [POST] /api/admin/events/checkin : (AdminController@checkIn) Nhận mã vé (từ QR Code hoặc nhập tay), cập nhật thời gian check_in_at vào DB và trả về thông tin người tham dự.

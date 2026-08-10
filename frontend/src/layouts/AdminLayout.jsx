@@ -57,6 +57,9 @@ const AdminLayout = () => {
     setActiveTab(tabId);
     sessionStorage.setItem('admin_active_tab', tabId);
     setIsSidebarOpen(false);
+    if (window.location.pathname !== '/admin' && window.location.pathname !== '/super-admin') {
+      navigate('/admin');
+    }
   };
 
   return (

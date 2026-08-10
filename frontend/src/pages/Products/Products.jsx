@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Star, Search, Filter, ChevronDown, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../api/axios';
+import Modal from '../../components/Modal/Modal';
+import { Info } from 'lucide-react';
 
 const bannerImages = [
   '/bannersp/bannersp1.png',
@@ -217,6 +219,9 @@ const ProductCard = ({ product }) => {
 };
 
 const Products = () => {
+  const [showFeatureDevModal, setShowFeatureDevModal] = useState(true);
+  const [hasConfirmed, setHasConfirmed] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#f8f9fa] pt-8 pb-[100px]">
       <div className="max-w-[1320px] mx-auto px-5">
@@ -344,6 +349,56 @@ const Products = () => {
         </div>
 
       </div>
+      
+      <Modal 
+        isOpen={showFeatureDevModal}
+        onClose={() => {}}
+        title="Tính năng đang phát triển"
+        size="sm"
+        hideCloseButton={true}
+        footer={
+          <div className="w-full flex justify-end">
+            <button
+              onClick={() => setShowFeatureDevModal(false)}
+              disabled={!hasConfirmed}
+              className={`px-6 py-2.5 font-extrabold text-xs rounded-xl transition-all border-none flex items-center gap-2 ${
+                hasConfirmed 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)] cursor-pointer' 
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              }`}
+            >
+              Vào tham quan
+            </button>
+          </div>
+        }
+      >
+        <div className="text-slate-800 py-1 space-y-4">
+          <div className="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-3 py-1 rounded-full border bg-blue-50 text-blue-800 border-blue-200">
+            <Info size={14} className="text-blue-600" />
+            <span>Thông Báo Trải Nghiệm</span>
+          </div>
+          <p className="text-sm text-slate-600 font-medium leading-relaxed m-0">
+            Tính năng Sản phẩm hiện đang trong giai đoạn phát triển và thử nghiệm. 
+            Dữ liệu và các chức năng mua hàng hiện tại chưa thể sử dụng chính thức.
+            Tuy nhiên, bạn vẫn có thể xem trước giao diện của tính năng này!
+          </p>
+          
+          <label className="flex items-start gap-3 mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+            <div className="relative flex items-center justify-center mt-0.5">
+              <input 
+                type="checkbox" 
+                className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer"
+                checked={hasConfirmed}
+                onChange={(e) => setHasConfirmed(e.target.checked)}
+              />
+              <Check size={14} className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none" />
+            </div>
+            <span className="text-sm font-semibold text-slate-700 select-none">
+              Tôi đã hiểu rằng đây chỉ là giao diện thử nghiệm
+            </span>
+          </label>
+        </div>
+      </Modal>
     </div>
   );
 };

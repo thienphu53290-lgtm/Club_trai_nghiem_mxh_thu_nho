@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar, Crown, Menu, Users, BellRing, Eye } from 'lucide-react';
 import echo from '../../api/echo';
 import api, { DEFAULT_AVATAR } from '../../api/axios';
@@ -277,11 +277,10 @@ const Header = () => {
       <div className="max-w-[1320px] mx-auto px-5 py-3 flex flex-col gap-3">
         {/* Top Row: Logo, Navigation, Actions */}
         <div className="flex items-center justify-between gap-2 sm:gap-6">
-        {/* Logo */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer shrink-0">
-          <div className="bg-primary text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-extrabold text-[1rem] sm:text-[1.2rem] shrink-0">k</div>
+        <Link to="/" className="flex items-center gap-2 cursor-pointer text-inherit no-underline">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center text-white font-black text-[1rem] sm:text-lg">k</div>
           <span className="font-extrabold text-[0.9rem] sm:text-[1.2rem] tracking-tight text-text-dark whitespace-nowrap">club trải nghiệm</span>
-        </div>
+        </Link>
 
 
         {/* Navigation - Hidden on Mobile */}

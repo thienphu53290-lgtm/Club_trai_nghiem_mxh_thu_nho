@@ -3,27 +3,27 @@ import React from 'react';
 const teamMembers = [
   {
     id: 1,
-    name: 'Hoàng Quân',
-    role: 'Co-founder / Tech',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'
+    name: 'Vũ Thiên Phú',
+    role: 'Product Manager & Founder',
+    avatar: '/img/nguoi_phat_trien/anh1.jpg'
   },
   {
     id: 2,
-    name: 'Phương Linh',
-    role: 'Co-founder / Content',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop'
+    name: 'Vũ Thiên Phú',
+    role: 'Full-stack Developer',
+    avatar: '/img/nguoi_phat_trien/anh2.jpg'
   },
   {
     id: 3,
-    name: 'Trần Đạt',
-    role: 'Community Manager',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop'
+    name: 'Vũ Thiên Phú',
+    role: 'UI/UX Designer',
+    avatar: '/img/nguoi_phat_trien/anh3.jpg'
   },
   {
     id: 4,
-    name: 'Mai Hoa',
-    role: 'Partnership',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop'
+    name: 'Vũ Thiên Phú',
+    role: 'Quality Assurance',
+    avatar: '/img/nguoi_phat_trien/anh4.jpg'
   }
 ];
 
@@ -33,7 +33,7 @@ const Team = () => {
       <div className="max-w-[1320px] mx-auto text-center">
         <h2 className="text-2xl md:text-[2rem] font-extrabold text-text-dark mb-4">Đội ngũ sáng lập</h2>
         <p className="text-text-light text-[1.05rem] max-w-[600px] mx-auto mb-10 leading-relaxed">
-          Chúng tôi là những người cuồng mua sắm online, từng mua phải hàng lởm và quyết định lập ra club này để không ai bị lừa nữa.
+          Tôi là một người cuồng mua sắm online, từng mua phải hàng lởm và quyết định một mình lập ra club này để không ai bị lừa nữa.
         </p>
 
         <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-[20px] sm:gap-[30px] overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden -mx-5 px-5 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>

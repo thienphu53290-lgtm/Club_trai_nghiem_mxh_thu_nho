@@ -15,7 +15,7 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SuKien::query()->where('trang_thai', '>', 0); // 1: Sắp diễn ra, 2: Đang diễn ra, 3: Đã kết thúc
+        $query = SuKien::query()->whereIn('trang_thai', [1, 2]); // 1: Sắp diễn ra/Mở bán, 2: Đang diễn ra, 3: Đã kết thúc (bỏ qua)
 
         if ($request->has('hinh_thuc') && $request->hinh_thuc !== 'all') {
             $query->where('hinh_thuc', $request->hinh_thuc);
@@ -35,13 +35,63 @@ class EventController extends Controller
             $veMienPhiConLai = max(0, $event->so_ve_mien_phi - $dangKyCount);
             $event->ve_mien_phi_con_lai = $veMienPhiConLai;
             
-            // For frontend compatibility
-            $event->status = $event->thoi_gian_bat_dau > Carbon::now() ? 'Sắp diễn ra' : 'Đã diễn ra';
+            // For frontend compatibility: match DB status instead of time comparison
+            if ($event->trang_thai == 2) {
+                $event->status = 'Đang diễn ra';
+            } else {
+                $event->status = 'Mở bán vé';
+            }
         }
 
         return response()->json([
             'status' => 'success',
             'events' => $events
+        ]);
+    }
+
+    public function getAds()
+    {
+        // Get all active events that have purchased ads
+        $adEvents = SuKien::whereIn('trang_thai', [1, 2])
+            ->where('goi_quang_cao', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate basic info for all events
+        foreach ($adEvents as $event) {
+            $dangKyCount = DangKySuKien::where('su_kien_id', $event->id)->count();
+            $event->attendees = $dangKyCount;
+            
+            $veMienPhiConLai = max(0, $event->so_ve_mien_phi - $dangKyCount);
+            $event->ve_mien_phi_con_lai = $veMienPhiConLai;
+            
+            if ($event->trang_thai == 2) {
+                $event->status = 'Đang diễn ra';
+            } else {
+                $event->status = 'Mở bán vé';
+            }
+        }
+
+        // Super ads: Events with goi_quang_cao = 499000
+        $superAds = $adEvents->where('goi_quang_cao', 499000)->values();
+
+        // Feed ads: All ad events, but 499k has 2x weight (we just duplicate them in the array)
+        $feedAds = collect();
+        foreach ($adEvents as $event) {
+            $feedAds->push($event);
+            if ($event->goi_quang_cao == 499000) {
+                // Add one more time to increase frequency
+                $feedAds->push($event);
+            }
+        }
+        
+        // Shuffle the feed ads
+        $feedAds = $feedAds->shuffle()->values();
+
+        return response()->json([
+            'status' => 'success',
+            'super_ads' => $superAds,
+            'feed_ads' => $feedAds
         ]);
     }
 

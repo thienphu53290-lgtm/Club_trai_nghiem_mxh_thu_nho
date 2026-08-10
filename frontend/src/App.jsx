@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './layouts/Layout';
 import AdminLayout from './layouts/AdminLayout';
 import Home from './pages/Home/Home';
@@ -16,6 +16,7 @@ import ContentAdminLayout from './layouts/ContentAdminLayout';
 import ContentAdmin from './pages/Admin/ContentAdmin';
 import EventAdminLayout from './layouts/EventAdminLayout';
 import EventAdmin from './pages/Admin/EventAdmin';
+import EventManagementHub from './pages/Admin/EventManagementHub';
 import FinanceAdminLayout from './layouts/FinanceAdminLayout';
 import FinanceAdmin from './pages/Admin/FinanceAdmin';
 import SupportAdminLayout from './layouts/SupportAdminLayout';
@@ -28,6 +29,16 @@ import Pricing from './pages/Pricing/Pricing';
 import Onboarding from './pages/Onboarding/Onboarding';
 import api from './api/axios';
 import { runOneSignal } from './api/onesignal';
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 function App() {
   const [showLockedModal, setShowLockedModal] = useState(false);
@@ -63,6 +74,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/auth" element={<Auth />} />
         <Route path="/pricing" element={<Pricing />} />
@@ -70,6 +82,7 @@ function App() {
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<SuperAdmin />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
+          <Route path="/admin/events/:slug/manage" element={<EventManagementHub />} />
         </Route>
         <Route path="/content-admin" element={<ContentAdminLayout />}>
           <Route index element={<ContentAdmin />} />

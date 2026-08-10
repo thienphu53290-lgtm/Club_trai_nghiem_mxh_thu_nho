@@ -696,8 +696,7 @@ const Messages = () => {
           <div className="flex items-center gap-1.5 mb-3.5 shrink-0">
             {[
               { id: 'all', label: 'Tất cả' },
-              { id: 'unread', label: `Chưa đọc (${contacts.filter(c => c.unread > 0).length})` },
-              { id: 'vip', label: '👑 VIP' }
+              { id: 'unread', label: `Chưa đọc (${contacts.filter(c => c.unread > 0).length})` }
             ].map(tab => (
               <button
                 key={tab.id}

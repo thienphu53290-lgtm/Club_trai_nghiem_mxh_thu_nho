@@ -41,6 +41,9 @@ const ContentAdminLayout = () => {
   const menuItems = [
     { id: 'review', label: 'Duyệt bài báo cáo', icon: ShieldAlert, badge: '99+ bài chờ' },
     { id: 'spam', label: 'Quản lý User Spam', icon: Users, badge: '25 cảnh cáo' },
+    { id: 'posts', label: 'Quản lý Bài Viết', icon: ShieldCheck, badge: 'Toàn bộ' },
+    { id: 'comments', label: 'Quản lý Bình Luận', icon: MessageSquare, badge: 'Mới nhất' },
+    { id: 'topics', label: 'Quản lý Danh Mục', icon: ShieldAlert, badge: 'Cấu hình' },
   ];
 
   const handleSelectTab = (tabId) => {

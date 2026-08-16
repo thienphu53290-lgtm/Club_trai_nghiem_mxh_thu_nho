@@ -388,4 +388,62 @@ class EventController extends Controller
             ]);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        $suKien = SuKien::find($id);
+        if (!$suKien) {
+            return response()->json(['message' => 'Không tìm thấy sự kiện'], 404);
+        }
+
+        // Only allow admin/superadmin or the creator to edit (skip check if superadmin for now)
+
+        $dataToUpdate = [
+            'tieu_de' => $request->input('tieu_de', $suKien->tieu_de),
+            'mo_ta' => $request->input('mo_ta', $suKien->mo_ta),
+            'thoi_gian_bat_dau' => $request->input('thoi_gian_bat_dau', $suKien->thoi_gian_bat_dau),
+            'thoi_gian_ket_thuc' => $request->input('thoi_gian_ket_thuc', $suKien->thoi_gian_ket_thuc),
+            'dia_diem' => $request->input('dia_diem', $suKien->dia_diem),
+            'hinh_thuc' => $request->input('hinh_thuc', $suKien->hinh_thuc),
+        ];
+
+        if ($request->hasFile('anh_bia_file')) {
+            $anhBiaUrl = CloudinaryService::upload($request->file('anh_bia_file'), 'events');
+            if ($anhBiaUrl) {
+                // if old image exists, could delete here
+                $dataToUpdate['anh_bia'] = $anhBiaUrl;
+            }
+        }
+
+        if ($request->hasFile('thu_vien_anh_files')) {
+            $thuVienAnhUrls = [];
+            foreach ($request->file('thu_vien_anh_files') as $file) {
+                $url = CloudinaryService::upload($file, 'events');
+                if ($url) {
+                    $thuVienAnhUrls[] = $url;
+                }
+            }
+            if (!empty($thuVienAnhUrls)) {
+                $oldGallery = json_decode($suKien->thu_vien_anh, true) ?? [];
+                $dataToUpdate['thu_vien_anh'] = json_encode(array_merge($oldGallery, $thuVienAnhUrls));
+            }
+        }
+
+        if ($request->has('remove_thu_vien_anh_index')) {
+            $oldGallery = json_decode($suKien->thu_vien_anh, true) ?? [];
+            $indexToRemove = $request->input('remove_thu_vien_anh_index');
+            if (isset($oldGallery[$indexToRemove])) {
+                array_splice($oldGallery, $indexToRemove, 1);
+                $dataToUpdate['thu_vien_anh'] = json_encode($oldGallery);
+            }
+        }
+
+        $suKien->update($dataToUpdate);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cập nhật sự kiện thành công',
+            'event' => $suKien
+        ]);
+    }
 }

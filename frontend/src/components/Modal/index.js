@@ -9,3 +9,4 @@ export { default as SavePostModal } from './SavePostModal';
 export { default as CollectionListModal } from './CollectionListModal';
 export { default as CollectionDetailModal } from './CollectionDetailModal';
 export { default as WelcomeAdPopup } from './WelcomeAdPopup';
+export { default as ReportModal } from './ReportModal';

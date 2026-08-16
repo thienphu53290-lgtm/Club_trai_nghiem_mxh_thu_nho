@@ -124,3 +124,4 @@ CONG CU PHAT TRIEN
      Tai lieu Docker: https://docs.docker.com
 
 ================================================================
+- html5-qrcode: https://github.com/mebjas/html5-qrcode

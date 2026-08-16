@@ -166,3 +166,4 @@ DICH VU & CAU HINH NGOAI
     - Nien tang hosting may chu Backend Laravel thong qua Dockerfile hoat dong tren dam may mien phi.
 
 ================================================================
+- html5-qrcode

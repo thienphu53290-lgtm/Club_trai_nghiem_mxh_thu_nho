@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
-import { CalendarDays, Clock, MapPin, Users, Ticket, ArrowRight, QrCode, PlayCircle, XCircle, ExternalLink } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Users, Ticket, ArrowRight, QrCode, PlayCircle, XCircle, ExternalLink, CircleDollarSign, Plus } from 'lucide-react';
 import api from '../../api/axios';
 import Modal from '../../components/Modal/Modal';
+import CreateEventTab from '../../components/Admin/CreateEventTab';
 
 const EventAdmin = () => {
   const context = useOutletContext();
@@ -42,6 +43,29 @@ const EventAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [activeSubTab, setActiveSubTab] = useState('upcoming');
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const [revenueData, setRevenueData] = useState(null);
+  const [loadingRevenue, setLoadingRevenue] = useState(false);
+
+  useEffect(() => {
+    if (currentTab === 'tickets' && !revenueData && !loadingRevenue) {
+      fetchRevenue();
+    }
+  }, [currentTab]);
+
+  const fetchRevenue = async () => {
+    try {
+      setLoadingRevenue(true);
+      const res = await api.get('/admin/events/revenue');
+      if (res.data && res.data.status === 'success') {
+        setRevenueData(res.data.data);
+      }
+    } catch (err) {
+      showNotification('❌ Không thể tải dữ liệu doanh thu.');
+    } finally {
+      setLoadingRevenue(false);
+    }
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -128,29 +152,32 @@ const EventAdmin = () => {
       <div className="w-full mt-6 animate-slideUp bg-white rounded-[2rem] border-4 border-[#0f172a] shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] p-6">
         
         {/* Sub-tabs */}
-        <div className="flex flex-wrap items-center gap-3 mb-6 border-b-2 border-slate-100 pb-4">
-          <button 
-            onClick={() => setActiveSubTab('upcoming')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeSubTab === 'upcoming' ? 'bg-indigo-100 text-indigo-900 border-2 border-indigo-900 shadow-[2px_2px_0px_0px_rgba(49,46,129,1)]' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-2 border-transparent'}`}
-          >
-            Sắp tới
-            <span className="bg-white text-indigo-900 px-2 py-0.5 rounded-md text-xs border border-indigo-200">{events.filter(e => e.status === 'upcoming').length}</span>
-          </button>
-          <button 
-            onClick={() => setActiveSubTab('ongoing')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeSubTab === 'ongoing' ? 'bg-amber-100 text-amber-900 border-2 border-amber-900 shadow-[2px_2px_0px_0px_rgba(120,53,15,1)]' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-2 border-transparent'}`}
-          >
-            Đang diễn ra
-            <span className="bg-white text-amber-900 px-2 py-0.5 rounded-md text-xs border border-amber-200">{events.filter(e => e.status === 'ongoing').length}</span>
-          </button>
-          <button 
-            onClick={() => setActiveSubTab('completed')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeSubTab === 'completed' ? 'bg-slate-800 text-white border-2 border-[#0f172a] shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-2 border-transparent'}`}
-          >
-            Đã kết thúc
-            <span className="bg-white/20 text-white px-2 py-0.5 rounded-md text-xs">{events.filter(e => e.status === 'completed').length}</span>
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 border-b-2 border-slate-100 pb-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <button 
+              onClick={() => setActiveSubTab('upcoming')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeSubTab === 'upcoming' ? 'bg-indigo-100 text-indigo-900 border-2 border-indigo-900 shadow-[2px_2px_0px_0px_rgba(49,46,129,1)]' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-2 border-transparent'}`}
+            >
+              Sắp tới
+              <span className="bg-white text-indigo-900 px-2 py-0.5 rounded-md text-xs border border-indigo-200">{events.filter(e => e.status === 'upcoming').length}</span>
+            </button>
+            <button 
+              onClick={() => setActiveSubTab('ongoing')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeSubTab === 'ongoing' ? 'bg-amber-100 text-amber-900 border-2 border-amber-900 shadow-[2px_2px_0px_0px_rgba(120,53,15,1)]' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-2 border-transparent'}`}
+            >
+              Đang diễn ra
+              <span className="bg-white text-amber-900 px-2 py-0.5 rounded-md text-xs border border-amber-200">{events.filter(e => e.status === 'ongoing').length}</span>
+            </button>
+            <button 
+              onClick={() => setActiveSubTab('completed')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeSubTab === 'completed' ? 'bg-slate-800 text-white border-2 border-[#0f172a] shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border-2 border-transparent'}`}
+            >
+              Đã kết thúc
+              <span className="bg-white/20 text-white px-2 py-0.5 rounded-md text-xs">{events.filter(e => e.status === 'completed').length}</span>
+            </button>
+          </div>
         </div>
+
 
         {/* List View with Scrollbar */}
         <div className="max-h-[500px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
@@ -307,12 +334,103 @@ const EventAdmin = () => {
     </div>
   );
 
-  const renderPlaceholder = (title) => (
-    <div className="bg-white rounded-[2rem] border-4 border-[#0f172a] shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] p-12 text-center mt-10">
-      <h2 className="text-3xl font-black text-slate-900 mb-4">{title}</h2>
-      <p className="text-slate-500 font-bold text-lg">Tính năng đang được phát triển...</p>
-    </div>
-  );
+  const renderTicketsTab = () => {
+    if (loadingRevenue) {
+      return (
+        <div className="bg-white rounded-[2rem] border-4 border-[#0f172a] shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] p-12 text-center mt-10 flex flex-col items-center justify-center min-h-[400px]">
+          <div className="w-12 h-12 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+          <p className="text-slate-500 font-bold">Đang tải dữ liệu doanh thu...</p>
+        </div>
+      );
+    }
+    
+    if (!revenueData) {
+        return (
+          <div className="bg-white rounded-[2rem] border-4 border-[#0f172a] shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] p-12 text-center mt-10 flex flex-col items-center justify-center min-h-[400px]">
+            <p className="text-rose-500 font-bold text-xl">Lỗi tải dữ liệu. Hãy thử lại sau.</p>
+          </div>
+        );
+    }
+
+    return (
+      <div className="w-full mt-6 space-y-6 animate-slideUp">
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-indigo-50 rounded-[2rem] border-4 border-indigo-900 shadow-[6px_6px_0px_0px_rgba(49,46,129,1)] p-6 md:p-8 flex items-center justify-between">
+            <div>
+              <p className="text-indigo-900 font-black mb-1 uppercase tracking-wider text-sm">Tổng Doanh Thu</p>
+              <h3 className="text-4xl md:text-5xl font-black text-indigo-900">
+                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(revenueData.total_revenue)}
+              </h3>
+            </div>
+            <div className="w-16 h-16 bg-white rounded-full border-4 border-indigo-900 shadow-[4px_4px_0px_0px_rgba(49,46,129,1)] flex items-center justify-center shrink-0">
+              <CircleDollarSign className="text-indigo-600" size={32} />
+            </div>
+          </div>
+          
+          <div className="bg-emerald-50 rounded-[2rem] border-4 border-emerald-900 shadow-[6px_6px_0px_0px_rgba(6,78,59,1)] p-6 md:p-8 flex items-center justify-between">
+            <div>
+              <p className="text-emerald-900 font-black mb-1 uppercase tracking-wider text-sm">Tổng Vé Đã Bán</p>
+              <h3 className="text-4xl md:text-5xl font-black text-emerald-900">{revenueData.total_tickets}</h3>
+            </div>
+            <div className="w-16 h-16 bg-white rounded-full border-4 border-emerald-900 shadow-[4px_4px_0px_0px_rgba(6,78,59,1)] flex items-center justify-center shrink-0">
+              <Ticket className="text-emerald-600" size={32} />
+            </div>
+          </div>
+        </div>
+
+        {/* Two columns: Chart & Top Events */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Chart */}
+          <div className="lg:col-span-2 bg-white rounded-[2rem] border-4 border-[#0f172a] shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] p-6 md:p-8">
+            <h3 className="text-xl font-black text-slate-900 mb-8 border-b-2 border-slate-100 pb-4">Biểu Đồ Doanh Thu (7 Ngày)</h3>
+            <div className="h-64 flex items-end gap-2 md:gap-4 justify-between mt-4">
+              {revenueData.chart_data.map((day, idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                  {/* Tooltip */}
+                  <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap pointer-events-none z-10">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(day.val)}
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                  </div>
+                  
+                  {/* Bar */}
+                  <div 
+                    className={`w-full max-w-[40px] rounded-t-xl transition-all duration-500 relative overflow-hidden ${day.isPeak ? 'bg-amber-400' : 'bg-indigo-500'}`}
+                    style={{ height: `${day.pct}%`, minHeight: '5%' }}
+                  >
+                    <div className="absolute inset-0 bg-white/20 hover:bg-transparent transition-colors"></div>
+                  </div>
+                  <div className="mt-3 text-xs md:text-sm font-bold text-slate-500 truncate w-full text-center">{day.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Events */}
+          <div className="bg-white rounded-[2rem] border-4 border-[#0f172a] shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] p-6 md:p-8">
+            <h3 className="text-xl font-black text-slate-900 mb-6 border-b-2 border-slate-100 pb-4">Sự Kiện Nổi Bật</h3>
+            <div className="space-y-4">
+              {revenueData.top_events.length > 0 ? revenueData.top_events.map((ev, idx) => (
+                <div key={ev.id} className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border-2 border-slate-100 hover:border-slate-300 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-[#0f172a] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-slate-900 truncate text-sm">{ev.title}</h4>
+                    <p className="text-xs font-semibold text-emerald-600 mt-0.5">
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ev.revenue)}
+                    </p>
+                  </div>
+                </div>
+              )) : (
+                <p className="text-slate-500 font-bold text-center py-8">Chưa có sự kiện nào phát sinh doanh thu.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="w-full">
@@ -322,6 +440,7 @@ const EventAdmin = () => {
             {currentTab === 'schedule' && 'Điều phối Sự Kiện (Kanban)'}
             {currentTab === 'checkin' && 'Kiểm soát Check-in'}
             {currentTab === 'tickets' && 'Thống kê Doanh thu Vé'}
+            {currentTab === 'create' && 'Khởi tạo Sự kiện mới'}
           </h1>
           <p className="text-slate-500 font-bold text-sm sm:text-base m-0">
             Không gian làm việc chuyên biệt dành cho Ban Tổ Chức Club Trải Nghiệm.
@@ -346,12 +465,33 @@ const EventAdmin = () => {
               {t.label}
             </button>
           ))}
+          <button 
+            onClick={() => handleTabChange('create')}
+            className={`px-5 py-2.5 rounded-xl font-black text-sm border-2 border-slate-900 transition-all cursor-pointer flex items-center gap-2 ${
+              currentTab === 'create'
+                ? 'bg-blue-600 text-white shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] translate-y-[-2px]' 
+                : 'bg-blue-100 text-blue-700 hover:bg-blue-200 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]'
+            }`}
+          >
+            <Plus size={16} strokeWidth={3} /> Tạo Sự Kiện Mới
+          </button>
         </div>
       </div>
 
       {currentTab === 'schedule' && renderScheduleTab()}
       {currentTab === 'checkin' && renderCheckinTab()}
-      {currentTab === 'tickets' && renderPlaceholder('Báo cáo Doanh thu')}
+      {currentTab === 'tickets' && renderTicketsTab()}
+      
+      {currentTab === 'create' && (
+        <CreateEventTab 
+          onSuccess={() => {
+            fetchEvents();
+            handleTabChange('schedule');
+            setActiveSubTab('upcoming');
+            showNotification('✅ Đã tạo sự kiện mới thành công!');
+          }}
+        />
+      )}
     </div>
   );
 };

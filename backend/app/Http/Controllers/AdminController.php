@@ -513,7 +513,8 @@ class AdminController extends Controller
     public function checkIn(Request $request)
     {
         $request->validate([
-            'code' => 'required|string'
+            'code' => 'required|string',
+            'event_slug' => 'nullable|string'
         ]);
 
         $code = trim($request->code);
@@ -537,11 +538,18 @@ class AdminController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Không tìm thấy thông tin vé!'], 404);
         }
 
-        if ($dangKy->check_in_at) {
-            return response()->json(['status' => 'error', 'message' => 'Vé này đã được check-in vào lúc ' . \Carbon\Carbon::parse($dangKy->check_in_at)->format('H:i d/m/Y')], 400);
+        if ($request->filled('event_slug')) {
+            $suKienHienTai = SuKien::where('slug', $request->event_slug)->first();
+            if ($suKienHienTai && $dangKy->su_kien_id != $suKienHienTai->id) {
+                return response()->json(['status' => 'error', 'message' => 'Mã vé này KHÔNG thuộc sự kiện bạn đang quản lý!'], 400);
+            }
         }
 
-        $dangKy->check_in_at = Carbon::now();
+        if ($dangKy->thoi_gian_checkin) {
+            return response()->json(['status' => 'error', 'message' => 'Vé này đã được check-in vào lúc ' . \Carbon\Carbon::parse($dangKy->thoi_gian_checkin)->format('H:i d/m/Y')], 400);
+        }
+
+        $dangKy->thoi_gian_checkin = Carbon::now();
         $dangKy->save();
 
         return response()->json([
@@ -551,7 +559,161 @@ class AdminController extends Controller
                 'ho_ten' => $dangKy->ho_ten,
                 'email' => $dangKy->email_nhan_ve,
                 'su_kien' => $dangKy->suKien ? $dangKy->suKien->tieu_de : 'Sự kiện không xác định',
-                'check_in_at' => $dangKy->check_in_at
+                'thoi_gian_checkin' => $dangKy->thoi_gian_checkin
+            ]
+        ]);
+    }
+
+    public function getAttendees($slug)
+    {
+        $suKien = SuKien::where('slug', $slug)->first();
+        if (!$suKien) {
+            return response()->json(['status' => 'error', 'message' => 'Sự kiện không tồn tại'], 404);
+        }
+
+        $attendees = \App\Models\DangKySuKien::with('nguoiDung:id,ho_ten,email,anh_dai_dien')
+            ->where('su_kien_id', $suKien->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($dangKy) {
+                return [
+                    'id' => $dangKy->id,
+                    'ma_ve' => 'TICKET-' . $dangKy->id . '-' . $dangKy->nguoi_dung_id,
+                    'ho_ten' => $dangKy->ho_ten,
+                    'email' => $dangKy->email_nhan_ve,
+                    'so_dien_thoai' => $dangKy->so_dien_thoai,
+                    'thoi_gian_checkin' => $dangKy->thoi_gian_checkin,
+                    'trang_thai' => $dangKy->trang_thai,
+                    'avatar' => $dangKy->nguoiDung ? $dangKy->nguoiDung->anh_dai_dien : null
+                ];
+            });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $attendees
+        ]);
+    }
+
+    public function getEventRevenue()
+    {
+        $totalRevenue = DB::table('giao_dich')
+            ->where('loai_nguon_thu', 've_su_kien')
+            ->where('trang_thai', 1)
+            ->sum('so_tien');
+
+        $totalTickets = \App\Models\DangKySuKien::count();
+
+        $topEvents = SuKien::withCount('dangKySuKien as tickets')
+            ->get()
+            ->map(function($ev) {
+                $rev = DB::table('giao_dich')
+                    ->where('loai_nguon_thu', 've_su_kien')
+                    ->where('doi_tuong_id', $ev->id)
+                    ->where('trang_thai', 1)
+                    ->sum('so_tien');
+                return [
+                    'id' => $ev->id,
+                    'title' => $ev->tieu_de,
+                    'cover' => $ev->anh_bia,
+                    'tickets' => $ev->tickets,
+                    'revenue' => $rev
+                ];
+            })
+            ->sortByDesc('revenue')
+            ->values()
+            ->take(5);
+
+        // Chart data for the last 7 days
+        $chartData = [];
+        $startDate = \Carbon\Carbon::now()->subDays(6)->startOfDay();
+        $results = DB::table('giao_dich')
+            ->where('loai_nguon_thu', 've_su_kien')
+            ->where('trang_thai', 1)
+            ->where('created_at', '>=', $startDate)
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(so_tien) as total'))
+            ->groupBy('date')
+            ->get()
+            ->keyBy('date');
+
+        $maxRevenue = $results->max('total') ?: 1;
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->subDays($i);
+            $dateStr = $date->format('Y-m-d');
+            $total = isset($results[$dateStr]) ? $results[$dateStr]->total : 0;
+            
+            $label = $i === 0 ? 'Hôm nay' : 'T' . ($date->dayOfWeek == 0 ? 'CN' : $date->dayOfWeek + 1);
+            
+            $chartData[] = [
+                'label' => $label,
+                'val' => $total,
+                'pct' => $total > 0 ? max(10, round(($total / $maxRevenue) * 100)) : 5,
+                'isPeak' => $total == $maxRevenue && $total > 0
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_revenue' => $totalRevenue,
+                'total_tickets' => $totalTickets,
+                'top_events' => $topEvents,
+                'chart_data' => $chartData
+            ]
+        ]);
+    }
+
+    public function getEventSpecificRevenue($slug)
+    {
+        $suKien = SuKien::where('slug', $slug)->first();
+        if (!$suKien) {
+            return response()->json(['status' => 'error', 'message' => 'Event not found'], 404);
+        }
+
+        $totalRevenue = DB::table('giao_dich')
+            ->where('loai_nguon_thu', 've_su_kien')
+            ->where('doi_tuong_id', $suKien->id)
+            ->where('trang_thai', 1)
+            ->sum('so_tien');
+
+        $totalTickets = \App\Models\DangKySuKien::where('su_kien_id', $suKien->id)->count();
+
+        // Chart data for the last 7 days for this specific event
+        $chartData = [];
+        $startDate = \Carbon\Carbon::now()->subDays(6)->startOfDay();
+        $results = DB::table('giao_dich')
+            ->where('loai_nguon_thu', 've_su_kien')
+            ->where('doi_tuong_id', $suKien->id)
+            ->where('trang_thai', 1)
+            ->where('created_at', '>=', $startDate)
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(so_tien) as total'))
+            ->groupBy('date')
+            ->get()
+            ->keyBy('date');
+
+        $maxRevenue = $results->max('total') ?: 1;
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->subDays($i);
+            $dateStr = $date->format('Y-m-d');
+            $total = isset($results[$dateStr]) ? $results[$dateStr]->total : 0;
+            
+            $label = $i === 0 ? 'Hôm nay' : 'T' . ($date->dayOfWeek == 0 ? 'CN' : $date->dayOfWeek + 1);
+            
+            $chartData[] = [
+                'label' => $label,
+                'val' => $total,
+                'pct' => $total > 0 ? max(10, round(($total / $maxRevenue) * 100)) : 5,
+                'isPeak' => $total == $maxRevenue && $total > 0
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_revenue' => $totalRevenue,
+                'total_tickets' => $totalTickets,
+                'chart_data' => $chartData
             ]
         ]);
     }

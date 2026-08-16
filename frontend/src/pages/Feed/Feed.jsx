@@ -6,7 +6,7 @@ import {
   Sparkles, Users, Bookmark, Calendar, Image as ImageIcon, Smile, ShoppingBag,
   MapPin, Heart, Maximize, MessageCircle, Share2, Trash2, Send, Shield, Flame, Plus, X, PlusCircle, MoreHorizontal, Edit3, RefreshCcw
 } from 'lucide-react';
-import { ImageModal, FormModal, ConfirmModal, CommentModal, SavePostModal } from '../../components/Modal';
+import { ImageModal, FormModal, ConfirmModal, CommentModal, SavePostModal, ReportModal } from '../../components/Modal';
 import imageCompression from 'browser-image-compression';
 import AdBanner from '../../components/AdBanner/AdBanner';
 
@@ -32,6 +32,7 @@ const Feed = () => {
   const [editPostModal, setEditPostModal] = useState({ isOpen: false, id: null, tieu_de: '', noi_dung: '', hashtags: '', showProduct: false, san_pham_ten: '', san_pham_gia: '', san_pham_san: 'Link mua sắm', san_pham_url: '', isLoading: false });
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, postId: null, isLoading: false });
   const [savePostModal, setSavePostModal] = useState({ isOpen: false, postId: null, isLoading: false });
+  const [reportModal, setReportModal] = useState({ isOpen: false, postId: null, isLoading: false });
   const [openMenuPostId, setOpenMenuPostId] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -675,6 +676,20 @@ const Feed = () => {
     );
   };
 
+  useEffect(() => {
+    if (posts.length > 0 && window.location.hash) {
+      setTimeout(() => {
+        const id = window.location.hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.classList.add('ring-4', 'ring-[#c93638]', 'ring-offset-2', 'transition-all');
+          setTimeout(() => element.classList.remove('ring-4', 'ring-[#c93638]', 'ring-offset-2'), 3000);
+        }
+      }, 500);
+    }
+  }, [posts]);
+
   return (
     <div className="bg-slate-50 min-h-screen relative font-sans text-slate-800 pb-16">
       <input
@@ -933,7 +948,7 @@ const Feed = () => {
                           <Bookmark size={16} />
                           <span>Lưu bài viết</span>
                         </button>
-                        {(post.is_owner || Number(currentUser?.id) === Number(post.nguoi_dung_id) || Number(currentUser?.vai_tro_id) >= 2 || currentUser?.email === 'superadmin@clubtrainghiem.com') ? (
+                        {(post.is_owner || Number(currentUser?.id) === Number(post.nguoi_dung_id) || Number(currentUser?.vai_tro_id) >= 2 || currentUser?.email === 'superadmin@clubtrainghiem.com') && (
                           <>
                             <button
                               onClick={() => {
@@ -970,11 +985,13 @@ const Feed = () => {
                               <span>Xóa bài viết</span>
                             </button>
                           </>
-                        ) : (
+                        )}
+                        
+                        {!(Number(currentUser?.id) === Number(post.nguoi_dung_id)) && (
                           <button
                             onClick={() => {
                               setOpenMenuPostId(null);
-                              showToast('🚩 Đã gửi báo cáo vi phạm đến quản trị viên Club.');
+                              setReportModal({ isOpen: true, postId: post.id, isLoading: false });
                             }}
                             className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors cursor-pointer border-none bg-transparent"
                           >
@@ -1446,6 +1463,26 @@ const Feed = () => {
         onClose={() => setSavePostModal({ isOpen: false, postId: null, isLoading: false })}
         onSave={handleSavePost}
         isLoading={savePostModal.isLoading}
+      />
+      <ReportModal
+        isOpen={reportModal.isOpen}
+        onClose={() => setReportModal({ isOpen: false, postId: null, isLoading: false })}
+        isLoading={reportModal.isLoading}
+        onSubmit={async (reason) => {
+          setReportModal(prev => ({ ...prev, isLoading: true }));
+          try {
+            const res = await api.post('/reports', {
+              loai: 'post',
+              doi_tuong_id: reportModal.postId,
+              ly_do: reason
+            });
+            showToast(res.data.message || '🚩 Đã gửi báo cáo vi phạm.');
+            setReportModal({ isOpen: false, postId: null, isLoading: false });
+          } catch (error) {
+            showToast(error.response?.data?.message || 'Lỗi khi gửi báo cáo.', 'error');
+            setReportModal(prev => ({ ...prev, isLoading: false }));
+          }
+        }}
       />
     </div>
   );

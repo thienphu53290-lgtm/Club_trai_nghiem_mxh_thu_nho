@@ -9,6 +9,7 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ContentAdminController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -31,10 +32,14 @@ Route::post('/chat/broadcast-status', [ChatController::class, 'broadcastStatus']
 
 Route::middleware(['auth:sanctum', 'check_status', 'crud_logger'])->group(function () {
     Route::post('/events', [EventController::class, 'store']);
+    Route::post('/events/{id}', [EventController::class, 'update']);
     Route::post('/events/{id}/register', [EventController::class, 'register']);
     Route::post('/events/payment/{ma_giao_dich}/confirm', [EventController::class, 'confirmPayment']);
     Route::get('/admin/dashboard-stats', [AdminController::class, 'dashboard']);
     Route::get('/admin/events', [AdminController::class, 'getEvents']);
+    Route::get('/admin/events/revenue', [AdminController::class, 'getEventRevenue']);
+    Route::get('/admin/events/{slug}/revenue', [AdminController::class, 'getEventSpecificRevenue']);
+    Route::get('/admin/events/{slug}/attendees', [AdminController::class, 'getAttendees']);
     Route::put('/admin/events/{id}/status', [AdminController::class, 'updateEventStatus']);
     Route::post('/admin/events/checkin', [AdminController::class, 'checkIn']);
     Route::get('/admin/logs', [AdminController::class, 'getLogs']);
@@ -50,6 +55,23 @@ Route::middleware(['auth:sanctum', 'check_status', 'crud_logger'])->group(functi
     Route::post('/admin/admins', [AdminController::class, 'addAdmin']);
     Route::put('/admin/admins/{id}', [AdminController::class, 'updateAdmin']);
     Route::delete('/admin/admins/{id}/revoke', [AdminController::class, 'revokeAdmin']);
+    
+    // Content Admin routes
+    Route::get('/admin/content/reports', [ContentAdminController::class, 'getReports']);
+    Route::put('/admin/content/reports/{id}', [ContentAdminController::class, 'handleReport']);
+    Route::get('/admin/content/spam-users', [ContentAdminController::class, 'getSpamUsers']);
+    Route::put('/admin/content/users/{id}/punish', [ContentAdminController::class, 'punishUser']);
+    Route::get('/admin/content/posts', [ContentAdminController::class, 'getAllPosts']);
+    Route::put('/admin/content/posts/{id}/status', [ContentAdminController::class, 'togglePostStatus']);
+    Route::get('/admin/content/comments', [ContentAdminController::class, 'getAllComments']);
+    Route::put('/admin/content/comments/{id}/status', [ContentAdminController::class, 'toggleCommentStatus']);
+    Route::get('/admin/content/topics', [ContentAdminController::class, 'getAllTopics']);
+    Route::post('/admin/content/topics', [ContentAdminController::class, 'createTopic']);
+    Route::put('/admin/content/topics/{id}', [ContentAdminController::class, 'updateTopic']);
+    Route::put('/admin/content/topics/{id}/status', [ContentAdminController::class, 'toggleTopicStatus']);
+    // User reporting
+    Route::post('/reports', [App\Http\Controllers\ReportController::class, 'store']);
+    
     Route::post('/onboarding', [AuthController::class, 'saveOnboarding']);
     Route::get('/user', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);

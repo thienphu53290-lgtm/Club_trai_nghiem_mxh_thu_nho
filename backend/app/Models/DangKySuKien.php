@@ -23,12 +23,14 @@ class DangKySuKien extends Model
         'trang_thai',
         'giao_dich_id',
         'giai_thuong_nhan_duoc',
-        'created_at'
+        'created_at',
+        'thoi_gian_checkin'
     ];
 
     protected $casts = [
         'trang_thai' => 'integer',
-        'created_at' => 'datetime'
+        'created_at' => 'datetime',
+        'thoi_gian_checkin' => 'datetime'
     ];
 
     public function suKien()

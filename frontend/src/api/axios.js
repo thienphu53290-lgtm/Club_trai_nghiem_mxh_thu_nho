@@ -59,7 +59,7 @@ api.interceptors.response.use(
           localStorage.setItem('account_locked', 'true');
         }
         
-        // Chỉ redirect nếu user đang có token (bị hết hạn/bị xóa) hoặc tài khoản bị khóa
+      
         if (hadToken || error.response.data?.message === 'account_locked') {
           window.location.href = error.response.data?.message === 'account_locked' ? '/' : '/auth';
         }

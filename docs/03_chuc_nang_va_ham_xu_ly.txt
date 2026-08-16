@@ -282,6 +282,7 @@ BANG TOM TAT ROUTES
     POST   /api/feed/posts
     PUT    /api/feed/posts/{id}
     DELETE /api/feed/posts/{id}
+    POST   /api/reports
     GET    /api/chat/conversations
     GET    /api/chat/messages/{partnerId}
     POST   /api/chat/messages
@@ -325,4 +326,22 @@ KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
 
 - [GET] /api/admin/events : (AdminController@getEvents) Lấy danh sách toàn bộ sự kiện kèm số lượng người tham dự để hiển thị trên bảng Kanban Điều phối sự kiện
 - [PUT] /api/admin/events/{id}/status : (AdminController@updateEventStatus) Cập nhật trạng thái sự kiện (1: Sắp tới, 2: Đang diễn ra, 3: Kết thúc) từ giao diện EventAdmin
-- [POST] /api/admin/events/checkin : (AdminController@checkIn) Nhận mã vé (từ QR Code hoặc nhập tay), cập nhật thời gian check_in_at vào DB và trả về thông tin người tham dự.
+- [POST] /api/admin/events/checkin : (AdminController@checkIn) Nhận mã vé (từ QR Code hoặc nhập tay), cập nhật thời gian thoi_gian_checkin vào DB và trả về thông tin người tham dự.
+- Frontend: Thêm component TicketScanner.jsx vào EventManagementHub sử dụng html5-qrcode.
+- [GET] /api/admin/events/{slug}/attendees : (AdminController@getAttendees) Lấy danh sách người tham gia của một sự kiện, kèm trạng thái đã check-in hay chưa.
+- [GET] /api/admin/events/revenue : (AdminController@getEventRevenue) Lấy thống kê tổng doanh thu vé và biểu đồ doanh thu 7 ngày.
+- [GET] /api/admin/events/{slug}/revenue : (AdminController@getEventSpecificRevenue) Lấy doanh thu vé và thống kê chi tiết cho một sự kiện riêng biệt.
+- [UI] CreateEventModal.jsx : Modal Form đầy đủ để tạo sự kiện mới, tích hợp API POST /api/events
+- [Backend] EventController@update : API POST /api/events/{id} để cập nhật thông tin sự kiện, upload ảnh bìa (anh_bia_file), upload ảnh phụ (thu_vien_anh_files)
+- [GET] /api/admin/content/reports : (ContentAdminController@getReports) Lấy danh sách báo cáo vi phạm
+- [PUT] /api/admin/content/reports/{id} : (ContentAdminController@handleReport) Xử lý báo cáo (bỏ qua hoặc xóa nội dung)
+- [GET] /api/admin/content/spam-users : (ContentAdminController@getSpamUsers) Lấy danh sách người dùng có dấu hiệu spam
+- [PUT] /api/admin/content/users/{id}/punish : (ContentAdminController@punishUser) Xử phạt khóa/mở khóa người dùng spam
+- [GET] /api/admin/content/posts : (ContentAdminController@getAllPosts) Lấy danh sách toàn bộ bài viết để quản lý
+- [PUT] /api/admin/content/posts/{id}/status : (ContentAdminController@togglePostStatus) Ẩn hoặc khôi phục bài viết vi phạm
+- [GET] /api/admin/content/comments : (ContentAdminController@getAllComments) Lấy danh sách toàn bộ bình luận
+- [PUT] /api/admin/content/comments/{id}/status : (ContentAdminController@toggleCommentStatus) Ẩn hoặc khôi phục bình luận vi phạm
+- [GET] /api/admin/content/topics : (ContentAdminController@getAllTopics) Lấy danh sách danh mục/chủ đề
+- [POST] /api/admin/content/topics : (ContentAdminController@createTopic) Thêm mới danh mục/chủ đề
+- [PUT] /api/admin/content/topics/{id} : (ContentAdminController@updateTopic) Cập nhật danh mục/chủ đề
+- [PUT] /api/admin/content/topics/{id}/status : (ContentAdminController@toggleTopicStatus) Ẩn/Hiện danh mục/chủ đề

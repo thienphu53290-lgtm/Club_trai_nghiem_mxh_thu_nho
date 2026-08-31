@@ -95,6 +95,11 @@ PHAN FRONTEND
       https://github.com/Donaldcwl/browser-image-compression
       NPM: https://www.npmjs.com/package/browser-image-compression
 
+[23C] Framer Motion
+      https://www.framer.com/motion/
+      NPM: https://www.npmjs.com/package/framer-motion
+      Tai lieu: https://www.framer.com/motion/introduction/
+
 ==============================================
 CONG CU PHAT TRIEN
 ==============================================

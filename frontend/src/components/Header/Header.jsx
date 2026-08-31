@@ -290,17 +290,17 @@ const Header = () => {
       <div className="max-w-[1320px] mx-auto px-5 py-3 flex flex-col gap-3">
         {/* Top Row: Logo, Navigation, Actions */}
         <div className="flex items-center justify-between gap-2 sm:gap-6">
-          <Link to="/" className="flex items-center gap-2 cursor-pointer text-inherit no-underline">
+          <Link to="/" className="shrink-0 flex items-center gap-2 cursor-pointer text-inherit no-underline">
             <img src="/logo.png" alt="PIVO" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shadow-md border-2 border-slate-100" />
             <span className="font-extrabold text-[0.9rem] sm:text-[1.2rem] tracking-tight text-text-dark whitespace-nowrap">PIVO</span>
           </Link>
 
 
-          {/* Navigation - Hidden on Mobile */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-full">
+          {/* Navigation - Swipeable on Mobile */}
+          <nav className="min-w-0 flex items-center gap-1 bg-slate-100 p-1 rounded-full overflow-x-auto lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <NavLink
               to="/"
-              className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
+              className={({ isActive }) => `shrink-0 flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
               end
             >
               <Home size={18} />
@@ -308,12 +308,12 @@ const Header = () => {
             </NavLink>
             <NavLink
               to="/feed"
-              className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
+              className={({ isActive }) => `shrink-0 flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
             >
               <Star size={18} />
               Bảng tin
             </NavLink>
-            <div className="relative" ref={exploreMenuRef}>
+            <div className="relative shrink-0" ref={exploreMenuRef}>
               <button
                 onClick={() => setShowExploreDropdown(!showExploreDropdown)}
                 className={`flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline cursor-pointer border-none group ${(location.pathname.startsWith('/products') || location.pathname.startsWith('/events')) ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900 bg-transparent'}`}
@@ -323,7 +323,7 @@ const Header = () => {
                 <ChevronRight size={16} className={`transition-transform ${showExploreDropdown ? 'rotate-90' : ''}`} />
               </button>
               {showExploreDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border-2 border-slate-900 flex flex-col p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="fixed left-4 right-4 top-[70px] lg:absolute lg:top-full lg:left-0 lg:right-auto lg:mt-2 lg:w-48 bg-white rounded-2xl shadow-xl border-2 border-slate-900 flex flex-col p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <NavLink
                     to="/products"
                     onClick={() => setShowExploreDropdown(false)}
@@ -343,21 +343,21 @@ const Header = () => {
             </div>
             <NavLink
               to="/messages"
-              className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
+              className={({ isActive }) => `shrink-0 flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
             >
               <MessageCircle size={18} />
               Tin nhắn
             </NavLink>
             <NavLink
               to="/about"
-              className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
+              className={({ isActive }) => `shrink-0 flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
             >
               <Info size={18} />
               Giới thiệu
             </NavLink>
             <NavLink
               to="/download"
-              className={({ isActive }) => `flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
+              className={({ isActive }) => `shrink-0 flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}
             >
               <Download size={18} />
               Tải ứng dụng
@@ -366,13 +366,22 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            {/* Settings Icon */}
+            <Link
+              to="/settings"
+              title="Cài đặt giao diện"
+              className="bg-transparent border-none cursor-pointer flex items-center justify-center p-1.5 sm:p-2 text-slate-600 hover:text-slate-900 hover:rotate-90 transition-all duration-300"
+            >
+              <Settings size={22} />
+            </Link>
+
             {/* Realtime Notification Bell */}
             <div className="relative" ref={notifMenuRef}>
               <button
                 onClick={handleBellClick}
-                className="bg-transparent border-none cursor-pointer flex items-center justify-center relative p-2"
+                className="bg-transparent border-none cursor-pointer flex items-center justify-center relative p-1.5 sm:p-2 group"
               >
-                <Bell className="text-slate-600 transition-colors hover:text-slate-900" size={22} />
+                <Bell className="text-slate-600 transition-all duration-300 group-hover:text-[#c93638] group-hover:scale-110 group-hover:rotate-12" size={22} />
                 {notifications.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#c93638] text-white font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center animate-pulse shadow-md border-2 border-white">
                     {notifications.length}

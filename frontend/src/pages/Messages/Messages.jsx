@@ -29,6 +29,7 @@ const Messages = () => {
   const [typingStatus, setTypingStatus] = useState(null);
   const typingTimeoutRef = useRef(null);
   const lastTypingEmitRef = useRef(0);
+  const isSendingRef = useRef(false);
   
   const showAlert = (message, title = 'Thông Báo', variant = 'info') => {
     let finalMessage = message;
@@ -150,6 +151,7 @@ const Messages = () => {
   };
 
   const handleKeyDown = (e) => {
+    if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -396,8 +398,12 @@ const Messages = () => {
 
   const handleSendMessage = (textToSend = null, fileObj = null, imgUrlPreview = null) => {
     if (!activeId) return;
+    if (isSendingRef.current) return;
     const content = typeof textToSend === 'string' ? textToSend : inputText;
     if (!content.trim() && !fileObj && !imgUrlPreview) return;
+    
+    isSendingRef.current = true;
+    setTimeout(() => { isSendingRef.current = false; }, 300);
 
     const now = new Date();
     const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });

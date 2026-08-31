@@ -140,6 +140,10 @@ PHAN FRONTEND (React - JavaScript)
     - Cong cu Linting (kiem tra loi code) JavaScript/TypeScript sieu nhanh viet bang Rust.
     - Phien ban: ^1.75.0
 
+[25B] Framer Motion
+    - Thu vien tao hieu ung chuyen dong (animation) mien man, muot ma nhat cho React.
+    - Su dung de: Tao hieu ung truuot ngang muot ma (Page Transitions) khi chuyen doi giua cac trang.
+
 ==============================================
 DICH VU & CAU HINH NGOAI
 ==============================================

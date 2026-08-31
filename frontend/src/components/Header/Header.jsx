@@ -296,8 +296,8 @@ const Header = () => {
           </Link>
 
 
-          {/* Navigation - Swipeable on Mobile */}
-          <nav className="min-w-0 flex items-center gap-1 bg-slate-100 p-1 rounded-full overflow-x-auto lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Navigation - Hidden on mobile, visible on desktop */}
+          <nav className="hidden lg:flex min-w-0 items-center gap-1 bg-slate-100 p-1 rounded-full overflow-x-auto lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <NavLink
               to="/"
               className={({ isActive }) => `shrink-0 flex items-center gap-2 text-[0.95rem] font-bold transition-all px-4 py-2 rounded-full no-underline group ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 ring-2 ring-rose-200 ring-offset-1 scale-105' : 'text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900'}`}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Crown, Zap, Shield, Star, Gem } from 'lucide-react';
+import { Check, Crown, Zap, Shield, Star, Gem, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Pricing = () => {
@@ -117,12 +117,27 @@ const Pricing = () => {
           </div>
         </div>
 
+        {/* Mobile Swipe Hint */}
+        <div className="md:hidden flex justify-center mt-2 mb-4">
+          <div className="flex items-center gap-1.5 text-slate-500 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full border border-slate-200/60 text-xs font-bold shadow-sm animate-pulse">
+            Vuốt ngang để xem thêm <ChevronRight size={14} className="text-[#c93638]" />
+          </div>
+        </div>
+
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 sm:px-0">
+        <div className="relative max-w-7xl mx-auto">
+          {/* Right edge indicator for mobile */}
+          <div className="md:hidden absolute right-0 top-0 bottom-8 w-20 bg-gradient-to-l from-[#f8fafc] via-[#f8fafc]/80 to-transparent pointer-events-none z-10 flex items-center justify-end pr-2">
+            <div className="w-10 h-10 rounded-full bg-white border-2 border-[#0f172a] shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex items-center justify-center animate-pulse">
+              <ChevronRight size={24} className="text-[#c93638] stroke-[4]" />
+            </div>
+          </div>
+
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 sm:gap-6 lg:gap-8 px-4 sm:px-0 pt-6 md:pt-0 pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {plans.map((plan) => (
             <div 
               key={plan.id}
-              className={`relative bg-white rounded-3xl border-2 border-[#0f172a] p-5 sm:p-6 lg:p-8 flex flex-col transition-all duration-300 hover:-translate-y-2 group
+              className={`relative shrink-0 w-[85vw] sm:w-[320px] md:w-auto snap-center bg-white rounded-3xl border-2 border-[#0f172a] p-5 sm:p-6 lg:p-8 flex flex-col transition-all duration-300 hover:-translate-y-2 group
                 ${plan.popular 
                   ? 'shadow-[8px_8px_0px_0px_rgba(201,54,56,1)] hover:shadow-[12px_12px_0px_0px_rgba(201,54,56,1)] hover:border-[#c93638]' 
                   : 'shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] hover:shadow-[12px_12px_0px_0px_rgba(15,23,42,1)]'
@@ -184,8 +199,9 @@ const Pricing = () => {
             </div>
           ))}
         </div>
-        
-        {/* Mobile back button */}
+      </div>
+      
+      {/* Mobile back button */}
         <div className="mt-12 text-center md:hidden">
             <button 
                 onClick={() => navigate('/')}

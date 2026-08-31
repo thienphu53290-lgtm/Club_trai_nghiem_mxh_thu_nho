@@ -19,12 +19,20 @@ const AdminLayout = () => {
       }
       const parsed = JSON.parse(saved);
       const user = parsed?.user?.id ? parsed.user : parsed;
-      if (!user || (user.vai_tro_id !== 3 && user.email !== 'superadmin@clubtrainghiem.com')) {
+      if (!user || (user.vai_tro_id !== 3 && user.email !== 'superadmin@pivo.com')) {
         navigate('/');
       }
     } catch (e) {
       navigate('/');
     }
+
+    const handleAuthChange = () => {
+      if (!localStorage.getItem('current_user')) {
+        navigate('/');
+      }
+    };
+    window.addEventListener('user_auth_change', handleAuthChange);
+    return () => window.removeEventListener('user_auth_change', handleAuthChange);
   }, [navigate]);
 
   const [activeTab, setActiveTab] = useState(() => {
@@ -63,7 +71,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased selection:bg-rose-500 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-transparent text-slate-900 font-sans antialiased selection:bg-rose-500 selection:text-white relative overflow-x-hidden">
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-[200] bg-slate-950 text-amber-300 px-5 py-3.5 rounded-2xl border-2 border-slate-800 font-extrabold text-sm shadow-[6px_6px_0px_0px_rgba(201,54,56,1)] animate-bounce flex items-center gap-2.5">
           <Sparkles size={18} className="text-[#c93638]" />

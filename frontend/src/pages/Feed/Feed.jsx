@@ -566,7 +566,7 @@ const Feed = () => {
     if (images.length === 1) {
       return (
         <div 
-          onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: 0, title: post.tieu_de || 'Khoảnh khắc trải nghiệm', caption: 'Bảo trợ hình ảnh bởi Club Trải Nghiệm' })}
+          onClick={() => setPreviewImage({ isOpen: true, images: images, initialIndex: 0, title: post.tieu_de || 'Khoảnh khắc trải nghiệm', caption: 'Bảo trợ hình ảnh bởi PIVO' })}
           className="relative rounded-[24px] overflow-hidden border border-slate-200 cursor-pointer group shadow-xs max-h-[420px] bg-slate-950 my-3.5"
         >
           <img src={images[0]} alt={post.tieu_de} className="w-full max-h-[420px] object-cover mx-auto group-hover:scale-[1.02] transition-transform duration-500" />
@@ -691,7 +691,7 @@ const Feed = () => {
   }, [posts]);
 
   return (
-    <div className="bg-slate-50 min-h-screen relative font-sans text-slate-800 pb-16">
+    <div className="bg-transparent min-h-screen relative font-sans text-slate-800 pb-16">
       <input
         ref={fileInputRef}
         type="file"
@@ -812,7 +812,7 @@ const Feed = () => {
               </div>
               <div>
                 <h2 className="font-black text-slate-900 text-xl sm:text-2xl mb-2 tracking-tight">
-                  Bảng Tin Club Trải Nghiệm 2026 ✨
+                  Bảng Tin PIVO 2026 ✨
                 </h2>
                 <p className="text-sm text-slate-600 font-medium leading-relaxed m-0">
                   Nơi cộng đồng tự do chia sẻ album ảnh mở hộp, trải nghiệm specialty coffee và bàn luận kiệt tác công nghệ — không thuật toán gò bó, tự do kết nối và tích lũy điểm XP thực tế!
@@ -948,7 +948,7 @@ const Feed = () => {
                           <Bookmark size={16} />
                           <span>Lưu bài viết</span>
                         </button>
-                        {(post.is_owner || Number(currentUser?.id) === Number(post.nguoi_dung_id) || Number(currentUser?.vai_tro_id) >= 2 || currentUser?.email === 'superadmin@clubtrainghiem.com') && (
+                        {(post.is_owner || Number(currentUser?.id) === Number(post.nguoi_dung_id) || Number(currentUser?.vai_tro_id) >= 2 || currentUser?.email === 'superadmin@pivo.com') && (
                           <>
                             <button
                               onClick={() => {
@@ -1348,7 +1348,7 @@ const Feed = () => {
         onClose={() => setDeleteModal({ isOpen: false, postId: null, isLoading: false })}
         onConfirm={confirmDeletePost}
         title="Xác Nhận Xóa Khoảnh Khắc"
-        message="Bạn có chắc chắn muốn xóa vĩnh viễn bài review này khỏi bảng tin của Club Trải Nghiệm không?"
+        message="Bạn có chắc chắn muốn xóa vĩnh viễn bài review này khỏi bảng tin của PIVO không?"
         variant="danger"
         confirmText="Xác nhận xóa"
         cancelText="Giữ lại"
@@ -1390,7 +1390,7 @@ const Feed = () => {
               type="text" 
               value={editPostModal.hashtags} 
               onChange={(e) => setEditPostModal({ ...editPostModal, hashtags: e.target.value })}
-              placeholder="VD: #clubtrainghiem, #khoanhkhac, #review" 
+              placeholder="VD: #pivo, #khoanhkhac, #review" 
               className="w-full p-3 border border-slate-200 rounded-xl font-semibold text-xs bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none text-indigo-600 transition-all"
             />
           </div>

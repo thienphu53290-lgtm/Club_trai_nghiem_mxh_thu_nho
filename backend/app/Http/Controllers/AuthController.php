@@ -95,7 +95,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Đăng nhập thành công vào Club Trải Nghiệm!',
+            'message' => 'Đăng nhập thành công vào PIVO!',
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => '7 ngày',

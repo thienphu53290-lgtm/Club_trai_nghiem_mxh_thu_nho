@@ -103,7 +103,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $superAdmin = User::firstOrCreate(
-            ['email' => 'superadmin@clubtrainghiem.com'],
+            ['email' => 'superadmin@pivo.com'],
             [
                 'vai_tro_id' => $roleSuperAdmin->id,
                 'mat_khau' => $commonPassword,
@@ -111,7 +111,7 @@ class DatabaseSeeder extends Seeder
                 'ten_hien_thi' => 'Long Founder 👑',
                 'anh_dai_dien' => null,
                 'anh_bia' => null,
-                'tieu_su' => 'Kiến trúc sư nền tảng Club Trải Nghiệm & Mạng Xã Hội Đánh Giá Realtime. Luôn tò mò, đam mê khám phá giới hạn công nghệ, nghệ thuật thưởng ngoạn cà phê và những trải nghiệm sống thượng hạng.',
+                'tieu_su' => 'Kiến trúc sư nền tảng PIVO & Mạng Xã Hội Đánh Giá Realtime. Luôn tò mò, đam mê khám phá giới hạn công nghệ, nghệ thuật thưởng ngoạn cà phê và những trải nghiệm sống thượng hạng.',
                 'so_dien_thoai' => '0988.888.888',
                 'ngay_sinh' => '2005-01-01',
                 'gioi_tinh' => 1,
@@ -119,7 +119,7 @@ class DatabaseSeeder extends Seeder
                 'facebook' => 'https://facebook.com/thanhlong.club',
                 'instagram' => 'https://instagram.com/long.experience',
                 'tiktok' => 'https://tiktok.com/@long.founder',
-                'website' => 'https://clubtrainghiem.com',
+                'website' => 'https://pivo.com',
                 'huy_chuong_danh_hieu' => json_encode([
                     ['ten' => '👑 VIP Club Founder', 'mo_ta' => 'Người Sáng Lập Hệ Thống', 'mau_sc' => '#eab308'],
                     ['ten' => '☕ Chuyên Gia Cà Phê', 'mo_ta' => 'Đã review trên 50 không gian cà phê nghệ thuật', 'mau_sc' => '#8b5cf6'],
@@ -135,7 +135,7 @@ class DatabaseSeeder extends Seeder
 
         $admins = [
             [
-                'email' => 'admin1@clubtrainghiem.com',
+                'email' => 'admin1@pivo.com',
                 'ho_ten' => 'Quản Trị Viên 1 (Duyệt Bài)',
                 'ten_hien_thi' => 'Admin Duyệt Bài 🛡️',
                 'tieu_su' => 'Phụ trách duyệt các bài viết review trải nghiệm chất lượng cao.',
@@ -144,7 +144,7 @@ class DatabaseSeeder extends Seeder
                 'cap_bac' => 'Vàng Thượng Hạng'
             ],
             [
-                'email' => 'admin2@clubtrainghiem.com',
+                'email' => 'admin2@pivo.com',
                 'ho_ten' => 'Quản Trị Viên 2 (Sự Kiện)',
                 'ten_hien_thi' => 'Admin Sự Kiện 🎉',
                 'tieu_su' => 'Điều phối viên tổ chức các event và buổi offline trải nghiệm.',
@@ -153,7 +153,7 @@ class DatabaseSeeder extends Seeder
                 'cap_bac' => 'Vàng Thượng Hạng'
             ],
             [
-                'email' => 'admin3@clubtrainghiem.com',
+                'email' => 'admin3@pivo.com',
                 'ho_ten' => 'Quản Trị Viên 3 (Kiểm Duyệt)',
                 'ten_hien_thi' => 'Admin Kiểm Duyệt ⚖️',
                 'tieu_su' => 'Chuyên viên kiểm duyệt nội dung và hỗ trợ thành viên cộng đồng.',
@@ -321,11 +321,11 @@ class DatabaseSeeder extends Seeder
                 'nguoi_dung_id' => $superAdmin->id,
                 'danh_muc_id' => 1,
                 'loai_bai_viet' => 'review',
-                'tieu_de' => 'Chào mừng đến với Club Trải Nghiệm 2026 - Nơi Kết Nối Những Tâm Hồn Tự Do! ✨',
+                'tieu_de' => 'Chào mừng đến với PIVO 2026 - Nơi Kết Nối Những Tâm Hồn Tự Do! ✨',
                 'slug' => 'chao-mung-den-voi-club-trai-nghiem-2026',
-                'noi_dung' => "Xin chào toàn thể anh em bạn bè đã đặt chân đến với Club Trải Nghiệm!\n\nTụi mình tạo ra mạng xã hội này với mục tiêu tôn vinh những góc nhìn sắc sảo nhất về Cà Phê, Công Nghệ và Nghệ Thuật Sống. Đừng quên thử tính năng thông báo Realtime chớp nhoáng của Club nhé! Chúc cả nhà có những phút giây review tuyệt hảo!",
+                'noi_dung' => "Xin chào toàn thể anh em bạn bè đã đặt chân đến với PIVO!\n\nTụi mình tạo ra mạng xã hội này với mục tiêu tôn vinh những góc nhìn sắc sảo nhất về Cà Phê, Công Nghệ và Nghệ Thuật Sống. Đừng quên thử tính năng thông báo Realtime chớp nhoáng của Club nhé! Chúc cả nhà có những phút giây review tuyệt hảo!",
                 'anh_bia' => 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1200&auto=format&fit=crop&q=80',
-                'hashtags' => json_encode(['#ClubTraiNghiem', '#Realtime2026', '#Welcome'], JSON_UNESCAPED_UNICODE),
+                'hashtags' => json_encode(['#PIVO', '#Realtime2026', '#Welcome'], JSON_UNESCAPED_UNICODE),
                 'luot_xem' => 1250,
                 'ghim' => 1,
                 'trang_thai' => 1,
@@ -428,7 +428,7 @@ class DatabaseSeeder extends Seeder
                 'slug' => 'workshop-nghe-thuat-review-ca-phe-va-realtime-2026',
                 'anh_bia' => 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1000&auto=format&fit=crop&q=80',
                 'mo_ta' => 'Giao lưu kiến trúc mạng xã hội tốc độ cao và trải nghiệm cà phê trực tiếp cùng founder.',
-                'dia_diem' => 'Club Trải Nghiệm Lounge, Quận 1, TP. HCM',
+                'dia_diem' => 'PIVO Lounge, Quận 1, TP. HCM',
                 'thoi_gian_bat_dau' => '2026-08-25 09:00:00',
                 'thoi_gian_ket_thuc' => '2026-08-25 12:00:00',
                 'so_luong_toi_da' => 50,
@@ -437,7 +437,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'tieu_de' => 'Offline Club Trải Nghiệm & Thưởng ngoạn Âm thanh Hi-Fi Thượng Hạng',
+                'tieu_de' => 'Offline PIVO & Thưởng ngoạn Âm thanh Hi-Fi Thượng Hạng',
                 'slug' => 'offline-club-trai-nghiem-am-thanh-hi-fi',
                 'anh_bia' => 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1000&auto=format&fit=crop&q=80',
                 'mo_ta' => 'Buổi trà chiều thẩm âm loa màng kim cương và kết nối các nhà sáng tạo nội dung.',
@@ -481,7 +481,7 @@ class DatabaseSeeder extends Seeder
                 'bai_viet_id' => 1,
                 'nguoi_dung_id' => $readerUser->id,
                 'parent_id' => null,
-                'noi_dung' => 'Chúc mừng Club Trải Nghiệm chính thức bùng nổ! Giao diện quá đỉnh cao ạ 🔥✨',
+                'noi_dung' => 'Chúc mừng PIVO chính thức bùng nổ! Giao diện quá đỉnh cao ạ 🔥✨',
                 'trang_thai' => 1,
                 'created_at' => now()
             ]);

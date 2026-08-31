@@ -14,7 +14,7 @@ Route::get('/', function () {
         $postCount = DB::table('bai_viet')->count();
         return response()->json([
             'status' => 'SUCCESS',
-            'message' => '🚀 Club Trải Nghiệm Backend & SQLite Database Operational 100%',
+            'message' => '🚀 PIVO Backend & SQLite Database Operational 100%',
             'data_status' => [
                 'database_connected' => true,
                 'users_count' => $userCount,
@@ -28,7 +28,7 @@ Route::get('/', function () {
             Artisan::call('db:seed', ['--force' => true]);
             return response()->json([
                 'status' => 'RECOVERED',
-                'message' => '🚀 Club Trải Nghiệm Backend auto-healed SQLite database successfully!',
+                'message' => '🚀 PIVO Backend auto-healed SQLite database successfully!',
                 'migration_output' => Artisan::output()
             ], 200, ['Content-Type' => 'application/json; charset=UTF-8'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (\Throwable $ex) {

@@ -1,5 +1,5 @@
 ================================================================
-    DU AN: CLUB TRAI NGHIEM MXH THU NHO
+    DU AN: PIVO MXH THU NHO
     FILE 1: CAC CONG NGHE DANG DUOC SU DUNG
 ================================================================
 
@@ -52,7 +52,7 @@ PHAN BACKEND (Laravel - PHP)
 [9] Cloudinary (Cloud Image Storage)
     - Luu tru anh tren dam may.
     - Cloud Name: sabkinaa
-    - Folder to chuc: club_trai_nghiem/posts, club_trai_nghiem/avatars, club_trai_nghiem/covers
+    - Folder to chuc: pivo/posts, pivo/avatars, pivo/covers
     - Tich hop qua: App\Services\CloudinaryService (upload, deleteByUrl)
     - Du phong: Neu Cloudinary that bai, luu local vao public/uploads/
 
@@ -121,6 +121,9 @@ PHAN FRONTEND (React - JavaScript)
     - Tich hop OneSignal Push Notification len trinh duyet (Web Push).
     - Phien ban: ^3.5.6
     - Khoi dong tai: src/api/onesignal.js
+
+[21B] Google Translate Widget
+    - Dich vu tu dong dich đa ngon ngu cho nguoi dung quoc te.
 
 [22] TailwindCSS 3.4.19
     - CSS Utility Framework - Tao giao dien bang cac class tien ich.

@@ -12,7 +12,7 @@ const AdminFooter = () => {
                 k
               </div>
               <span className="font-black text-lg text-slate-900 uppercase tracking-tight">
-                CLUB TRẢI NGHIỆM CORP
+                PIVO CORP
               </span>
             </div>
             <h5 className="font-black text-sm text-slate-900 m-0">
@@ -38,11 +38,11 @@ const AdminFooter = () => {
               </div>
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                 <span>Email Hỗ Trợ:</span>
-                <span className="text-slate-900 font-black">support@clubtrainghiem.vn</span>
+                <span className="text-slate-900 font-black">support@pivo.vn</span>
               </div>
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                 <span>Báo cáo Vi phạm:</span>
-                <span className="text-slate-900 font-black">admin@clubtrainghiem.vn</span>
+                <span className="text-slate-900 font-black">admin@pivo.vn</span>
               </div>
             </div>
           </div>
@@ -89,7 +89,7 @@ const AdminFooter = () => {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-xs font-extrabold text-slate-500">
           <div>
-            &copy; {new Date().getFullYear()} Club Trải Nghiệm & Cá Nhân Hóa (CTN Corp). Bảo lưu mọi quyền quản trị tối cao.
+            &copy; {new Date().getFullYear()} PIVO & Cá Nhân Hóa (CTN Corp). Bảo lưu mọi quyền quản trị tối cao.
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-300">

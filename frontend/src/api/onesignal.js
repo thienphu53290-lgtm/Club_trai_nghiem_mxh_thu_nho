@@ -16,7 +16,7 @@ export const runOneSignal = async () => {
           'tip.state.unsubscribed': 'Bấm vào để bật thông báo Desktop Push (OneSignal)',
           'tip.state.subscribed': 'Bạn đang bật thông báo Desktop OS Push',
           'tip.state.blocked': 'Bạn đã từ chối nhận thông báo Push trên trình duyệt này',
-          'message.action.subscribed': 'Đã bật thông báo OS Push từ Club Trải Nghiệm!',
+          'message.action.subscribed': 'Đã bật thông báo OS Push từ PIVO!',
           'message.action.resubscribed': 'Đã khôi phục thông báo OS Push!',
           'message.action.unsubscribed': 'Đã tắt nhận thông báo OS Push ngoài màn hình.',
         },
@@ -39,7 +39,7 @@ export const runOneSignal = async () => {
               type: "push",
               autoPrompt: true,
               text: {
-                actionMessage: "Bạn có muốn nhận thông báo nháy ra góc màn hình máy tính ngay cả khi đóng web từ Club Trải Nghiệm?",
+                actionMessage: "Bạn có muốn nhận thông báo nháy ra góc màn hình máy tính ngay cả khi đóng web từ PIVO?",
                 acceptButton: "CHO PHÉP PUSH",
                 cancelButton: "ĐỂ SAU",
               },

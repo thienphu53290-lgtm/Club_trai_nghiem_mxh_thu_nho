@@ -493,7 +493,7 @@ const Profile = () => {
     if (images.length === 1) {
       return (
         <div 
-          onClick={() => setPreviewImage({ isOpen: true, url: images[0], title: post.tieu_de || 'Khoảnh khắc trải nghiệm', caption: 'Bảo trợ hình ảnh bởi Club Trải Nghiệm' })}
+          onClick={() => setPreviewImage({ isOpen: true, url: images[0], title: post.tieu_de || 'Khoảnh khắc trải nghiệm', caption: 'Bảo trợ hình ảnh bởi PIVO' })}
           className="relative rounded-[24px] overflow-hidden border border-slate-200 cursor-pointer group shadow-xs max-h-[420px] bg-slate-950 my-3.5"
         >
           <img src={images[0]} alt={post.tieu_de} className="w-full max-h-[420px] object-cover mx-auto group-hover:scale-[1.02] transition-transform duration-500" />
@@ -512,7 +512,7 @@ const Profile = () => {
           {images.map((url, idx) => (
             <div 
               key={idx} 
-              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - Club Trải Nghiệm` })}
+              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - PIVO` })}
               className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
             >
               <img src={url} alt={`Photo ${idx}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -526,7 +526,7 @@ const Profile = () => {
       return (
         <div className="flex flex-col gap-1 rounded-[24px] overflow-hidden border border-slate-200 my-3.5 bg-slate-900 shadow-xs">
           <div 
-            onClick={() => setPreviewImage({ isOpen: true, url: images[0], title: post.tieu_de || 'Ảnh 1', caption: `Ảnh 1 / ${images.length} - Club Trải Nghiệm` })}
+            onClick={() => setPreviewImage({ isOpen: true, url: images[0], title: post.tieu_de || 'Ảnh 1', caption: `Ảnh 1 / ${images.length} - PIVO` })}
             className="relative overflow-hidden cursor-pointer group h-[200px] sm:h-[240px] bg-slate-800"
           >
             <img src={images[0]} alt="Photo 1" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -535,7 +535,7 @@ const Profile = () => {
             {images.slice(1, 3).map((url, idx) => (
               <div 
                 key={idx + 1} 
-                onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 2}`, caption: `Ảnh ${idx + 2} / ${images.length} - Club Trải Nghiệm` })}
+                onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 2}`, caption: `Ảnh ${idx + 2} / ${images.length} - PIVO` })}
                 className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
               >
                 <img src={url} alt={`Photo ${idx + 2}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -552,7 +552,7 @@ const Profile = () => {
           {images.map((url, idx) => (
             <div 
               key={idx} 
-              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - Club Trải Nghiệm` })}
+              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - PIVO` })}
               className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
             >
               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -572,7 +572,7 @@ const Profile = () => {
           {topImages.map((url, idx) => (
             <div 
               key={idx} 
-              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - Club Trải Nghiệm` })}
+              onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${idx + 1}`, caption: `Ảnh ${idx + 1} / ${images.length} - PIVO` })}
               className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
             >
               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -586,7 +586,7 @@ const Profile = () => {
             return (
               <div 
                 key={actualIdx} 
-                onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${actualIdx + 1}`, caption: `Ảnh ${actualIdx + 1} / ${images.length} - Club Trải Nghiệm` })}
+                onClick={() => setPreviewImage({ isOpen: true, url, title: post.tieu_de || `Ảnh ${actualIdx + 1}`, caption: `Ảnh ${actualIdx + 1} / ${images.length} - PIVO` })}
                 className="relative overflow-hidden cursor-pointer group h-full bg-slate-800"
               >
                 <img src={url} alt={`Photo ${actualIdx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -1344,7 +1344,7 @@ const Profile = () => {
                   {rankInfo.ten_cap_bac}
                 </h4>
                 <p className="text-xs text-slate-500 font-medium line-clamp-1 mt-0.5">
-                  {rankInfo.mo_ta || 'Danh hiệu chính thức từ Club Trải Nghiệm'}
+                  {rankInfo.mo_ta || 'Danh hiệu chính thức từ PIVO'}
                 </p>
               </div>
             </div>
@@ -1528,7 +1528,7 @@ const Profile = () => {
                 type="text" 
                 value={editForm.website} 
                 onChange={(e) => setEditForm({...editForm, website: e.target.value})}
-                placeholder="VD: https://clubtrainghiem.com"
+                placeholder="VD: https://pivo.com"
                 className="w-full p-3.5 border border-slate-200 rounded-2xl font-semibold text-sm text-slate-900 bg-slate-50/80 focus:bg-white focus:border-rose-400 focus:ring-2 focus:ring-rose-100 outline-none transition-all"
               />
             </div>
@@ -1696,7 +1696,7 @@ const Profile = () => {
               type="text" 
               value={editPostModal.hashtags} 
               onChange={(e) => setEditPostModal({ ...editPostModal, hashtags: e.target.value })}
-              placeholder="VD: #clubtrainghiem, #khoanhkhac, #review" 
+              placeholder="VD: #pivo, #khoanhkhac, #review" 
               className="w-full p-3 border border-slate-200 rounded-xl font-semibold text-xs bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none text-indigo-600 transition-all"
             />
           </div>

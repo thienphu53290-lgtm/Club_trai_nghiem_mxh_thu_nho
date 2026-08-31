@@ -123,7 +123,7 @@ const Friends = () => {
               Kết nối & Bạn bè
             </h1>
             <p className="text-sm font-medium text-slate-500 mt-2 max-w-md">
-              Những người bạn theo dõi chéo nhau sẽ trở thành Bạn Bè chính thức tại Club Trải Nghiệm.
+              Những người bạn theo dõi chéo nhau sẽ trở thành Bạn Bè chính thức tại PIVO.
             </p>
           </div>
 

@@ -13,7 +13,6 @@ import api from '../../api/axios';
 const Home = () => {
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
   const [isWelcomeAdOpen, setIsWelcomeAdOpen] = useState(false);
-  const [popupAdIndex, setPopupAdIndex] = useState(0);
   const [superAds, setSuperAds] = useState([]);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
 
@@ -28,11 +27,6 @@ const Home = () => {
         const res = await api.get('/events/ads');
         if (res.data && res.data.super_ads && res.data.super_ads.length > 0) {
           setSuperAds(res.data.super_ads);
-          // Prepare popup index if it will be shown
-          if (!sessionStorage.getItem('welcome_ad_shown')) {
-            const randomIndex = Math.floor(Math.random() * res.data.super_ads.length);
-            setPopupAdIndex(randomIndex);
-          }
         }
       } catch (error) {
         console.error('Failed to fetch ads', error);
@@ -77,7 +71,7 @@ const Home = () => {
   return (
     <>
       <DisclaimerModal isOpen={isDisclaimerOpen} onClose={handleCloseDisclaimer} />
-      <WelcomeAdPopup isOpen={isWelcomeAdOpen} onClose={handleCloseWelcomeAd} event={superAds[popupAdIndex]} />
+      <WelcomeAdPopup isOpen={isWelcomeAdOpen} onClose={handleCloseWelcomeAd} events={superAds} />
       <div className="flex flex-col gap-[30px] pb-[10px]">
         <Hero />
         <Stats />

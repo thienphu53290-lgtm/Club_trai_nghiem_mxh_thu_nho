@@ -443,7 +443,7 @@ const EventAdmin = () => {
             {currentTab === 'create' && 'Khởi tạo Sự kiện mới'}
           </h1>
           <p className="text-slate-500 font-bold text-sm sm:text-base m-0">
-            Không gian làm việc chuyên biệt dành cho Ban Tổ Chức Club Trải Nghiệm.
+            Không gian làm việc chuyên biệt dành cho Ban Tổ Chức PIVO.
           </p>
         </div>
 

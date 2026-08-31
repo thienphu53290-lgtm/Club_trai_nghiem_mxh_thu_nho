@@ -14,7 +14,7 @@ class CloudinaryService
         $apiSecret = env('CLOUDINARY_API_SECRET') ?: config('services.cloudinary.api_secret');
         $uploadPreset = env('CLOUDINARY_UPLOAD_PRESET') ?: config('services.cloudinary.upload_preset');
 
-        $folder = 'club_trai_nghiem/' . $subFolder;
+        $folder = 'pivo/' . $subFolder;
 
         if ($cloudName && ($uploadPreset || ($apiKey && $apiSecret))) {
             $url = "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload";

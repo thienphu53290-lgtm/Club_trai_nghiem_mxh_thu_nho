@@ -13,6 +13,11 @@ use App\Http\Controllers\ContentAdminController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Social Auth Routes
+Route::get('/auth/{provider}/redirect', [\App\Http\Controllers\SocialAuthController::class, 'redirect']);
+Route::get('/auth/{provider}/callback', [\App\Http\Controllers\SocialAuthController::class, 'callback']);
+
 Route::get('/profile/{id?}', [ProfileController::class, 'show']);
 Route::get('/feed/posts', [FeedController::class, 'index']);
 Route::get('/feed/suggestions', [FeedController::class, 'getSuggestions']);

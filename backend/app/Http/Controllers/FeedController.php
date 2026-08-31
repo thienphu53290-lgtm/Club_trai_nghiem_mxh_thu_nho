@@ -91,7 +91,7 @@ class FeedController extends Controller
                         ->where('bai_viet_id', $post->id)
                         ->where('nguoi_dung_id', $currentUser->id)
                         ->exists();
-                    $post->is_owner = ((int) $post->nguoi_dung_id === (int) $currentUser->id) || ((int) $currentUser->vai_tro_id >= 2) || ($currentUser->email === 'superadmin@clubtrainghiem.com');
+                    $post->is_owner = ((int) $post->nguoi_dung_id === (int) $currentUser->id) || ((int) $currentUser->vai_tro_id >= 2) || ($currentUser->email === 'superadmin@pivo.com');
                 }
 
                 $post->recent_comments = DB::table('binh_luan')
@@ -268,7 +268,7 @@ class FeedController extends Controller
             'slug' => $slug,
             'noi_dung' => $request->input('noi_dung'),
             'anh_bia' => $anhBiaUrl,
-            'hashtags' => json_encode(['#clubtrainghiem', '#khoanhkhac'], JSON_UNESCAPED_UNICODE),
+            'hashtags' => json_encode(['#pivo', '#khoanhkhac'], JSON_UNESCAPED_UNICODE),
             'luot_xem' => 1,
             'trang_thai' => 1,
             'created_at' => now(),
@@ -357,7 +357,7 @@ class FeedController extends Controller
             return response()->json(['message' => 'Bài viết không tồn tại.'], 404);
         }
 
-        if ((int) $post->nguoi_dung_id !== (int) $user->id && (int) $user->vai_tro_id < 2 && $user->email !== 'superadmin@clubtrainghiem.com') {
+        if ((int) $post->nguoi_dung_id !== (int) $user->id && (int) $user->vai_tro_id < 2 && $user->email !== 'superadmin@pivo.com') {
             return response()->json(['message' => 'Bạn không có quyền chỉnh sửa bài viết này.'], 403);
         }
 
@@ -491,7 +491,7 @@ class FeedController extends Controller
             return response()->json(['message' => 'Bài viết không tồn tại.'], 404);
         }
 
-        if ((int) $post->nguoi_dung_id !== (int) $user->id && (int) $user->vai_tro_id < 2 && $user->email !== 'superadmin@clubtrainghiem.com') {
+        if ((int) $post->nguoi_dung_id !== (int) $user->id && (int) $user->vai_tro_id < 2 && $user->email !== 'superadmin@pivo.com') {
             return response()->json(['message' => 'Bạn không có quyền xóa bài viết này.'], 403);
         }
 

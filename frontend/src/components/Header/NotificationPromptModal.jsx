@@ -14,7 +14,7 @@ const NotificationPromptModal = () => {
   const triggerDemoOSPush = () => {
     try {
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        const n = new Notification("🌟 Club Trải Nghiệm & Realtime", {
+        const n = new Notification("🌟 PIVO & Realtime", {
           body: "Chúc mừng! Hệ thống đã phát sóng thành công ra màn hình hệ điều hành của bạn!",
           icon: "/favicon.svg",
           silent: false

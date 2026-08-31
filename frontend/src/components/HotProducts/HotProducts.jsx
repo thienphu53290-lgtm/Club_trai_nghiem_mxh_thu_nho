@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Flame, ArrowRight, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const products = [
   {
@@ -141,9 +142,9 @@ const HotProducts = () => {
             </h2>
             <p className="text-text-light text-[1.05rem]">Được thành viên đánh giá và hỏi nhiều nhất tuần này. Di chuột lên thẻ để xem hiệu ứng 3D.</p>
           </div>
-          <a href="#" className="flex items-center gap-1.5 text-primary font-semibold text-[1rem] transition-opacity hover:opacity-80 no-underline">
+          <Link to="/products" className="flex items-center gap-1.5 text-primary font-semibold text-[1rem] transition-opacity hover:opacity-80 no-underline">
             Xem tất cả sản phẩm <ArrowRight size={16} />
-          </a>
+          </Link>
         </div>
 
         <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-[20px] sm:gap-[30px] overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden -mx-5 px-5 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>

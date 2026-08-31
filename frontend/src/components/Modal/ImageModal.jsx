@@ -102,7 +102,7 @@ const ImageModal = ({
         <div className="mt-4 px-4 py-3 bg-slate-50 border border-slate-200/60 rounded-2xl flex items-center gap-3">
           <Maximize2 size={18} className="text-slate-400 shrink-0" />
           <p className="text-sm font-semibold text-slate-700 m-0 leading-relaxed">
-            {displayImages.length > 1 ? `Ảnh ${currentIndex + 1} / ${displayImages.length} - Club Trải Nghiệm` : caption}
+            {displayImages.length > 1 ? `Ảnh ${currentIndex + 1} / ${displayImages.length} - PIVO` : caption}
           </p>
         </div>
       )}

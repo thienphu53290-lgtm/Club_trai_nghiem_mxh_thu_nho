@@ -9,6 +9,7 @@ import Profile from './pages/Profile/Profile';
 import Messages from './pages/Messages/Messages';
 import About from './pages/About/About';
 import Auth from './pages/Auth/Auth';
+import AuthCallback from './pages/Auth/AuthCallback';
 import SuperAdmin from './pages/Admin/SuperAdmin';
 import Products from './pages/Products/Products';
 import ProductDetail from './pages/Products/ProductDetail';
@@ -27,6 +28,8 @@ import CreateEvent from './pages/Events/CreateEvent';
 import Friends from './pages/Friends/Friends';
 import Pricing from './pages/Pricing/Pricing';
 import Onboarding from './pages/Onboarding/Onboarding';
+import Settings from './pages/Settings/Settings';
+import Download from './pages/Download/Download';
 import api from './api/axios';
 import { runOneSignal } from './api/onesignal';
 
@@ -36,6 +39,46 @@ const ScrollToTop = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  return null;
+};
+
+const DynamicTitle = () => {
+  const location = useLocation();
+  useEffect(() => {
+    const routeTitles = {
+      '/': 'Trang Chủ',
+      '/feed': 'Bảng Tin',
+      '/messages': 'Tin Nhắn',
+      '/about': 'Giới Thiệu',
+      '/profile': 'Trang Cá Nhân',
+      '/products': 'Sản Phẩm',
+      '/events': 'Sự Kiện',
+      '/friends': 'Bạn Bè',
+      '/settings': 'Cài Đặt',
+      '/download': 'Tải Ứng Dụng',
+      '/auth': 'Đăng Nhập',
+      '/pricing': 'Gói Dịch Vụ',
+      '/onboarding': 'Bắt Đầu',
+      '/admin': 'Quản Trị',
+      '/super-admin': 'Quản Trị Tối Cao',
+      '/content-admin': 'Quản Trị Nội Dung',
+      '/event-admin': 'Quản Trị Sự Kiện',
+      '/finance-admin': 'Quản Trị Tài Chính',
+      '/support-admin': 'Quản Trị Hỗ Trợ',
+    };
+
+    const sortedPaths = Object.keys(routeTitles).sort((a, b) => b.length - a.length);
+    let title = 'Trang Chủ';
+    for (const path of sortedPaths) {
+      if (location.pathname === path || (path !== '/' && location.pathname.startsWith(path))) {
+        title = routeTitles[path];
+        break;
+      }
+    }
+    
+    document.title = `${title} | PIVO`;
+  }, [location]);
 
   return null;
 };
@@ -75,8 +118,10 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <DynamicTitle />
       <Routes>
         <Route path="/auth" element={<Auth />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<AdminLayout />}>
@@ -109,6 +154,8 @@ function App() {
           <Route path="events/create" element={<CreateEvent />} />
           <Route path="events/:slug" element={<EventDetail />} />
           <Route path="friends" element={<Friends />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="download" element={<Download />} />
         </Route>
       </Routes>
 
@@ -133,7 +180,7 @@ function App() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-slate-500">Email Hỗ trợ</p>
-                  <p className="text-sm font-bold text-slate-800">hotro@clubtrainghiem.com</p>
+                  <p className="text-sm font-bold text-slate-800">hotro@pivo.com</p>
                 </div>
               </div>
               

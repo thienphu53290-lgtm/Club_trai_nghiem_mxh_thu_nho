@@ -628,7 +628,7 @@ const Messages = () => {
 
   if (!currentUser) {
     return (
-      <div className="w-full min-h-[calc(100vh-140px)] bg-[#f8fafc] flex items-center justify-center p-5">
+      <div className="w-full min-h-[calc(100vh-140px)] bg-transparent flex items-center justify-center p-5">
         <div className="max-w-[500px] w-full border-2 border-[#0f172a] rounded-[28px] p-8 bg-white shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] text-center">
           <div className="w-20 h-20 bg-rose-50 border-2 border-rose-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xs">
             <Lock size={38} className="text-[#c93638]" />
@@ -637,7 +637,7 @@ const Messages = () => {
             Bạn chưa đăng nhập Club
           </h2>
           <p className="text-slate-600 text-[1.05rem] font-medium leading-relaxed mb-8">
-            Hãy đăng nhập tài khoản Club Trải Nghiệm để kết nối trực tuyến tức thì, trò chuyện Realtime và trao đổi tin nhắn riêng tư cùng cộng đồng!
+            Hãy đăng nhập tài khoản PIVO để kết nối trực tuyến tức thì, trò chuyện Realtime và trao đổi tin nhắn riêng tư cùng cộng đồng!
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -659,7 +659,7 @@ const Messages = () => {
   }
 
   return (
-    <div className="w-full min-h-[calc(100vh-140px)] bg-[#f8fafc] px-3 sm:px-6 py-4 max-w-[1780px] mx-auto font-sans flex flex-col" onClick={() => setActiveContactMenuId(null)}>
+    <div className="w-full min-h-[calc(100vh-140px)] bg-transparent px-3 sm:px-6 py-4 max-w-[1780px] mx-auto font-sans flex flex-col" onClick={() => setActiveContactMenuId(null)}>
       <div className="grid grid-cols-1 md:grid-cols-12 xl:grid-cols-12 gap-4 sm:gap-5 flex-1 h-[calc(100vh-172px)] max-h-[calc(100vh-172px)] min-h-[600px]">
         
         <div className={`${activeId ? 'hidden md:flex' : 'flex'} md:col-span-5 lg:col-span-4 xl:col-span-3 border-2 border-[#0f172a] rounded-[28px] p-4 sm:p-5 bg-white shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex-col h-full max-h-full min-h-0 overflow-hidden`}>
@@ -925,7 +925,7 @@ const Messages = () => {
                   <h4 className="font-black text-sm text-slate-900 m-0">{activeContact.name}</h4>
                   <p className="text-[11px] font-extrabold text-slate-500 m-0">{activeContact.roleTitle}</p>
                   <p className="text-[11px] font-bold text-slate-400 mt-1 max-w-sm mx-auto">
-                    🤝 Các thành viên trong Club Trải Nghiệm luôn trao đổi trung thực và tôn trọng nhau.
+                    🤝 Các thành viên trong PIVO luôn trao đổi trung thực và tôn trọng nhau.
                   </p>
                 </div>
 
@@ -1310,7 +1310,7 @@ const Messages = () => {
 
             <div className="mt-auto pt-4 text-center">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest m-0">
-                ⚡ CLUB TRẢI NGHIỆM CHAT 2026
+                ⚡ PIVO CHAT 2026
               </p>
             </div>
 

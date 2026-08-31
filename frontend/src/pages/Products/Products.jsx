@@ -223,7 +223,7 @@ const Products = () => {
   const [hasConfirmed, setHasConfirmed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] pt-8 pb-[100px]">
+    <div className="min-h-screen bg-transparent pt-8 pb-[100px]">
       <div className="max-w-[1320px] mx-auto px-5">
         
         {/* Banner Riêng Cho Trang Sản Phẩm */}

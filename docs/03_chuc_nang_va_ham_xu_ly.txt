@@ -1,5 +1,5 @@
 ================================================================
-    DU AN: CLUB TRAI NGHIEM MXH THU NHO
+    DU AN: PIVO MXH THU NHO
     FILE 3: CHUC NANG VA TEN HAM XU LY
 ================================================================
 
@@ -345,3 +345,13 @@ KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
 - [POST] /api/admin/content/topics : (ContentAdminController@createTopic) Thêm mới danh mục/chủ đề
 - [PUT] /api/admin/content/topics/{id} : (ContentAdminController@updateTopic) Cập nhật danh mục/chủ đề
 - [PUT] /api/admin/content/topics/{id}/status : (ContentAdminController@toggleTopicStatus) Ẩn/Hiện danh mục/chủ đề
+- WelcomeAdPopup.jsx > Cập nhật thành component slider/carousel để hỗ trợ hiển thị danh sách nhiều sự kiện quảng cáo
+- Header.jsx > handleLogout() [Sửa lỗi: Xóa club_notifications trong localStorage để không hiển thị thông báo của người dùng trước đó khi chưa đăng nhập]
+- SuperAdmin.jsx > renderRevenueChart() [Xóa badge "Trị giá tăng trưởng toàn diện"]
+- axios.js > api.interceptors.response.use() [Sửa lỗi: Bỏ tự động chuyển hướng sang /auth khi token hết hạn để không ép người dùng đăng nhập]
+- AdminLayouts (Tất cả 5 Layout quản trị) > useEffect() [Sửa lỗi: Bổ sung lắng nghe sự kiện user_auth_change để tự động đẩy người dùng về trang chủ (/) nếu token hết hạn khi đang ở trang quản trị, tránh lỗi treo giao diện]
+- Toàn trang web (CSS) > index.css & Các AdminLayouts [Sửa lỗi: Triển khai hiệu ứng nền động họa tiết nét đứt cho thẻ body (toàn bộ trang web) và bỏ nền xám cứng (bg-slate-50) ở tất cả các giao diện Admin để lộ nền động]
+- EventController.php > index(), getAds(), show() [Sửa lỗi: Thêm điều kiện thoi_gian_ket_thuc > now() để ẩn sự kiện quá hạn; tự động cập nhật trang_thai (Sắp diễn ra/Đang diễn ra/Đã kết thúc) dựa theo thời gian thực tế thay vì chờ cronjob]
+- Settings.jsx (Trang mới) [Thêm mới: Xây dựng trang Cài Đặt cho phép người dùng thay đổi 3 chế độ nền (Jollibee động / Tối giản / Ban đêm) và Tích hợp Google Translate Widget ẩn để dịch tự động toàn bộ trang web sang đa ngôn ngữ (Tiếng Anh, Nhật, Hàn, Trung, Pháp). Trạng thái lưu vào localStorage]
+- Download.jsx (Trang mới) [Thêm mới: Xây dựng trang Tải Ứng Dụng hiển thị các tuỳ chọn tải ứng dụng (iOS, Android, APK, macOS, Windows, Linux) với giao diện mượt mà cao cấp, tích hợp nút tải trên thanh Header qua định tuyến /download.]
+- Header.jsx > NavLink [Cải tiến: Nhóm "Sản phẩm" và "Sự kiện" vào một dropdown menu "Khám phá" trên thanh điều hướng để tối ưu không gian hiển thị, tránh vỡ giao diện trên màn hình nhỏ.]

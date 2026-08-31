@@ -99,7 +99,7 @@ const About = () => {
             <span className="text-[#c93638]">MẠNG XÃ HỘI THU NHỎ</span>
           </h1>
           <p className="text-slate-600 font-semibold text-base sm:text-lg leading-relaxed mb-8 max-w-2xl">
-            Chào mừng bạn đến với <strong className="text-slate-950 font-black">Club Trải Nghiệm</strong> — nền tảng mạng xã hội thu nhỏ tiên phong tại Việt Nam, kết hợp mượt mà giữa tương tác theo thời gian thực và không gian giao tiếp chất lượng cao cho cộng đồng hiện đại.
+            Chào mừng bạn đến với <strong className="text-slate-950 font-black">PIVO</strong> — nền tảng mạng xã hội thu nhỏ tiên phong tại Việt Nam, kết hợp mượt mà giữa tương tác theo thời gian thực và không gian giao tiếp chất lượng cao cho cộng đồng hiện đại.
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <button 
@@ -147,7 +147,7 @@ const About = () => {
             <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black mb-6 border-2 border-[#0f172a] shadow-xs">
               <Target size={28} />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-950 mb-4">Sứ Mệnh Của Club Trải Nghiệm</h2>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-950 mb-4">Sứ Mệnh Của PIVO</h2>
             <p className="text-slate-700 font-medium leading-relaxed text-base">
               Sứ mệnh cao nhất của chúng tôi là xóa bỏ sự vô danh và rời rạc của các mạng xã hội truyền thống, trao quyền cho mỗi cá nhân tự do chia sẻ đánh giá thực tế. Chúng tôi muốn biến mỗi bài viết, mỗi tấm ảnh hay dòng tin nhắn trở thành một cầu nối bền chặt giữa những con người chung niềm đam mê trải nghiệm cuộc sống.
             </p>
@@ -165,7 +165,7 @@ const About = () => {
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-950 mb-4">Tầm Nhìn 2030</h2>
             <p className="text-slate-700 font-medium leading-relaxed text-base">
-              Hướng tới năm 2030, <strong className="text-[#c93638] font-black">Club Trải Nghiệm</strong> đặt mục tiêu trở thành mạng xã hội chia sẻ trải nghiệm cá nhân hóa vững mạnh nhất Đông Nam Á. Chúng tôi liên tục mở rộng hệ thống Cấp Bậc (Gamification), tích hợp các giải pháp truyền tải dữ liệu siêu nhanh và kiến tạo một Không Gian Số Độc Quyền cho mọi thành viên uy tín.
+              Hướng tới năm 2030, <strong className="text-[#c93638] font-black">PIVO</strong> đặt mục tiêu trở thành mạng xã hội chia sẻ trải nghiệm cá nhân hóa vững mạnh nhất Đông Nam Á. Chúng tôi liên tục mở rộng hệ thống Cấp Bậc (Gamification), tích hợp các giải pháp truyền tải dữ liệu siêu nhanh và kiến tạo một Không Gian Số Độc Quyền cho mọi thành viên uy tín.
             </p>
           </div>
           <div className="mt-8 pt-6 border-t-2 border-[#fcebeb] flex items-center gap-3 text-[0.65rem] sm:text-xs font-black text-[#c93638]">
@@ -181,7 +181,7 @@ const About = () => {
             Giá Trị <span className="text-[#c93638]">Cốt Lõi</span>
           </h2>
           <p className="text-slate-500 font-semibold text-sm sm:text-base">
-            Bốn nền tảng kiên cố giúp Club Trải Nghiệm không ngừng lớn mạnh và nhận được niềm tin tuyệt đối từ cộng đồng.
+            Bốn nền tảng kiên cố giúp PIVO không ngừng lớn mạnh và nhận được niềm tin tuyệt đối từ cộng đồng.
           </p>
         </div>
 
@@ -215,7 +215,7 @@ const About = () => {
                   C
                 </div>
                 <div>
-                  <h3 className="font-black text-lg text-slate-950 m-0">Club Trải Nghiệm</h3>
+                  <h3 className="font-black text-lg text-slate-950 m-0">PIVO</h3>
                   <span className="text-xs font-extrabold text-slate-400">Mạng Xã Hội Thu Nhỏ</span>
                 </div>
               </div>
@@ -261,8 +261,8 @@ const About = () => {
                   </div>
                   <div>
                     <span className="text-[11px] font-black text-slate-400 uppercase tracking-wide">Email Liên Hệ</span>
-                    <p className="font-extrabold text-sm text-blue-700 m-0 mt-0.5">partner@clubtrainghiem.vn</p>
-                    <p className="text-xs font-semibold text-slate-500 m-0 mt-0.5">support@clubtrainghiem.vn</p>
+                    <p className="font-extrabold text-sm text-blue-700 m-0 mt-0.5">partner@pivo.vn</p>
+                    <p className="text-xs font-semibold text-slate-500 m-0 mt-0.5">support@pivo.vn</p>
                   </div>
                 </div>
 
@@ -306,7 +306,7 @@ const About = () => {
 
             <div className="w-full h-[400px] sm:h-[480px] rounded-[24px] overflow-hidden border-2 border-[#0f172a] shadow-sm relative bg-slate-100">
               <iframe 
-                title="Bản Đồ Trụ Sở Club Trải Nghiệm - Trường Cao đẳng Kỹ thuật Cao Thắng"
+                title="Bản Đồ Trụ Sở PIVO - Trường Cao đẳng Kỹ thuật Cao Thắng"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.513933997974!2d106.69867477594718!3d10.771894089376621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a3b49e59%3A0xa1bd14e483a602db!2zVHLGsOG7nW5nIENhbyDEkeG6s25nIEvhu7kgdGh14bqtdCBDYW8gVGjhuq9uZw!5e0!3m2!1svi!2s!4v1786255262555!5m2!1svi!2s" 
                 width="100%" 
                 height="100%" 

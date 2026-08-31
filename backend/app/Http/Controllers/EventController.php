@@ -15,7 +15,8 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SuKien::query()->whereIn('trang_thai', [1, 2]); // 1: Sắp diễn ra/Mở bán, 2: Đang diễn ra, 3: Đã kết thúc (bỏ qua)
+        $query = SuKien::query()->whereIn('trang_thai', [1, 2]) // 1: Sắp diễn ra/Mở bán, 2: Đang diễn ra, 3: Đã kết thúc (bỏ qua)
+                                ->where('thoi_gian_ket_thuc', '>', Carbon::now());
 
         if ($request->has('hinh_thuc') && $request->hinh_thuc !== 'all') {
             $query->where('hinh_thuc', $request->hinh_thuc);
@@ -35,11 +36,16 @@ class EventController extends Controller
             $veMienPhiConLai = max(0, $event->so_ve_mien_phi - $dangKyCount);
             $event->ve_mien_phi_con_lai = $veMienPhiConLai;
             
-            // For frontend compatibility: match DB status instead of time comparison
-            if ($event->trang_thai == 2) {
+            // Cập nhật trạng thái động theo thời gian thực tế
+            $now = Carbon::now();
+            $batDau = Carbon::parse($event->thoi_gian_bat_dau);
+            
+            if ($batDau->isPast()) {
                 $event->status = 'Đang diễn ra';
+                if ($event->trang_thai != 2) $event->update(['trang_thai' => 2]);
             } else {
                 $event->status = 'Mở bán vé';
+                if ($event->trang_thai != 1) $event->update(['trang_thai' => 1]);
             }
         }
 
@@ -53,6 +59,7 @@ class EventController extends Controller
     {
         // Get all active events that have purchased ads
         $adEvents = SuKien::whereIn('trang_thai', [1, 2])
+            ->where('thoi_gian_ket_thuc', '>', Carbon::now())
             ->where('goi_quang_cao', '>', 0)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -65,10 +72,15 @@ class EventController extends Controller
             $veMienPhiConLai = max(0, $event->so_ve_mien_phi - $dangKyCount);
             $event->ve_mien_phi_con_lai = $veMienPhiConLai;
             
-            if ($event->trang_thai == 2) {
+            $now = Carbon::now();
+            $batDau = Carbon::parse($event->thoi_gian_bat_dau);
+            
+            if ($batDau->isPast()) {
                 $event->status = 'Đang diễn ra';
+                if ($event->trang_thai != 2) $event->update(['trang_thai' => 2]);
             } else {
                 $event->status = 'Mở bán vé';
+                if ($event->trang_thai != 1) $event->update(['trang_thai' => 1]);
             }
         }
 
@@ -109,7 +121,20 @@ class EventController extends Controller
         $veMienPhiConLai = max(0, $event->so_ve_mien_phi - $dangKyCount);
         $event->ve_mien_phi_con_lai = $veMienPhiConLai;
         
-        $event->status = $event->thoi_gian_bat_dau > Carbon::now() ? 'Sắp diễn ra' : 'Đã diễn ra';
+        $now = Carbon::now();
+        $batDau = Carbon::parse($event->thoi_gian_bat_dau);
+        $ketThuc = Carbon::parse($event->thoi_gian_ket_thuc);
+
+        if ($ketThuc->isPast()) {
+            $event->status = 'Đã kết thúc';
+            if ($event->trang_thai != 3) $event->update(['trang_thai' => 3]);
+        } elseif ($batDau->isPast()) {
+            $event->status = 'Đang diễn ra';
+            if ($event->trang_thai != 2) $event->update(['trang_thai' => 2]);
+        } else {
+            $event->status = 'Sắp diễn ra';
+            if ($event->trang_thai != 1) $event->update(['trang_thai' => 1]);
+        }
 
         // Check user registration status if logged in
         $isRegistered = false;

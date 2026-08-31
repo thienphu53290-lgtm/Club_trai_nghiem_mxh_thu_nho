@@ -49,7 +49,7 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
 
         <div className="space-y-4 text-sm sm:text-base text-slate-700 font-normal leading-relaxed">
           <p className="m-0 text-slate-900 font-extrabold text-base sm:text-lg">
-            Chào mừng bạn đến với không gian trải nghiệm <span className="text-[#0b57d0]">Club Trải Nghiệm MXH Thu Nhỏ!</span>
+            Chào mừng bạn đến với không gian trải nghiệm <span className="text-[#0b57d0]">PIVO MXH Thu Nhỏ!</span>
           </p>
           <p className="m-0">
             Chúng tôi xin trân trọng gửi lời chào và xin lưu ý đến toàn thể quý người dùng, khách truy cập: <strong>Đây là một hệ thống trang web và mạng xã hội được thiết kế, nghiên cứu và xây dựng HOÀN TOÀN VÌ MỤC ĐÍCH HỌC TẬP & PHÁT TRIỂN KỸ NĂNG CÔNG NGHỆ.</strong>

@@ -60,8 +60,8 @@ api.interceptors.response.use(
         }
         
       
-        if (hadToken || error.response.data?.message === 'account_locked') {
-          window.location.href = error.response.data?.message === 'account_locked' ? '/' : '/auth';
+        if (error.response.data?.message === 'account_locked') {
+          window.location.href = '/';
         }
       }
     }

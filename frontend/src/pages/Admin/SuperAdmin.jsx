@@ -153,7 +153,7 @@ const SuperAdmin = () => {
             <span>Sơ đồ doanh thu thực tế</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-semibold m-0 mt-1">
-            Theo dõi sự tăng trưởng dòng tiền Affiliate và dịch vụ Club trải nghiệm theo mốc thời gian chi tiết.
+            Theo dõi sự tăng trưởng dòng tiền Affiliate và dịch vụ PIVO theo mốc thời gian chi tiết.
           </p>
         </div>
         <div className="flex items-center bg-slate-100 p-1.5 rounded-2xl border-2 border-[#0f172a] shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] w-fit">
@@ -221,9 +221,6 @@ const SuperAdmin = () => {
             <span className="w-3.5 h-3.5 rounded-lg bg-slate-200 border border-dashed border-slate-500 inline-block"></span>
             <span>Dự kiến chặng tới</span>
           </div>
-        </div>
-        <div className="text-slate-900 font-extrabold bg-emerald-100 px-3 py-1 rounded-xl border border-emerald-300">
-          🔥 Trị giá tăng trưởng toàn diện: +24.8%
         </div>
       </div>
     </div>

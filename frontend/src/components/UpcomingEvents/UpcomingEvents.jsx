@@ -35,7 +35,9 @@ const UpcomingEvents = () => {
         {loading ? (
           <div className="text-center py-10 text-slate-500 font-bold">Đang tải sự kiện...</div>
         ) : events.length === 0 ? (
-          <div className="text-center py-10 text-slate-500 font-bold">Hiện chưa có sự kiện nào sắp tới.</div>
+          <div className="bg-white/90 backdrop-blur-md relative z-10 border border-border-color rounded-[24px] py-12 px-6 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] max-w-[600px] mx-auto">
+            <span className="text-slate-500 font-bold text-[1.05rem]">Hiện chưa có sự kiện nào sắp tới.</span>
+          </div>
         ) : (
           <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-[20px] sm:gap-[30px] overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden -mx-5 px-5 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
             {events.map(event => {

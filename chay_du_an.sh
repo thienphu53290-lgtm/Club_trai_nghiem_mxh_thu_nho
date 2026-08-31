@@ -8,7 +8,7 @@ lsof -ti:8000 -ti:8080 -ti:5173 | xargs kill -9 2>/dev/null
 sleep 1
 
 echo "=========================================================="
-echo " ĐANG KHỞI CHẠY HỆ THỐNG CLUB TRẢI NGHIỆM MXH THU NHỎ"
+echo " ĐANG KHỞI CHẠY HỆ THỐNG PIVO MXH THU NHỎ"
 echo "=========================================================="
 
 echo " [1/3] Khởi động Backend Laravel (Cổng 8000)..."

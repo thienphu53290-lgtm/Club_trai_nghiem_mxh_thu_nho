@@ -80,7 +80,7 @@ const Hero = () => {
 
   return (
     <section className="px-5 py-[30px]" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-      <div className="max-w-[1320px] mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-[60px] border border-border-color rounded-[32px] p-6 lg:p-[60px] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+      <div className="max-w-[1320px] mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-[60px] bg-[#c93638]/5 backdrop-blur-2xl relative z-10 border border-rose-200/60 rounded-[32px] p-6 lg:p-[60px] shadow-[0_8px_32px_rgba(201,54,56,0.06)] overflow-hidden hero-custom-bg">
         
         <div className="flex-1">
           <div className="inline-flex items-center gap-2 bg-[#fcebeb] text-primary px-4 py-1.5 rounded-full text-[0.85rem] font-semibold mb-5">

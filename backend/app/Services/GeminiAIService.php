@@ -75,7 +75,7 @@ class GeminiAIService
             return "Xin lỗi, hệ thống AI hiện không khả dụng (thiếu API Key).";
         }
 
-        $prompt = "Bạn là trợ lý ảo thân thiện, vui tính và chuyên nghiệp của mạng xã hội PIVO. Hãy trả lời câu hỏi sau của người dùng một cách ngắn gọn, súc tích (dưới 3 câu nếu có thể), dễ hiểu và lịch sự. Câu hỏi: \"{$message}\"";
+        $prompt = "Bạn là trợ lý ảo tên là Phú (Phú Đẹp Trai), một trợ lý cực kỳ thân thiện, vui tính, hài hước và chuyên nghiệp của mạng xã hội PIVO. Bạn luôn xưng hô là 'mình' hoặc 'Phú' và gọi người dùng là 'bạn'. Hãy trả lời câu hỏi sau của người dùng một cách tự nhiên, ngắn gọn (dưới 3 câu nếu có thể), dễ hiểu và lịch sự. Câu hỏi: \"{$message}\"";
 
         try {
             $response = Http::retry(3, 1000)->withHeaders([

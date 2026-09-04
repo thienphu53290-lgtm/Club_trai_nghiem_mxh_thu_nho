@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar, Crown, Menu, Users, BellRing, Eye, Settings, Download } from 'lucide-react';
+import { Search, Home, MessageCircle, Bell, Star, Sparkles, X, Info, User, ShieldCheck, LogOut, ChevronRight, ShoppingBag, Calendar, Crown, Menu, Users, BellRing, Eye, Settings, Download, Bot } from 'lucide-react';
 import echo from '../../api/echo';
 import api, { DEFAULT_AVATAR } from '../../api/axios';
 import OneSignal from 'react-onesignal';
@@ -327,6 +327,13 @@ const Header = () => {
                   >
                     <Calendar size={18} /> Sự kiện
                   </NavLink>
+                  <NavLink
+                    to="/chatbot"
+                    onClick={() => setShowExploreDropdown(false)}
+                    className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-sm transition-all no-underline ${isActive ? 'bg-rose-50 text-[#c93638] shadow-sm' : 'text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    <Bot size={18} /> AI Chatbot
+                  </NavLink>
                 </div>
               )}
             </div>
@@ -588,6 +595,9 @@ const Header = () => {
             </NavLink>
             <NavLink to="/events" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-bold no-underline transition-all ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 translate-x-1' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
               <Calendar size={20} /> Sự kiện
+            </NavLink>
+            <NavLink to="/chatbot" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-bold no-underline transition-all ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 translate-x-1' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
+              <Bot size={20} /> AI Chatbot
             </NavLink>
             <NavLink to="/messages" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl font-bold no-underline transition-all ${isActive ? 'text-white bg-gradient-to-r from-rose-500 to-[#c93638] shadow-md shadow-rose-500/30 translate-x-1' : 'text-slate-700 hover:bg-slate-50'}`} onClick={() => setShowMobileMenu(false)}>
               <MessageCircle size={20} /> Tin nhắn

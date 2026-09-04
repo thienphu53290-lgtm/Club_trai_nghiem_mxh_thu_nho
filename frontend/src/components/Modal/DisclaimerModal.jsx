@@ -16,7 +16,7 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
       iconColor="text-[#0b57d0]"
       iconBg="bg-blue-50 border-blue-200"
       size="lg"
-      showCloseButton={true}
+      showCloseButton={false}
       closeOnBackdropClick={false}
       footer={
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 py-1 text-center sm:text-left">

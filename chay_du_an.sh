@@ -11,14 +11,17 @@ echo "=========================================================="
 echo " ĐANG KHỞI CHẠY HỆ THỐNG PIVO MXH THU NHỎ"
 echo "=========================================================="
 
-echo " [1/3] Khởi động Backend Laravel (Cổng 8000)..."
+echo " [1/4] Khởi động Backend Laravel (Cổng 8000)..."
 (trap - SIGINT SIGTERM EXIT; cd backend && php artisan serve --port=8000) &
 
-echo "⚡ [2/3] Khởi động máy chủ Realtime Reverb (Cổng 8080)..."
+echo "⚡ [2/4] Khởi động máy chủ Realtime Reverb (Cổng 8080)..."
 (trap - SIGINT SIGTERM EXIT; cd backend && php artisan reverb:start --port=8080) &
 
-echo " [3/3] Khởi động Frontend React (Cổng 5173)..."
+echo " [3/4] Khởi động Frontend React (Cổng 5173)..."
 (trap - SIGINT SIGTERM EXIT; cd frontend && npm run dev) &
+
+echo "🤖 [4/4] Khởi động AI Moderation Worker (Hàng đợi ngầm)..."
+(trap - SIGINT SIGTERM EXIT; cd backend && php artisan queue:work) &
 
 echo "=========================================================="
 echo " TOÀN BỘ HỆ THỐNG ĐÃ SẴN SÀNG! (Nhấn Ctrl+C để tắt)"

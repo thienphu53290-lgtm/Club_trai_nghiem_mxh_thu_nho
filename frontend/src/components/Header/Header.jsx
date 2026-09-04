@@ -234,18 +234,6 @@ const Header = () => {
   const handleBellClick = () => {
     const nextState = !showNotifDropdown;
     setShowNotifDropdown(nextState);
-
-    // KIỂM TRA PHIÊN LÀM VIỆC (Token/Session): Lần đầu tiên người dùng mở hộp chuông thông báo trong phiên
-    if (nextState) {
-      const promptShown = sessionStorage.getItem('notif_prompt_shown_session');
-      if (!promptShown) {
-        sessionStorage.setItem('notif_prompt_shown_session', 'true');
-        // Nhẹ nhàng hiển thị Bảng hỏi sau 300ms khi vừa mở menu
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('open_notif_prompt_modal', { detail: { fromBellClick: true } }));
-        }, 300);
-      }
-    }
   };
 
   const promptOneSignalPush = async () => {
@@ -286,6 +274,7 @@ const Header = () => {
   };
 
   return (
+    <>
     <header className="border-b border-rose-200/50 bg-[#c93638]/10 backdrop-blur-[16px] shadow-[0_8px_32px_rgba(201,54,56,0.15)] sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-[1320px] mx-auto px-5 py-3 flex flex-col gap-3">
         {/* Top Row: Logo, Navigation, Actions */}
@@ -630,21 +619,22 @@ const Header = () => {
           isToast={true}
         />
       )}
-
-      {/* Bộ Bảng Hỏi Xin Quyền Tự Động (Soft Prompt Modal) chuẩn Mạng xã hội cao cấp */}
-      <NotificationPromptModal />
-
-      <ConfirmModal
-        isOpen={showLogoutConfirm}
-        onClose={() => setShowLogoutConfirm(false)}
-        onConfirm={handleLogout}
-        title="Xác nhận đăng xuất"
-        message="Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không? Bạn sẽ không thể nhận thông báo mới cho đến khi đăng nhập lại."
-        variant="warning"
-        confirmText="Đăng xuất"
-        cancelText="Ở lại"
-      />
     </header>
+
+    {/* Bảng hỏi xin quyền thông báo để ngoài header tránh lỗi CSS */}
+    <NotificationPromptModal />
+
+    <ConfirmModal
+      isOpen={showLogoutConfirm}
+      onClose={() => setShowLogoutConfirm(false)}
+      onConfirm={handleLogout}
+      title="Xác nhận đăng xuất"
+      message="Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không? Bạn sẽ không thể nhận thông báo mới cho đến khi đăng nhập lại."
+      variant="warning"
+      confirmText="Đăng xuất"
+      cancelText="Ở lại"
+    />
+    </>
   );
 };
 

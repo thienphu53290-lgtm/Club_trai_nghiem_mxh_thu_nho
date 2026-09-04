@@ -3,6 +3,7 @@ import { Outlet, useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header/Header';
 import Footer from '../components/Footer/Footer';
+import Mascot from '../components/Mascot/Mascot';
 
 const Layout = () => {
   const location = useLocation();
@@ -25,7 +26,12 @@ const Layout = () => {
           </motion.div>
         </AnimatePresence>
       </main>
-      <Footer />
+      {!location.pathname.startsWith('/chatbot') && (
+        <>
+          <Mascot />
+          <Footer />
+        </>
+      )}
     </div>
   );
 };

@@ -41,8 +41,8 @@ CHUC NANG 3: BANG TIN (Feed)
 Backend:
   FeedController::index()
   FeedController::getSuggestions() [lay ngau nhien danh sach nguoi dung goi y ket ban]
-  FeedController::store() [tao bai viet & phat realtime event new_post]
-  FeedController::update() [cap nhat bai viet & phat realtime event update_post]
+  FeedController::store() [tao bai viet, kiem duyet AI (Queue), & phat realtime event new_post]
+  FeedController::update() [cap nhat bai viet, kiem duyet AI (Queue), & phat realtime event update_post]
   FeedController::destroy() [xoa bai viet & phat realtime event delete_post]
   FeedController::recordAffiliateClick()
   ProfileController::toggleLikePost() [tuong tac bai viet & phat realtime event like_post]
@@ -294,6 +294,9 @@ BANG TOM TAT ROUTES
 ==============================================================
 CHUC NANG 15: UTILITIES (CAC HAM TIEN ICH)
 ==============================================================
+Backend:
+  GeminiAIService::checkToxicity() [Goi API Google Gemini kiem duyet noi dung binh luan tu dong]
+
 Frontend:
   stringUtils.js > removeDiacritics() [loai bo dau tieng Viet]
   stringUtils.js > matchSearch() [tim kiem khong phan biet hoa thuong va dau tieng Viet]
@@ -355,3 +358,4 @@ KICH BAN TU DONG HOA (Scripts) & CLOUD CONFIG:
 - Settings.jsx (Trang mới) [Thêm mới: Xây dựng trang Cài Đặt cho phép người dùng thay đổi 3 chế độ nền (Jollibee động / Tối giản / Ban đêm) và Tích hợp Google Translate Widget ẩn để dịch tự động toàn bộ trang web sang đa ngôn ngữ (Tiếng Anh, Nhật, Hàn, Trung, Pháp). Trạng thái lưu vào localStorage]
 - Download.jsx (Trang mới) [Thêm mới: Xây dựng trang Tải Ứng Dụng hiển thị các tuỳ chọn tải ứng dụng (iOS, Android, APK, macOS, Windows, Linux) với giao diện mượt mà cao cấp, tích hợp nút tải trên thanh Header qua định tuyến /download.]
 - Header.jsx > NavLink [Cải tiến: Nhóm "Sản phẩm" và "Sự kiện" vào một dropdown menu "Khám phá" trên thanh điều hướng để tối ưu không gian hiển thị, tránh vỡ giao diện trên màn hình nhỏ.]
+- Chatbot.jsx & flows/ (Trang mới) [Thêm mới: Xây dựng trang Chatbot trợ lý ảo với kiến trúc module. Tích hợp AI Gemini xử lý tự nhiên qua API `POST /api/chatbot/ask` và luồng Tạo sự kiện liên kết trực tiếp Database qua API `POST /api/events`]

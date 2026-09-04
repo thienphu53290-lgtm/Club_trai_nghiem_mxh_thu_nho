@@ -128,5 +128,9 @@ CONG CU PHAT TRIEN
      Trang chu Render: https://render.com
      Tai lieu Docker: https://docs.docker.com
 
+[30] Google Gemini API
+     Trang chu: https://ai.google.dev
+     AI Studio: https://aistudio.google.com
+
 ================================================================
 - html5-qrcode: https://github.com/mebjas/html5-qrcode

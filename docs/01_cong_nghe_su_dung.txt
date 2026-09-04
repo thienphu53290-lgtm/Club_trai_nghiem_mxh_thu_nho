@@ -172,5 +172,8 @@ DICH VU & CAU HINH NGOAI
 [32] Render Cloud Platform & Docker (Backend Container Hosting)
     - Nien tang hosting may chu Backend Laravel thong qua Dockerfile hoat dong tren dam may mien phi.
 
+[33] Google Gemini API (AI Content Moderation)
+    - Tich hop mo hinh AI cua Google de tu dong kiem duyet binh luan (Gemini 1.5 Flash).
+
 ================================================================
 - html5-qrcode

@@ -10,6 +10,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ContentAdminController;
+use App\Http\Controllers\ChatbotController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -132,3 +133,6 @@ Route::get('/debug-env', function () {
         'server' => $_SERVER['BROADCAST_CONNECTION'] ?? null,
     ]);
 });
+
+// AI Chatbot Route
+Route::post('/chatbot/ask', [ChatbotController::class, 'ask']);

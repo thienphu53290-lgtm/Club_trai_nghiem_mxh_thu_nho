@@ -209,6 +209,9 @@ class FeedController extends Controller
         }
 
         $tieuDe = $request->input('tieu_de');
+        $noiDung = $request->input('noi_dung');
+
+        // (AI Content Moderation is now handled asynchronously after post creation)
         if (empty($tieuDe)) {
             $tieuDe = mb_substr(strip_tags($request->input('noi_dung')), 0, 60) . '...';
         }
@@ -338,6 +341,10 @@ class FeedController extends Controller
             \Log::error('Broadcast error: ' . $e->getMessage());
         }
 
+        // --- AI Content Moderation (Asynchronous) ---
+        dispatch(new \App\Jobs\CheckToxicityJob('post', $postId, $tieuDe . ' ' . $request->input('noi_dung'), $user->id));
+        // --------------------------------------------
+
         return response()->json([
             'status' => 'success',
             'message' => 'Đăng khoảnh khắc thành công! (+20 XP ✨)',
@@ -365,6 +372,10 @@ class FeedController extends Controller
             'tieu_de' => 'required|string|max:255',
             'noi_dung' => 'required|string',
         ]);
+
+        // --- AI Content Moderation (Asynchronous) ---
+        dispatch(new \App\Jobs\CheckToxicityJob('post', $id, $request->input('tieu_de') . ' ' . $request->input('noi_dung'), $user->id));
+        // --------------------------------------------
 
         $hashtags = json_decode($post->hashtags ?? '[]', true);
         if ($request->has('hashtags')) {
@@ -465,6 +476,10 @@ class FeedController extends Controller
         } catch (\Throwable $e) {
             \Log::error('Broadcast error: ' . $e->getMessage());
         }
+
+        // --- AI Content Moderation (Asynchronous) ---
+        dispatch(new \App\Jobs\CheckToxicityJob('post', $id, $request->input('tieu_de') . ' ' . $request->input('noi_dung'), $user->id));
+        // --------------------------------------------
 
         return response()->json([
             'status' => 'success',

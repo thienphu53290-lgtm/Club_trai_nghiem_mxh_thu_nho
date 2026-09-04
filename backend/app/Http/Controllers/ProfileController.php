@@ -460,6 +460,8 @@ class ProfileController extends Controller
             return response()->json(['message' => 'Nội dung bình luận không hợp lệ.'], 422);
         }
 
+        // (AI Content Moderation is now handled asynchronously after comment creation)
+
         $commentId = DB::table('binh_luan')->insertGetId([
             'bai_viet_id' => $postId,
             'nguoi_dung_id' => $currentUser->id,
@@ -468,6 +470,10 @@ class ProfileController extends Controller
             'trang_thai' => 1,
             'created_at' => now()
         ]);
+
+        // --- AI Content Moderation (Asynchronous) ---
+        dispatch(new \App\Jobs\CheckToxicityJob('comment', $commentId, $request->input('noi_dung'), $currentUser->id));
+        // --------------------------------------------
 
         $newComment = DB::table('binh_luan')
             ->join('nguoi_dung', 'binh_luan.nguoi_dung_id', '=', 'nguoi_dung.id')

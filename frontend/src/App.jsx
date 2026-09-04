@@ -30,6 +30,7 @@ import Pricing from './pages/Pricing/Pricing';
 import Onboarding from './pages/Onboarding/Onboarding';
 import Settings from './pages/Settings/Settings';
 import Download from './pages/Download/Download';
+import Chatbot from './pages/Chatbot/Chatbot';
 import api from './api/axios';
 import { runOneSignal } from './api/onesignal';
 
@@ -57,6 +58,7 @@ const DynamicTitle = () => {
       '/friends': 'Bạn Bè',
       '/settings': 'Cài Đặt',
       '/download': 'Tải Ứng Dụng',
+      '/chatbot': 'Học Viện Chatbot',
       '/auth': 'Đăng Nhập',
       '/pricing': 'Gói Dịch Vụ',
       '/onboarding': 'Bắt Đầu',
@@ -156,6 +158,7 @@ function App() {
           <Route path="friends" element={<Friends />} />
           <Route path="settings" element={<Settings />} />
           <Route path="download" element={<Download />} />
+          <Route path="chatbot" element={<Chatbot />} />
         </Route>
       </Routes>
 

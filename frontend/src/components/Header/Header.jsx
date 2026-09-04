@@ -167,7 +167,18 @@ const Header = () => {
         return;
       }
 
-      if (data.type === 'user_status_change' || data.type === 'message_recalled' || data.type === 'chat_typing') {
+      const ignoredEvents = [
+        'user_status_change', 
+        'message_recalled', 
+        'chat_typing',
+        'new_post',
+        'update_post',
+        'delete_post',
+        'like_post',
+        'comment_post',
+        'like_comment'
+      ];
+      if (ignoredEvents.includes(data.type)) {
         return;
       }
 

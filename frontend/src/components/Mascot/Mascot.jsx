@@ -15,8 +15,11 @@ const Mascot = () => {
   const [isListening, setIsListening] = useState(false);
   const navigate = useNavigate();
 
-  const speakText = (text) => {
-    if (!('speechSynthesis' in window)) return;
+  const speakText = (text, onFinish) => {
+    if (!('speechSynthesis' in window)) {
+      if (onFinish) setTimeout(onFinish, Math.max(3000, text.length * 100));
+      return;
+    }
     
     // Tạm bỏ window.speechSynthesis.cancel() ở đây vì trên một số trình duyệt nó cắt luôn câu sắp nói
     const utterance = new SpeechSynthesisUtterance(text);
@@ -28,6 +31,20 @@ const Mascot = () => {
     const viVoice = voices.find(v => v.lang.includes('vi'));
     if (viVoice) {
       utterance.voice = viVoice;
+    }
+
+    if (onFinish) {
+      let isFinished = false;
+      const finishHandle = () => {
+        if (isFinished) return;
+        isFinished = true;
+        onFinish();
+      };
+      utterance.onend = finishHandle;
+      utterance.onerror = finishHandle;
+      // Đề phòng lỗi trình duyệt không gọi onend, set cứng một thời gian tối đa để đóng bong bóng
+      const fallbackTime = Math.max(4000, text.length * 150);
+      setTimeout(finishHandle, fallbackTime);
     }
 
     window.speechSynthesis.speak(utterance);
@@ -121,8 +138,19 @@ const Mascot = () => {
 
       if (matched) {
         setSpeech(reply);
-        speakText(typeof reply === 'string' ? reply : "Đây là các mục khám phá");
-        setTimeout(() => setSpeech(null), hideDelay);
+        const textToSpeak = typeof reply === 'string' ? reply : "Đây là các mục khám phá";
+        speakText(textToSpeak, () => {
+          // Chỉ tự động đóng bong bóng khi nói xong nếu nó là đoạn text bình thường
+          if (typeof reply === 'string') {
+            setSpeech(null);
+          }
+        });
+        
+        // Nếu là menu nút bấm (Khám phá), giữ bong bóng 10 giây để người dùng kịp bấm
+        if (typeof reply !== 'string') {
+          setTimeout(() => setSpeech(null), 10000);
+        }
+        
         setTimeout(() => setIsWaving(false), 3000);
       } else {
         // Fallback to AI Chatbot
@@ -131,21 +159,16 @@ const Mascot = () => {
           .then(res => {
             if (res.data && res.data.success) {
               setSpeech(res.data.reply);
-              speakText(res.data.reply);
-              // Calculate delay based on response length, min 4s, max 12s
-              const aiDelay = Math.max(4000, Math.min(12000, res.data.reply.length * 100));
-              setTimeout(() => setSpeech(null), aiDelay);
+              speakText(res.data.reply, () => setSpeech(null));
             } else {
               setSpeech("AI đang ngủ rồi, không trả lời được! 😴");
-              speakText("AI đang ngủ rồi, không trả lời được!");
-              setTimeout(() => setSpeech(null), 4000);
+              speakText("AI đang ngủ rồi, không trả lời được!", () => setSpeech(null));
             }
           })
           .catch(err => {
             console.error("AI Error:", err);
             setSpeech("Xin lỗi, kết nối AI bị lỗi rồi! ❌");
-            speakText("Xin lỗi, kết nối bị lỗi rồi!");
-            setTimeout(() => setSpeech(null), 3000);
+            speakText("Xin lỗi, kết nối bị lỗi rồi!", () => setSpeech(null));
           })
           .finally(() => {
             setIsWaving(false);

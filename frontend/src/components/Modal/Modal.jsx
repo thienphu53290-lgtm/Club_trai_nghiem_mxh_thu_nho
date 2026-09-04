@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 const Modal = ({
@@ -47,7 +48,7 @@ const Modal = ({
     }
   };
 
-  return (
+  return createPortal(
     <div 
       onClick={handleBackdropClick}
       className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm transition-opacity animate-fadeIn"
@@ -91,7 +92,8 @@ const Modal = ({
         )}
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

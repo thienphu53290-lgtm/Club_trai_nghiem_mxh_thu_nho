@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
 import MascotSpeechBubble from './MascotSpeechBubble';
 import MascotHead from './MascotHead';
 import MascotBody from './MascotBody';
@@ -14,8 +15,31 @@ const Mascot = () => {
   const [isListening, setIsListening] = useState(false);
   const navigate = useNavigate();
 
+  const speakText = (text) => {
+    if (!('speechSynthesis' in window)) return;
+    
+    // Tạm bỏ window.speechSynthesis.cancel() ở đây vì trên một số trình duyệt nó cắt luôn câu sắp nói
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN';
+    utterance.rate = 1.1; 
+    
+    // Thử tìm giọng tiếng Việt chuẩn nếu máy có cài sẵn
+    const voices = window.speechSynthesis.getVoices();
+    const viVoice = voices.find(v => v.lang.includes('vi'));
+    if (viVoice) {
+      utterance.voice = viVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  };
+
   const handleClick = () => {
     if (isListening) return; // Không kích hoạt lại nếu đang nghe
+
+    // Mẹo nhỏ: Bật âm thanh rỗng ngay khi click để "đánh thức" quyền phát âm thanh trên điện thoại (đặc biệt là iOS/Safari)
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+    }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -42,8 +66,8 @@ const Mascot = () => {
       console.log("Nghe được lệnh:", command, "-> Normalized:", normalizedCommand);
       
       let reply = `Nghe được: "${command}". Cơ mà hông hiểu! 😅`;
-
       let hideDelay = 3000;
+      let matched = true;
 
       // Command Parser (Dùng text không dấu)
       if (normalizedCommand.includes("bang tin") || normalizedCommand.includes("ban tin")) {
@@ -91,11 +115,42 @@ const Mascot = () => {
           </div>
         );
         hideDelay = 8000;
+      } else {
+        matched = false;
       }
 
-      setSpeech(reply);
-      setTimeout(() => setSpeech(null), hideDelay);
-      setTimeout(() => setIsWaving(false), 3000);
+      if (matched) {
+        setSpeech(reply);
+        speakText(typeof reply === 'string' ? reply : "Đây là các mục khám phá");
+        setTimeout(() => setSpeech(null), hideDelay);
+        setTimeout(() => setIsWaving(false), 3000);
+      } else {
+        // Fallback to AI Chatbot
+        setSpeech("Đang suy nghĩ... 🤔");
+        api.post('/chatbot/ask', { message: command })
+          .then(res => {
+            if (res.data && res.data.success) {
+              setSpeech(res.data.reply);
+              speakText(res.data.reply);
+              // Calculate delay based on response length, min 4s, max 12s
+              const aiDelay = Math.max(4000, Math.min(12000, res.data.reply.length * 100));
+              setTimeout(() => setSpeech(null), aiDelay);
+            } else {
+              setSpeech("AI đang ngủ rồi, không trả lời được! 😴");
+              speakText("AI đang ngủ rồi, không trả lời được!");
+              setTimeout(() => setSpeech(null), 4000);
+            }
+          })
+          .catch(err => {
+            console.error("AI Error:", err);
+            setSpeech("Xin lỗi, kết nối AI bị lỗi rồi! ❌");
+            speakText("Xin lỗi, kết nối bị lỗi rồi!");
+            setTimeout(() => setSpeech(null), 3000);
+          })
+          .finally(() => {
+            setIsWaving(false);
+          });
+      }
     };
 
     recognition.onerror = (event) => {

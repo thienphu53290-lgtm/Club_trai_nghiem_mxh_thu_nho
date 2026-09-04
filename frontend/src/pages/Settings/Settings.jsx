@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, Globe, Check, Image as ImageIcon, Layout as LayoutIcon, Moon, Loader } from 'lucide-react';
+import { Palette, Globe, Check, Image as ImageIcon, Layout as LayoutIcon, Moon, Loader, Bot } from 'lucide-react';
 
 const ThemePreview = ({ type }) => {
   if (type === 'theme-jollibee') {
@@ -103,6 +103,14 @@ const Settings = () => {
   const [theme, setTheme] = useState(localStorage.getItem('app-theme') || 'theme-jollibee');
   const [lang, setLang] = useState(localStorage.getItem('app-lang') || 'vi');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [showMascot, setShowMascot] = useState(localStorage.getItem('app-mascot') !== 'false');
+
+  const toggleMascot = () => {
+    const newState = !showMascot;
+    setShowMascot(newState);
+    localStorage.setItem('app-mascot', newState);
+    window.dispatchEvent(new Event('mascot-toggle'));
+  };
 
   useEffect(() => {
     document.documentElement.className = theme; // Đặt lên thẻ html để sửa lỗi filter invert chặn modal
@@ -151,6 +159,31 @@ const Settings = () => {
       </div>
 
       <div className="grid gap-6">
+        {/* Mascot Settings */}
+        <div className="bg-white/80 backdrop-blur-md border border-border-color rounded-[32px] p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-500 flex items-center justify-center shrink-0">
+              <Bot size={20} />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-[1.25rem] font-bold text-text-dark m-0">Trợ lý ảo PIVO</h2>
+              <p className="text-sm text-slate-500 mt-1">Bật/tắt linh vật AI hỗ trợ ở góc trái màn hình.</p>
+            </div>
+            <button
+              onClick={toggleMascot}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                showMascot ? 'bg-[#c93638]' : 'bg-slate-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                  showMascot ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
         {/* Theme Settings */}
         <div className="bg-white/80 backdrop-blur-md border border-border-color rounded-[32px] p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
           <div className="flex items-center gap-3 mb-6">

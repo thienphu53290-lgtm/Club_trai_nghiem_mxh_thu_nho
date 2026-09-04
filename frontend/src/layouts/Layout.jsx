@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header/Header';
@@ -8,6 +8,15 @@ import Mascot from '../components/Mascot/Mascot';
 const Layout = () => {
   const location = useLocation();
   const currentOutlet = useOutlet();
+  const [showMascot, setShowMascot] = useState(localStorage.getItem('app-mascot') !== 'false');
+
+  useEffect(() => {
+    const handleToggle = () => {
+      setShowMascot(localStorage.getItem('app-mascot') !== 'false');
+    };
+    window.addEventListener('mascot-toggle', handleToggle);
+    return () => window.removeEventListener('mascot-toggle', handleToggle);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -28,7 +37,7 @@ const Layout = () => {
       </main>
       {!location.pathname.startsWith('/chatbot') && (
         <>
-          <Mascot />
+          {showMascot && <Mascot />}
           <Footer />
         </>
       )}
